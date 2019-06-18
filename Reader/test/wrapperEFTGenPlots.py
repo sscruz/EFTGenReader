@@ -6,7 +6,6 @@ from EFTGenReader.Reader.make_html import make_html
 
 WEB_AREA_DIR = "/afs/crc.nd.edu/user/a/awightma/www"
 GEN_PLOTS_DIR = os.path.join(WEB_AREA_DIR,"eft_stuff/misc/gen_plots")
-ROOT_OUTPUT_DIR = "output"
 
 def get_files(tdir):
     if not os.path.exists(tdir): return []
@@ -33,7 +32,7 @@ def main():
     out_dir = sys.argv[1]
     infiles = sys.argv[2:]
 
-    s = ",".join('"{}"'.format(os.path.join(ROOT_OUTPUT_DIR,fn)) for fn in infiles)
+    s = ",".join('"{}"'.format(fn) for fn in infiles)
     #print "String: %s" % (s)
     #subprocess.check_call(["root", "-b", "-l", "-q","makeEFTGenPlots.C(\"%s\", %s)" % (outf,"{{{}}}".format(s))])
     subprocess.check_call(["root", "-b", "-l", "-q","makeEFTGenPlots.C(%s)" % ("{{{}}}".format(s))])

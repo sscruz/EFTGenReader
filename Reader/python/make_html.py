@@ -3,16 +3,6 @@ import os
 from HTMLGenerator import *
 # Create an index.html file for a web-directory with .png files
 
-FCN_STR = """
-function myFunction() {
-    // Declare variables
-    var input, filter, u, li, a, i, txtValue;
-    input = document.getElementById('myInput');
-    filter = input.value.toUpperCase();
-
-}
-"""
-
 STYLE_STR = """
 .image {
     float:left; margin: 5px; clear:justify;
@@ -54,6 +44,7 @@ STYLE_STR = """
 }
 """
 
+# Return list of files with a specified file_type in a directory
 def getImages(tar_dir,file_type='png'):
     # Note: Will break if a filename has more then 1 . in the name
     fnames = []
