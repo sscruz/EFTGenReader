@@ -2,6 +2,7 @@ import sys
 import os
 import subprocess
 from EFTGenReader.Reader.utils import regex_match
+from EFTGenReader.Reader.make_html import make_html
 
 WEB_AREA_DIR = "/afs/crc.nd.edu/user/a/awightma/www"
 GEN_PLOTS_DIR = os.path.join(WEB_AREA_DIR,"eft_stuff/misc/gen_plots")
@@ -45,6 +46,7 @@ def main():
         os.mkdir(output_dir)
     imgs = regex_match(get_files('.'),["^h_.*\.png$"])
     move_files(files=imgs,target=output_dir)
+    make_html(output_dir)
 
 if __name__ == "__main__":
     main()

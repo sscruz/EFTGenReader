@@ -1,9 +1,7 @@
 import os
 
-from EFTGenReader.Reader.HTMLGenerator import *
+from HTMLGenerator import *
 # Create an index.html file for a web-directory with .png files
-
-WEB_AREA = "/afs/crc.nd.edu/user/a/awightma/www/"
 
 FCN_STR = """
 function myFunction() {
@@ -124,50 +122,14 @@ def make_html(tar_dir):
 
     os.chdir(home_dir)
 
-def make_overlay_html():
-    sub_area = "eft_stuff/asana_tasks/Signal_Yield_Plots/overlay_signal/"
-
-    lst = []
-
-    wc_names = [
-        "AllWC","ctG","ctZ","ctW","ctlTi","ctp","cQl3i",
-        "cpQ3","cpQM","cbW",
-    ]
-
-    #lst.extend(["3dFit_SMdata_%sat2sigma" % (s) for s in wc_names])
-    #lst.extend(["3dFit_NonSMdata_%sat2sigma" % (s) for s in wc_names])
-    #lst.extend(["16dFit_SMdata_%sat2sigma" % (s) for s in wc_names])
-    lst.extend(["anatest14_forAN_2019-03-12/%s" % (s) for s in wc_names])
-
-    for e in lst:
-        fpath = os.path.join(WEB_AREA,sub_area,e)
-        make_html(fpath)
-
-# Pre/Postfit plots
-def make_fits_html():
-    sub_area = "eft_stuff/asana_tasks/Signal_Yield_Plots/fit_plots/"
-
-    lst = [
-        #"16dFit_SMdata_anatest14",
-        #"16dFit_SMdata_noPOIerrors_anatest14"
-        "anatest14_forAN_2019-03-12"
-    ]
-
-    for e in lst:
-        fpath = os.path.join(WEB_AREA,sub_area,e)
-        make_html(fpath)
-
-
 def main():
-    #make_overlay_html()
-    #make_fits_html()
-
-    fpath = os.path.join(WEB_AREA,"eft_stuff/tmp")
+    web_area = "/afs/crc.nd.edu/user/a/awightma/www/"
+    if len(sys.argv) == 2:
+        dir_name = os.path.join("eft_stuff/misc/gen_plots",sys.argv[1])
+    else:
+        dir_name = "eft_stuff/tmp"
+    fpath = os.path.join(web_area,dir_name)
     make_html(fpath)
-
-
-
-
 
 if __name__ == "__main__":
     main()
