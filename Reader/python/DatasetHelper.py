@@ -51,7 +51,7 @@ class DatasetHelper(object):
 
     def findOnHadoop(self,ds):
         lst = []
-        loc = ds.getData('loc')
+        loc = str(ds.getData('loc'))    # This converts the data from a unicode string object
         if not os.path.exists(loc):
             print "Unknown fpath: %s" % (loc)
             return []
