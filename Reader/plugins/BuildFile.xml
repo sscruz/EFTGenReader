@@ -10,7 +10,7 @@
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/Utilities"/>
-<use   name="EFTGenReader" />
+<use   name="EFTGenReader/Reader" />
 <!--<use   name="HLTrigger/HLTcore"/>!-->
 <library name="eftgenreader_plugins" file="*.cc">
     <flags   EDM_PLUGIN="1"/>

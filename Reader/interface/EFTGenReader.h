@@ -58,7 +58,7 @@
 //#include "ttH-13TeVMultiLeptons/TemplateMakers/interface/objectClasses.h"
 
 //#include "ttH-13TeVMultiLeptons/TemplateMakers/interface/WCPoint.h"
-#include "EFTGenReader/interface/WCPoint.h"
+#include "EFTGenReader/Reader/interface/WCPoint.h"
 
 // end includes
 // -----------------------------------------------
