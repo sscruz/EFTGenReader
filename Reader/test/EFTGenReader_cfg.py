@@ -3,6 +3,8 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 import sys
 import os
 
+from EFTGenReader.Reader.DatasetHelper import DatasetHelper
+
 options = VarParsing.VarParsing('analysis')
 #options.maxEvents = 100000#-1
 options.maxEvents = 10
@@ -10,6 +12,10 @@ options.maxEvents = 10
 nd_redirect = "root://ndcms.crc.nd.edu/"
 fnal_redirect = "root://cmsxrootd.fnal.gov/"
 global_redirect = "root://cms-xrd-global.cern.ch/"
+
+ds_helper = DatasetHelper()
+ds_helper.load("../data/JSON/datasets.json")
+ds_helper.root_redirect = nd_redirect
 
 root_redirect = nd_redirect
 
@@ -86,7 +92,7 @@ priv_ttlnu_NoPDFWeights = [loc_ttlnu_NoPDFWeights,"privateTTW-NoDim6_NoTopLepton
 
 priv_loc,out_fname,iseft,NLO_xsec_norm = priv_tllq4fMatched_EFT
 #iseft = False
-out_fname = "TEST_output_tree.root"
+#out_fname = "TEST_output_tree.root"
 #out_fname = "centralTTZ_NoTopLeptons_output_tree.root"
 #out_fname = "centralTTW_NoTopLeptons_output_tree.root"
 #out_fname = "centralTZQ_NoTopLeptons_output_tree.root"
@@ -98,9 +104,19 @@ for fname in os.listdir(private_path):
     if not ".root" in fname: continue
     private_files.append(hadoop_protocol + fpath)
 
+ds_name = 'tllq4fMatched_SM'
+
+files     = ds_helper.getFiles(ds_name)
+is_eft    = ds_helper.getData('is_eft')
+xsec_norm = ds_helper.getData('central_xsec')
+
+out_fname = "%s_NoTopLeptons_output_tree.root" % (ds_name)
+out_fname = "TEST_output_tree.root"
+
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        *private_files
+        *files
+        #*private_files
         #*central_ttZ
         #*central_ttW
         #*central_tZq
@@ -111,10 +127,10 @@ process.source = cms.Source("PoolSource",
 process.load("EFTGenReader.Reader.EFTGenReader_cfi")
 
 process.EFTGenReader.debug = False
-process.EFTGenReader.iseft = iseft
+process.EFTGenReader.iseft = is_eft
 process.EFTGenReader.gp_events = 500
 process.EFTGenReader.norm_type = 0      # 0 - No norm, 1 - unit norm, 2 - xsec norm
-process.EFTGenReader.xsec_norm = NLO_xsec_norm
+process.EFTGenReader.xsec_norm = xsec_norm
 process.EFTGenReader.intg_lumi = 1.0
 
 process.TFileService = cms.Service("TFileService",
