@@ -55,10 +55,6 @@ user_path = "/hadoop/store/user/awightma/"
 loc_ttll_FP_R4B9       = "FullProduction/Round4/Batch9/postLHE_step/v1/mAOD_step_ttll_16DcentralCuts_run0/"
 loc_ttllNoHiggs_SM     = "postLHE_step/2019_04_19/ttll-tllq-ProcessCardStudies/v2/mAOD_step_ttllNoHiggs_NoDim6_run0/"
 loc_ttllNoHiggs_EFT    = "postLHE_step/2019_04_19/ttll-tllq-ProcessCardStudies/v2/mAOD_step_ttllNoHiggs_16DttllScanpoints_run1/"
-loc_ttlnu_FP_R4B9      = "FullProduction/Round4/Batch9/postLHE_step/v1/mAOD_step_ttlnu_16DcentralCuts_run0/"
-loc_ttlnu_EFT          = "postLHE_step/2019_04_19/ttlnu-NoDim6Diagrams/v2/mAOD_step_ttlnu_NoDim6_run0/"
-loc_ttlnuJet_EFT       = "postLHE_step/2019_04_19/ttlnu-NoDim6Diagrams/v2/mAOD_step_ttlnuJet_1JetNoDim6_run0/"
-loc_ttlnu_NoPDFWeights = "postLHE_step/2019_04_19/ttlnuJet-NoPDFWeights/v1/mAOD_step_ttlnuJet_16DttlnuScanpointsAutoJetCuts_run1/"
 
 loc_tllq_FR_R4B9       = "FullProduction/Round4/Batch9/postLHE_step/v1/mAOD_step_tllq_16DcentralCuts_run0/"
 loc_tllq4f_SMNoSchanW  = "postLHE_step/2019_04_19/tllq4f-NoDim6Diagrams/v2/mAOD_step_tllq4f_NoDim6NoSchanW_run0/"
@@ -66,6 +62,11 @@ loc_tllq4fMatched_SM   = "postLHE_step/2019_04_19/ttll-tllq-ProcessCardStudies/v
 loc_tllq4fMatched_EFT  = "postLHE_step/2019_04_19/ttll-tllq-ProcessCardStudies/v2/mAOD_step_tllq4fMatched_16DttllScanpoints_run1/"
 loc_tllq4fNoHiggs_SM   = "postLHE_step/2019_04_19/ttll-tllq-ProcessCardStudies/v1/mAOD_step_tllq4fNoHiggs_NoDim6_run0/"
 loc_tllq4fNoHiggs_EFT  = "postLHE_step/2019_04_19/ttll-tllq-ProcessCardStudies/v2/mAOD_step_tllq4fNoHiggs_16DttllScanpoints_run1/"
+
+loc_ttlnu_FP_R4B9      = "FullProduction/Round4/Batch9/postLHE_step/v1/mAOD_step_ttlnu_16DcentralCuts_run0/"
+loc_ttlnu_EFT          = "postLHE_step/2019_04_19/ttlnu-NoDim6Diagrams/v2/mAOD_step_ttlnu_NoDim6_run0/"
+loc_ttlnuJet_EFT       = "postLHE_step/2019_04_19/ttlnu-NoDim6Diagrams/v2/mAOD_step_ttlnuJet_1JetNoDim6_run0/"
+loc_ttlnu_NoPDFWeights = "postLHE_step/2019_04_19/ttlnuJet-NoPDFWeights/v1/mAOD_step_ttlnuJet_16DttlnuScanpointsAutoJetCuts_run1/"
 
 priv_ttll_FP_R4B9    = [loc_ttll_FP_R4B9   ,"privateTTZOldCuts_NoTopLeptons_output_tree.root"       ,True ,central_ttZ_xsec]
 priv_ttllNoHiggs_SM  = [loc_ttllNoHiggs_SM ,"privateTTZ_NoTopLeptons_output_tree.root"              ,False,central_ttZ_xsec]

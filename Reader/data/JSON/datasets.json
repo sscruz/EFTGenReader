@@ -1,0 +1,114 @@
+{
+  "ttlnuJet_EFT": {
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttlnu-NoDim6Diagrams/v2/mAOD_step_ttlnuJet_1JetNoDim6_run0/", 
+    "central_xsec": 0.341762, 
+    "on_das": false, 
+    "dataset": ""
+  }, 
+  "tllq4f_SMNoSchanW": {
+    "is_eft": false, 
+    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/tllq4f-NoDim6Diagrams/v2/mAOD_step_tllq4f_NoDim6NoSchanW_run0/", 
+    "central_xsec": 0.07358, 
+    "on_das": false, 
+    "dataset": ""
+  }, 
+  "ttllNoHiggs_EFT": {
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttll-tllq-ProcessCardStudies/v2/mAOD_step_ttllNoHiggs_16DttllScanpoints_run1/", 
+    "central_xsec": 0.244109, 
+    "on_das": false, 
+    "dataset": ""
+  }, 
+  "tllq4fMatched_SM": {
+    "is_eft": false, 
+    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttll-tllq-ProcessCardStudies/v1/mAOD_step_tllq4fMatched_NoDim6_run0/", 
+    "central_xsec": 0.07358, 
+    "on_das": false, 
+    "dataset": ""
+  }, 
+  "ttllNoHiggs_SM": {
+    "is_eft": false, 
+    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttll-tllq-ProcessCardStudies/v2/mAOD_step_ttllNoHiggs_NoDim6_run0/", 
+    "central_xsec": 0.244109, 
+    "on_das": false, 
+    "dataset": ""
+  }, 
+  "central_tZq": {
+    "is_eft": false, 
+    "loc": null, 
+    "central_xsec": 0.07358, 
+    "on_das": true, 
+    "dataset": "/tZq_ll_4f_ckm_NLO_TuneCP5_PSweights_13TeV-amcatnlo-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM"
+  }, 
+  "central_ttZ": {
+    "is_eft": false, 
+    "loc": null, 
+    "central_xsec": 0.244109, 
+    "on_das": true, 
+    "dataset": "/TTZToLLNuNu_M-10_TuneCP5_PSweights_13TeV-amcatnlo-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM"
+  }, 
+  "ttll_FP_R4B9": {
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/awightma/FullProduction/Round4/Batch9/postLHE_step/v1/mAOD_step_ttll_16DcentralCuts_run0/", 
+    "central_xsec": 0.244109, 
+    "on_das": false, 
+    "dataset": ""
+  }, 
+  "tllq4fMatched_EFT": {
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttll-tllq-ProcessCardStudies/v2/mAOD_step_tllq4fMatched_16DttllScanpoints_run1/", 
+    "central_xsec": 0.07358, 
+    "on_das": false, 
+    "dataset": ""
+  }, 
+  "tllq4fNoHiggs_EFT": {
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttll-tllq-ProcessCardStudies/v2/mAOD_step_tllq4fNoHiggs_16DttllScanpoints_run1/", 
+    "central_xsec": 0.07358, 
+    "on_das": false, 
+    "dataset": ""
+  }, 
+  "ttlnu_EFT": {
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttlnu-NoDim6Diagrams/v2/mAOD_step_ttlnu_NoDim6_run0/", 
+    "central_xsec": 0.341762, 
+    "on_das": false, 
+    "dataset": ""
+  }, 
+  "ttlnu_FP_R4B9": {
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/awightma/FullProduction/Round4/Batch9/postLHE_step/v1/mAOD_step_ttlnu_16DcentralCuts_run0/", 
+    "central_xsec": 0.341762, 
+    "on_das": false, 
+    "dataset": ""
+  }, 
+  "ttlnu_NoPDFWeights": {
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttlnuJet-NoPDFWeights/v1/mAOD_step_ttlnuJet_16DttlnuScanpointsAutoJetCuts_run1/", 
+    "central_xsec": 0.341762, 
+    "on_das": false, 
+    "dataset": ""
+  }, 
+  "tllq_FR_R4B9": {
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/awightma/FullProduction/Round4/Batch9/postLHE_step/v1/mAOD_step_tllq_16DcentralCuts_run0/", 
+    "central_xsec": 0.07358, 
+    "on_das": false, 
+    "dataset": ""
+  }, 
+  "central_ttW": {
+    "is_eft": false, 
+    "loc": null, 
+    "central_xsec": 0.341762, 
+    "on_das": true, 
+    "dataset": "/TTWJetsToLNu_TuneCP5_PSweights_13TeV-amcatnloFXFX-madspin-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_new_pmx_94X_mc2017_realistic_v14-v1/MINIAODSIM"
+  }, 
+  "tllq4fNoHiggs_SM": {
+    "is_eft": false, 
+    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttll-tllq-ProcessCardStudies/v1/mAOD_step_tllq4fNoHiggs_NoDim6_run0/", 
+    "central_xsec": 0.07358, 
+    "on_das": false, 
+    "dataset": ""
+  }
+}
