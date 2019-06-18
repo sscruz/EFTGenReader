@@ -1,4 +1,3 @@
-<use name="MiniAOD/MiniAODHelper"/>
 <use name="CommonTools/Utils"/>
 <use name="DataFormats/FWLite"/>
 <use name="EgammaAnalysis/ElectronTools"/>
