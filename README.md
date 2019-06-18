@@ -1,11 +1,11 @@
-# Set up Repo
+# Set up the Repo
 To install this package:
 
     cd $CMSSW_BASE/src/
     cmsenv
     git clone https://github.com/Andrew42/EFTGenReader.git EFTGenReader
     scram b
-In the `wrapperEFTGenPlots.py` file, make sure the `GEN_PLOTS_DIR` variable points to the directory that you want the output directory to be created.
+*Note:* In the `wrapperEFTGenPlots.py` file, make sure the `GEN_PLOTS_DIR` variable points to the directory that you want the output directory to be created.
 
 # Run the code
 If reading files from the grid (e.g. for central samples) make sure to initialize your voms proxy
