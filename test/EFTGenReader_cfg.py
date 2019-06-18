@@ -106,7 +106,8 @@ process.source = cms.Source("PoolSource",
     )
 )
 
-process.load("ttH-13TeVMultiLeptons.TemplateMakers.EFTGenReader_cfi")
+#process.load("ttH-13TeVMultiLeptons.TemplateMakers.EFTGenReader_cfi")
+process.load("EFTGenReader.EFTGenReader_cfi")
 
 process.EFTGenReader.debug = False
 process.EFTGenReader.iseft = iseft
