@@ -12,3 +12,6 @@
 <use   name="FWCore/Utilities"/>
 <use   name="EFTGenReader" />
 <!--<use   name="HLTrigger/HLTcore"/>!-->
+<library name="eftgenreader_plugins" file="*.cc">
+    <flags   EDM_PLUGIN="1"/>
+</library>
