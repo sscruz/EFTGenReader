@@ -1,26 +1,11 @@
 import sys
 import os
 import subprocess
-import re
+from EFTGenReader.Reader.utils import regex_match
 
 WEB_AREA_DIR = "/afs/crc.nd.edu/user/a/awightma/www"
 GEN_PLOTS_DIR = os.path.join(WEB_AREA_DIR,"eft_stuff/misc/gen_plots")
-
-# Match strings using one or more regular expressions
-def regex_match(lst,regex_lst,verbose=0):
-    # NOTE: We don't escape any of the regex special characters!
-    matches = []
-    if len(regex_lst) == 0:
-        return lst[:]
-    if verbose:
-        for p in regex_lst: print "rgx:",r"%s" % (p)
-    for s in lst:
-        for pat in regex_lst:
-            m = re.search(r"%s" % (pat),s)
-            if m is not None:
-                matches.append(s)
-                break
-    return matches
+ROOT_OUTPUT_DIR = "output"
 
 def get_files(tdir):
     if not os.path.exists(tdir): return []
@@ -47,7 +32,7 @@ def main():
     out_dir = sys.argv[1]
     infiles = sys.argv[2:]
 
-    s = ",".join('"{}"'.format(fn) for fn in infiles)
+    s = ",".join('"{}"'.format(os.path.join(ROOT_OUTPUT_DIR,fn)) for fn in infiles)
     #print "String: %s" % (s)
     #subprocess.check_call(["root", "-b", "-l", "-q","makeEFTGenPlots.C(\"%s\", %s)" % (outf,"{{{}}}".format(s))])
     subprocess.check_call(["root", "-b", "-l", "-q","makeEFTGenPlots.C(%s)" % ("{{{}}}".format(s))])

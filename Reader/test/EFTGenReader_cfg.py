@@ -117,7 +117,7 @@ process.EFTGenReader.xsec_norm = NLO_xsec_norm
 process.EFTGenReader.intg_lumi = 1.0
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string(out_fname)
+    fileName = cms.string(os.path.join("output",out_fname))
 )
 
 process.p = cms.Path(process.EFTGenReader)
