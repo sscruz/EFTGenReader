@@ -27,7 +27,7 @@ class DatasetHelper(object):
             return []
         ds = self.datasets[name]
         if ds.getData('on_das'):
-            lst = self.findOnDas(ds)
+            lst = self.findOnDAS(ds)
         else:
             lst = self.findOnHadoop(ds)
         return lst
@@ -40,7 +40,7 @@ class DatasetHelper(object):
     def findOnDAS(self,ds):
         lst = []
         das_query = 'file dataset=%s | grep file.name, file.size, file.nevents' % (ds.getData('dataset'))
-        ret = subprocess.check_output(['dasgoclient','--query',query])
+        ret = subprocess.check_output(['dasgoclient','--query',das_query])
         ret = ret.split('\n')
         max_files = 10
         for idx,l in enumerate(ret):
@@ -55,10 +55,15 @@ class DatasetHelper(object):
         if not os.path.exists(loc):
             print "Unknown fpath: %s" % (loc)
             return []
+        idx = 0
+        max_files = 100
         for fn in os.listdir(loc):
-            if not ".root" in fname: continue
+            if not ".root" in fn: continue
+            if idx >= max_files: break
             fpath = self.hadoop_protocol + os.path.join(loc,fn)
             lst.append(fpath)
+            idx += 1
+        return lst
 
 class DSContainer(object):
     def __init__(self,**kwargs):
