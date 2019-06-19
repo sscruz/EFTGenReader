@@ -4,7 +4,7 @@ import json
 
 class DatasetHelper(object):
     def __init__(self,fn=None):
-        self.datasets = {}
+        self.__datasets = {}
         self.root_redirect = "root://ndcms.crc.nd.edu/"
         self.hadoop_protocol = "file://"
         if fn: self.load(fn)
@@ -15,7 +15,7 @@ class DatasetHelper(object):
         if not os.path.exists(fn):
             return
         if not update:
-            self.datasets = {}
+            self.__datasets = {}
         with open(fn) as f:
             d = json.load(f)
             for k,ds in d.iteritems():
@@ -27,26 +27,30 @@ class DatasetHelper(object):
             d = self.toDict()
             json.dump(d,f,indent=2)
 
+    # Return a list of all dataset names currently loaded
+    def list(self):
+        return self.__datasets.keys()
+
     # Remove all datasets
     def clear(self):
-        self.datasets.clear()
+        self.__datasets.clear()
 
     # Create/Update/Modify a dataset
     def updateDataset(self,name,**kwargs):
-        if not self.datasets.has_key(name):
-            self.datasets[name] = DSContainer()
-        self.datasets[name].setData(**kwargs)
+        if not self.__datasets.has_key(name):
+            self.__datasets[name] = DSContainer()
+        self.__datasets[name].setData(**kwargs)
 
     # Remove a specific dataset
     def removeDataset(self,name):
-        if self.datasets.has_key(name):
-            del self.datasets[name]
+        if self.__datasets.has_key(name):
+            del self.__datasets[name]
 
     # Returns a list of root file locations corresponding to the specified dataset
     def getFiles(self,name):
-        if not self.datasets.has_key(name):
+        if not self.__datasets.has_key(name):
             return []
-        ds = self.datasets[name]
+        ds = self.__datasets[name]
         if ds.getData('on_das'):
             lst = self.findOnDAS(ds)
         else:
@@ -55,11 +59,13 @@ class DatasetHelper(object):
 
     # Passthrough to underlying dataset getter
     def getData(self,name,data_field):
-        if not self.datasets.has_key(name):
+        if not self.__datasets.has_key(name):
             return None
-        return self.datasets[name].getData(data_field)
+        return self.__datasets[name].getData(data_field)
 
     # Try and find dataset root files from DAS
+    # NOTE: Requires access to the 'dasgoclient' script, which should be available
+    #       in any CMSSW release after doing 'cmsenv'
     def findOnDAS(self,ds):
         lst = []
         das_query = 'file dataset=%s | grep file.name, file.size, file.nevents' % (ds.getData('dataset'))
@@ -94,8 +100,8 @@ class DatasetHelper(object):
     #       DSContainer() objects
     def toDict(self):
         d = {}
-        for k in self.datasets.keys():
-            d[k] = self.datasets[k].toDict()
+        for k,ds in self.__datasets.iteritems():
+            d[k] = ds.toDict()
         return d
 
 class DSContainer(object):
@@ -112,13 +118,13 @@ class DSContainer(object):
     # Generic setter
     def setData(self,**kwargs):
         for k,v in kwargs.iteritems():
-            if not self.data.has_key(k):
+            if not self.__data.has_key(k):
                 continue
             self.__data[k] = v
 
     # Generic getter
     def getData(self,data_field):
-        if not self.data.has_key(data_field):
+        if not self.__data.has_key(data_field):
             return None
         return self.__data[data_field]
 
