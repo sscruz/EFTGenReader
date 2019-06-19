@@ -13,6 +13,7 @@ class DatasetHelper(object):
     def load(self,fn,update=False):
         # update: If set to true, will simply overwrite existing datasets and add new ones
         if not os.path.exists(fn):
+            print "ERROR: Unknown file/directory: %s" % (fn)
             return
         if not update:
             self.__datasets = {}

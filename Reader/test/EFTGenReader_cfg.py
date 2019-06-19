@@ -13,8 +13,11 @@ nd_redirect = "root://ndcms.crc.nd.edu/"
 fnal_redirect = "root://cmsxrootd.fnal.gov/"
 global_redirect = "root://cms-xrd-global.cern.ch/"
 
+cmssw_base_dir = os.environ['CMSSW_BASE']
+dataset_fpath = os.path.join(cmssw_base_dir,"src/EFTGenReader/Reader/data/JSON/datasets.json")
+
 ds_helper = DatasetHelper()
-ds_helper.load("../data/JSON/datasets.json")
+ds_helper.load(dataset_fpath)
 ds_helper.root_redirect = nd_redirect
 
 from Configuration.StandardSequences.Eras import eras
@@ -37,6 +40,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 500
 #   'ttll_FP_R4B9'
 #   'ttllNoHiggs_SM'
 #   'ttllNoHiggs_EFT'
+#   'ttllnunuNoHiggs_SM'
 
 # private tllq datasets
 #   'tllq_FR_R4B9'
@@ -52,7 +56,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 500
 #   'ttlnuJet_EFT'
 #   'ttlnu_NoPDFWeights'
 
-ds_name = 'ttll_FP_R4B9'
+ds_name = 'ttllnunuNoHiggs_SM'
 
 files     = ds_helper.getFiles(ds_name)
 is_eft    = ds_helper.getData(ds_name,'is_eft')

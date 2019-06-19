@@ -1,4 +1,6 @@
 // created by Andrew Wightman
+#ifndef EFTGENREADER_READER_EFTGENREADER_h
+#define EFTGENREADER_READER_EFTGENREADER_h
 
 #include <cstdlib>
 #include <memory>
@@ -388,3 +390,5 @@ EFTGenReader::get_collection(const edm::Event& event, const edm::EDGetTokenT<T>&
         throw edm::Exception(edm::errors::InvalidReference, "Can't find a collection.");
     return handle;
 }
+
+#endif

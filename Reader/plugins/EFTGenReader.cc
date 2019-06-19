@@ -1,6 +1,6 @@
 // Created by Andrew Wightman
 
-#include "ttH-13TeVMultiLeptons/TemplateMakers/interface/EFTGenReader.h"
+#include "EFTGenReader/Reader/interface/EFTGenReader.h"
 
 EFTGenReader::EFTGenReader(const edm::ParameterSet& constructparams)
 {
@@ -251,7 +251,7 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
     originalXWGTUP_intree = LHEInfo->originalXWGTUP();  // original cross-section
     double sm_wgt = 0.;
     double norm_sm_wgt = -1.;
-    if (iseft) {// Add EFT weights
+    if (iseft) {// Add EFT weights 
         for (auto wgt_info: LHEInfo->weights()) {
             auto LHEwgtstr = std::string(wgt_info.id);
             std::size_t foundstr = LHEwgtstr.find("EFTrwgt"); // only save our EFT weights
@@ -286,10 +286,10 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
     total_sm_xsec += sm_wgt;
     total_orig_xsec += originalXWGTUP_intree;
 
-    std::cout << "SM Wgt: " << sm_wgt << std::endl;
-    std::cout << "Orig Wgt: " << originalXWGTUP_intree << std::endl;
-    std::cout << "Norm Wgt: " << norm_sm_wgt << std::endl;
-    std::cout << std::endl;
+    //std::cout << "SM Wgt: " << sm_wgt << std::endl;
+    //std::cout << "Orig Wgt: " << originalXWGTUP_intree << std::endl;
+    //std::cout << "Norm Wgt: " << norm_sm_wgt << std::endl;
+    //std::cout << std::endl;
 
     h_SMwgt_norm->Fill(norm_sm_wgt);
 
