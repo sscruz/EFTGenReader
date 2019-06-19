@@ -16,6 +16,7 @@ class DatasetHelper(object):
             return
         if not update:
             self.__datasets = {}
+        print "Loading JSON: %s" % (fn)
         with open(fn) as f:
             d = json.load(f)
             for k,ds in d.iteritems():
@@ -23,6 +24,7 @@ class DatasetHelper(object):
 
     # Save the dataset info to a json file
     def save(self,fn):
+        print "Saving JSON: %s" % (fn)
         with open(fn,'w') as f:
             d = self.toDict()
             json.dump(d,f,indent=2)

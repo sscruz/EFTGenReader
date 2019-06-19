@@ -13,17 +13,24 @@
     "on_das": false, 
     "dataset": ""
   }, 
-  "ttllNoHiggs_EFT": {
-    "is_eft": true, 
-    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttll-tllq-ProcessCardStudies/v2/mAOD_step_ttllNoHiggs_16DttllScanpoints_run1/", 
-    "central_xsec": 0.244109, 
+  "tllq4fNoHiggs_SM": {
+    "is_eft": false, 
+    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttll-tllq-ProcessCardStudies/v1/mAOD_step_tllq4fNoHiggs_NoDim6_run0/", 
+    "central_xsec": 0.07358, 
     "on_das": false, 
     "dataset": ""
   }, 
-  "tllq4fMatched_SM": {
+  "central_ttW": {
     "is_eft": false, 
-    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttll-tllq-ProcessCardStudies/v1/mAOD_step_tllq4fMatched_NoDim6_run0/", 
-    "central_xsec": 0.07358, 
+    "loc": null, 
+    "central_xsec": 0.341762, 
+    "on_das": true, 
+    "dataset": "/TTWJetsToLNu_TuneCP5_PSweights_13TeV-amcatnloFXFX-madspin-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_new_pmx_94X_mc2017_realistic_v14-v1/MINIAODSIM"
+  }, 
+  "ttlnu_NoPDFWeights": {
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttlnuJet-NoPDFWeights/v1/mAOD_step_ttlnuJet_16DttlnuScanpointsAutoJetCuts_run1/", 
+    "central_xsec": 0.341762, 
     "on_das": false, 
     "dataset": ""
   }, 
@@ -48,10 +55,10 @@
     "on_das": true, 
     "dataset": "/TTZToLLNuNu_M-10_TuneCP5_PSweights_13TeV-amcatnlo-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM"
   }, 
-  "ttll_FP_R4B9": {
+  "tllq_FR_R4B9": {
     "is_eft": true, 
-    "loc": "/hadoop/store/user/awightma/FullProduction/Round4/Batch9/postLHE_step/v1/mAOD_step_ttll_16DcentralCuts_run0/", 
-    "central_xsec": 0.244109, 
+    "loc": "/hadoop/store/user/awightma/FullProduction/Round4/Batch9/postLHE_step/v1/mAOD_step_tllq_16DcentralCuts_run0/", 
+    "central_xsec": 0.07358, 
     "on_das": false, 
     "dataset": ""
   }, 
@@ -83,31 +90,31 @@
     "on_das": false, 
     "dataset": ""
   }, 
-  "ttlnu_NoPDFWeights": {
-    "is_eft": true, 
-    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttlnuJet-NoPDFWeights/v1/mAOD_step_ttlnuJet_16DttlnuScanpointsAutoJetCuts_run1/", 
-    "central_xsec": 0.341762, 
-    "on_das": false, 
-    "dataset": ""
-  }, 
-  "tllq_FR_R4B9": {
-    "is_eft": true, 
-    "loc": "/hadoop/store/user/awightma/FullProduction/Round4/Batch9/postLHE_step/v1/mAOD_step_tllq_16DcentralCuts_run0/", 
+  "tllq4fMatched_SM": {
+    "is_eft": false, 
+    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttll-tllq-ProcessCardStudies/v1/mAOD_step_tllq4fMatched_NoDim6_run0/", 
     "central_xsec": 0.07358, 
     "on_das": false, 
     "dataset": ""
   }, 
-  "central_ttW": {
-    "is_eft": false, 
-    "loc": null, 
-    "central_xsec": 0.341762, 
-    "on_das": true, 
-    "dataset": "/TTWJetsToLNu_TuneCP5_PSweights_13TeV-amcatnloFXFX-madspin-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_new_pmx_94X_mc2017_realistic_v14-v1/MINIAODSIM"
+  "ttllNoHiggs_EFT": {
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttll-tllq-ProcessCardStudies/v2/mAOD_step_ttllNoHiggs_16DttllScanpoints_run1/", 
+    "central_xsec": 0.244109, 
+    "on_das": false, 
+    "dataset": ""
   }, 
-  "tllq4fNoHiggs_SM": {
+  "ttllnunuNoHiggs_SM": {
     "is_eft": false, 
-    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttll-tllq-ProcessCardStudies/v1/mAOD_step_tllq4fNoHiggs_NoDim6_run0/", 
-    "central_xsec": 0.07358, 
+    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttllWithNuNu/v1/mAOD_step_ttllnunuNoHiggs_NoDim6_run0/", 
+    "central_xsec": 0.244109, 
+    "on_das": false, 
+    "dataset": ""
+  }, 
+  "ttll_FP_R4B9": {
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/awightma/FullProduction/Round4/Batch9/postLHE_step/v1/mAOD_step_ttll_16DcentralCuts_run0/", 
+    "central_xsec": 0.244109, 
     "on_das": false, 
     "dataset": ""
   }
