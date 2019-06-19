@@ -6,8 +6,8 @@ import os
 from EFTGenReader.Reader.DatasetHelper import DatasetHelper
 
 options = VarParsing.VarParsing('analysis')
-#options.maxEvents = 100000#-1
-options.maxEvents = 10
+options.maxEvents = 100000#-1
+#options.maxEvents = 10
 
 nd_redirect = "root://ndcms.crc.nd.edu/"
 fnal_redirect = "root://cmsxrootd.fnal.gov/"
@@ -63,7 +63,7 @@ is_eft    = ds_helper.getData(ds_name,'is_eft')
 xsec_norm = ds_helper.getData(ds_name,'central_xsec')
 
 out_fname = "%s_NoTopLeptons_output_tree.root" % (ds_name)
-out_fname = "TEST_output_tree.root"
+#out_fname = "TEST_output_tree.root"
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(

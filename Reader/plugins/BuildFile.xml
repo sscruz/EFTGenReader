@@ -1,16 +1,20 @@
 <export>
 </export>
-<use name="CommonTools/Utils"/>
-<use name="EgammaAnalysis/ElectronTools"/>
-<use name="DataFormats/FWLite"/>
-<use name="DataFormats/Math"/>
 <use name="root"/>
 <use name="roottmva"/>
-<use name="FWCore/Framework"/>
+<use name="CommonTools/UtilAlgos"/>
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/ParameterSet"/>
+<use name="FWCore/Framework"/>
 <use name="FWCore/Utilities"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/PythonParameterSet"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/Math"/>
+<use name="DataFormats/HepMCCandidate"/>
+<use name="DataFormats/PatCandidates"/>
+<use name="SimDataFormats/GeneratorProducts"/>
 <use name="EFTGenReader/Reader"/>
-<library name="EFTGenReaderReader_plugins" file="*.cc">
-	<flags   EDM_PLUGIN="1"/>
+<library name="eftgenreader_plugins" file="*.cc">
+	<flags EDM_PLUGIN="1"/>
 </library>

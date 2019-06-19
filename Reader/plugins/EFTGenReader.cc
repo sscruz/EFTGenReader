@@ -435,3 +435,4 @@ void EFTGenReader::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::E
 void EFTGenReader::endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& evsetup){}
 
 DEFINE_FWK_MODULE(EFTGenReader);
+
