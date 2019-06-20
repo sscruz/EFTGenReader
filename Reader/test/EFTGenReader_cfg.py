@@ -6,8 +6,8 @@ import os
 from EFTGenReader.Reader.DatasetHelper import DatasetHelper
 
 options = VarParsing.VarParsing('analysis')
-options.maxEvents = 100000#-1
-#options.maxEvents = 10
+#options.maxEvents = 100000#-1
+options.maxEvents = 10
 
 nd_redirect = "root://ndcms.crc.nd.edu/"
 fnal_redirect = "root://cmsxrootd.fnal.gov/"
@@ -35,15 +35,18 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 500
 #   'central_ttZ'
 #   'central_ttW'
 #   'central_tZq'
+#   'central_ttH'
 
 # private ttll datasets
 #   'ttll_FP_R4B9'
+#   'ttll_SM'
 #   'ttllNoHiggs_SM'
 #   'ttllNoHiggs_EFT'
 #   'ttllnunuNoHiggs_SM'
 
 # private tllq datasets
 #   'tllq_FR_R4B9'
+#   'tllq_SM'
 #   'tllq4f_SMNoSchanW'
 #   'tllq4fMatched_SM'
 #   'tllq4fMatched_EFT'
@@ -52,18 +55,19 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 500
 
 # private ttlnu datasets
 #   'ttlnu_FP_R4B9'
+#   'ttlnu_SM'
 #   'ttlnu_EFT'
 #   'ttlnuJet_EFT'
 #   'ttlnu_NoPDFWeights'
 
-ds_name = 'ttllnunuNoHiggs_SM'
+ds_name = 'ttll_FP_R4B9'
 
 files     = ds_helper.getFiles(ds_name)
 is_eft    = ds_helper.getData(ds_name,'is_eft')
 xsec_norm = ds_helper.getData(ds_name,'central_xsec')
 
 out_fname = "%s_NoTopLeptons_output_tree.root" % (ds_name)
-#out_fname = "TEST_output_tree.root"
+out_fname = "TEST_output_tree.root"
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
