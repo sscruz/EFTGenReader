@@ -6,8 +6,27 @@ import os
 from EFTGenReader.Reader.DatasetHelper import DatasetHelper
 
 options = VarParsing.VarParsing('analysis')
-#options.maxEvents = 100000#-1
-options.maxEvents = 10
+
+# Setup and register default options
+options.maxEvents = 100
+options.register("dataset","central_ttH",
+    VarParsing.VarParsing.multiplicity.singleton,
+    VarParsing.VarParsing.varType.string,"name of the dataset as it appears in the JSON file")
+options.register("test",False,
+    VarParsing.VarParsing.multiplicity.singleton,
+    VarParsing.VarParsing.varType.bool, "changes the output name to a dummy value")
+options.register("debug",False,
+    VarParsing.VarParsing.multiplicity.singleton,
+    VarParsing.VarParsing.varType.bool, "run in debug mode")
+options.register("normType",1,
+    VarParsing.VarParsing.multiplicity.singleton,
+    VarParsing.VarParsing.varType.int,"how to normalize the histograms; 0 - no norm, 1 - unit norm (default), 2 - xsec norm")
+options.register("intgLumi",1.0,
+    VarParsing.VarParsing.multiplicity.singleton,
+    VarParsing.VarParsing.varType.float,"intg. lumi to scale the histograms to (no effect for unit norm mode)")
+
+# Get and parse the command line arguments
+options.parseArguments()
 
 nd_redirect = "root://ndcms.crc.nd.edu/"
 fnal_redirect = "root://cmsxrootd.fnal.gov/"
@@ -56,18 +75,25 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 500
 # private ttlnu datasets
 #   'ttlnu_FP_R4B9'
 #   'ttlnu_SM'
-#   'ttlnu_EFT'
-#   'ttlnuJet_EFT'
+#   'ttlnu_EFT'     --> Not really EFT and is probably just an equiv re-running of 'ttlnu_SM'
+#   'ttlnuJet_EFT'  --> Also probably doesn't have any EFT diagrams
 #   'ttlnu_NoPDFWeights'
 
-ds_name = 'ttll_FP_R4B9'
+# private ttH datasets
+#   'ttH_SM'
 
+ds_name   = options.dataset
 files     = ds_helper.getFiles(ds_name)
 is_eft    = ds_helper.getData(ds_name,'is_eft')
 xsec_norm = ds_helper.getData(ds_name,'central_xsec')
 
 out_fname = "%s_NoTopLeptons_output_tree.root" % (ds_name)
-out_fname = "TEST_output_tree.root"
+if options.test:
+    out_fname = "TEST_output_tree.root"
+out_path = os.path.join("output",out_fname)
+
+print "Using Sample: %s" % (ds_name)
+print "Save output to: %s" % (out_path)
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
@@ -77,15 +103,16 @@ process.source = cms.Source("PoolSource",
 
 process.load("EFTGenReader.Reader.EFTGenReader_cfi")
 
-process.EFTGenReader.debug = False
-process.EFTGenReader.iseft = is_eft
+process.EFTGenReader.debug     = options.debug
+process.EFTGenReader.norm_type = options.normType      # 0 - No norm, 1 - unit norm, 2 - xsec norm
+process.EFTGenReader.intg_lumi = options.intgLumi
 process.EFTGenReader.gp_events = 500
-process.EFTGenReader.norm_type = 0      # 0 - No norm, 1 - unit norm, 2 - xsec norm
+
+process.EFTGenReader.iseft = is_eft
 process.EFTGenReader.xsec_norm = xsec_norm
-process.EFTGenReader.intg_lumi = 1.0
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string(os.path.join("output",out_fname))
+    fileName = cms.string(out_path)
 )
 
 process.p = cms.Path(process.EFTGenReader)

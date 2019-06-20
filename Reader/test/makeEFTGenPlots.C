@@ -116,6 +116,7 @@ void makeEFTGenPlots(std::vector<TString> input_fnames) {
             if (s == cmp) continue;
 
             TH1D* h = (TH1D*)td->Get(key->GetName());
+            h->SetMarkerStyle(kFullCircle);
 
             c = findCanvas(key->GetName(),canvs);
             int c_idx = findCanvasIndex(key->GetName(),canvs);

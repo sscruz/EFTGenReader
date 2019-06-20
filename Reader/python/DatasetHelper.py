@@ -2,22 +2,27 @@ import os
 import subprocess
 import json
 
+# Helper class for managing collections of datasets and getting the corresponding root files
 class DatasetHelper(object):
     def __init__(self,fn=None):
         self.__datasets = {}
+        self.__json_files = []
         self.root_redirect = "root://ndcms.crc.nd.edu/"
         self.hadoop_protocol = "file://"
         if fn: self.load(fn)
 
     # Load the dataset info from a json file
     def load(self,fn,update=False):
-        # update: If set to true, will simply overwrite existing datasets and add new ones
+        # update: If set to false, will remove any pre-existing datasets and only include ones
+        #         found in the specified file
         if not os.path.exists(fn):
             print "ERROR: Unknown file/directory: %s" % (fn)
             return
         if not update:
             self.__datasets = {}
+            self.__json_files = []
         print "Loading JSON: %s" % (fn)
+        self.__json_files.append(fn)
         with open(fn) as f:
             d = json.load(f)
             for k,ds in d.iteritems():
