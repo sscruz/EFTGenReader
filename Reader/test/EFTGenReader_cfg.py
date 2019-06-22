@@ -24,6 +24,21 @@ options.register("normType",1,
 options.register("intgLumi",1.0,
     VarParsing.VarParsing.multiplicity.singleton,
     VarParsing.VarParsing.varType.float,"intg. lumi to scale the histograms to (no effect for unit norm mode)")
+options.register("fnSuffix","_NoTopLeptons_output_tree",
+    VarParsing.VarParsing.multiplicity.singleton,
+    VarParsing.VarParsing.varType.string,"string to append to the end of the output root file")
+options.register("minPtJet",-1.0,
+    VarParsing.VarParsing.multiplicity.singleton,
+    VarParsing.VarParsing.varType.float,"max pt cut for genjets")
+options.register("maxEtaJet",-1.0,
+    VarParsing.VarParsing.multiplicity.singleton,
+    VarParsing.VarParsing.varType.float,"max eta cut for genjets (-1 means no cut)")
+options.register("minPtLep",-1.0,
+    VarParsing.VarParsing.multiplicity.singleton,
+    VarParsing.VarParsing.varType.float,"max pt cut for genleptons")
+options.register("maxEtaLep",-1.0,
+    VarParsing.VarParsing.multiplicity.singleton,
+    VarParsing.VarParsing.varType.float,"max eta cut for genleptons (-1 means no cut)")
 
 # Get and parse the command line arguments
 options.parseArguments()
@@ -87,7 +102,8 @@ files     = ds_helper.getFiles(ds_name)
 is_eft    = ds_helper.getData(ds_name,'is_eft')
 xsec_norm = ds_helper.getData(ds_name,'central_xsec')
 
-out_fname = "%s_NoTopLeptons_output_tree.root" % (ds_name)
+#out_fname = "%s_NoTopLeptons_output_tree.root" % (ds_name)
+out_fname = "%s%s.root" % (ds_name,options.fnSuffix)
 if options.test:
     out_fname = "TEST_output_tree.root"
 out_path = os.path.join("output",out_fname)
@@ -107,6 +123,12 @@ process.EFTGenReader.debug     = options.debug
 process.EFTGenReader.norm_type = options.normType      # 0 - No norm, 1 - unit norm, 2 - xsec norm
 process.EFTGenReader.intg_lumi = options.intgLumi
 process.EFTGenReader.gp_events = 500
+
+# Cut settings
+process.EFTGenReader.min_pt_jet = options.minPtJet
+process.EFTGenReader.min_pt_lep = options.minPtLep
+process.EFTGenReader.max_eta_jet = options.maxEtaJet
+process.EFTGenReader.max_eta_lep = options.maxEtaLep
 
 process.EFTGenReader.iseft = is_eft
 process.EFTGenReader.xsec_norm = xsec_norm

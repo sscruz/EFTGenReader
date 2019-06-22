@@ -113,6 +113,13 @@ class EFTGenReader: public edm::EDAnalyzer
         double xsec_norm;
         double intg_lumi;
 
+        // configurable kinematic cut params
+        double min_pt_jet;
+        double min_pt_lep;
+        
+        double max_eta_jet;
+        double max_eta_lep;
+
         std::vector<TH1D*> th1d_hists;
 
         TH1D* h_SMwgt_norm;
@@ -317,6 +324,13 @@ reco::GenParticleCollection EFTGenReader::GetGenLeptons(const reco::GenParticleC
             continue;
         }
 
+        // Note: The kinematic cuts could realistically go anywhere in this loop
+        if (p.p4().Pt() < min_pt_lep) {
+            continue;
+        } else if (max_eta_lep > 0.0 && fabs(p.eta()) >= max_eta_lep) {
+            continue;
+        }
+
         int mom_id = id;    // If no mother, set to own id
         if (p_mom) mom_id = p_mom->pdgId();
 
@@ -347,7 +361,11 @@ std::vector<reco::GenJet> EFTGenReader::GetGenJets(const std::vector<reco::GenJe
     std::vector<reco::GenJet> ret;
     for (size_t i = 0; i < inputs.size(); i++) {
         const reco::GenJet& j = inputs.at(i);
-
+        if (j.p4().Pt() < min_pt_jet) {
+            continue;
+        } else if (max_eta_jet > 0.0 && fabs(j.eta()) >= max_eta_jet) {
+            continue;
+        }
         ret.push_back(j);
     }
     std::sort(ret.begin(),ret.end(), [] (reco::GenJet a, reco::GenJet b) { return a.p4().Pt() > b.p4().Pt();});

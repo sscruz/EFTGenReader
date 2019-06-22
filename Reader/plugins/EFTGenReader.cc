@@ -11,6 +11,11 @@ EFTGenReader::EFTGenReader(const edm::ParameterSet& constructparams)
     xsec_norm = constructparams.getParameter<double> ("xsec_norm");
     intg_lumi = constructparams.getParameter<double> ("intg_lumi");
 
+    min_pt_jet = constructparams.getParameter<double> ("min_pt_jet");
+    min_pt_lep = constructparams.getParameter<double> ("min_pt_lep");
+    max_eta_jet = constructparams.getParameter<double> ("max_eta_jet");
+    max_eta_lep = constructparams.getParameter<double> ("max_eta_lep");
+
     entire_pset = constructparams;
     parse_params(); // Currently doesn't do anything
     lheInfo_token_ = consumes<LHEEventProduct>(edm::InputTag("externalLHEProducer"));
