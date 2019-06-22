@@ -5,7 +5,7 @@ import argparse
 
 # Wrapper script to run over multiple samples back-to-back
 
-arg_parser = argparse.ArgumentParser(prog='chainGenReader.py',desc='Wrapper script to run multiple samples to EFTGenReader_cfg in series')
+arg_parser = argparse.ArgumentParser(prog='chainGenReader.py',description='Wrapper script to run multiple samples to EFTGenReader_cfg in series')
 arg_parser.add_argument('-n','--nevents',metavar='N',default=10,type=int,help='number of events to run over')
 arg_parser.add_argument('--test',action='store_true',help='will pass the test option on through to the underlying cmsRun call')
 arg_parser.add_argument('--out-suffix',metavar='NAME',default='_NoTopLeptons_output_tree',help='add a different suffix for the output root files')
@@ -15,6 +15,9 @@ arg_parser.add_argument('--maxetaj',metavar='VAL',type=float,help='max eta cut f
 arg_parser.add_argument('--maxetal',metavar='VAL',type=float,help='max eta cut for genleptons')
 arg_parser.add_argument('datasets',metavar='NAME',nargs='+',help='specify multiple datasets to run over, one after the other')
 args = arg_parser.parse_args()
+
+# All samples
+# central_ttZ central_ttW central_tZq central_ttH ttll_FP_R4B9 ttll_SM ttllNoHiggs_SM ttllNoHiggs_EFT ttllnunuNoHiggs_SM tllq_FR_R4B9 tllq_SM tllq4f_SMNoSchanW tllq4fMatched_SM tllq4fMatched_EFT tllq4fNoHiggs_SM tllq4fNoHiggs_EFT ttlnu_FP_R4B9 ttlnu_SM ttlnu_EFT ttlnuJet_EFT ttlnu_NoPDFWeights ttH_SM
 
 # Central samples
 # central_ttZ central_ttW central_tZq central_ttH
@@ -50,6 +53,8 @@ def main():
         full_cmd.append("normType={}".format(norm_type))
         full_cmd.append("intgLumi={}".format(intg_lumi))
         full_cmd.append("fnSuffix={}".format(args.out_suffix))
+        if args.test:
+            full_cmd.append("test=True")
 
         # Add kinematic cut options
         if args.minptj:
@@ -60,8 +65,6 @@ def main():
             full_cmd.append("maxEtaJet={}".format(args.maxetaj))
         if args.maxetal:
             full_cmd.append("maxEtaLep={}".format(args.maxetal))
-
-        #full_cmd.append("test=True")
 
         full_cmd.append("dataset={}".format(ds_name))
         print "Full Command: {}".format(" ".join(full_cmd))
