@@ -33,11 +33,18 @@ class DatasetHelper(object):
         print "Saving JSON: %s" % (fn)
         with open(fn,'w') as f:
             d = self.toDict()
-            json.dump(d,f,indent=2)
+            json.dump(d,f,indent=2,sort_keys=True)
 
     # Return a list of all dataset names currently loaded
     def list(self):
         return self.__datasets.keys()
+
+    # Print a dataset as formatted json
+    def dump(self,name):
+        if not self.__datasets.has_key(name):
+            return
+        ds = self.__datasets[name]
+        print json.dumps(ds.toDict(),indent=2,sort_keys=True)
 
     # Remove all datasets
     def clear(self):
