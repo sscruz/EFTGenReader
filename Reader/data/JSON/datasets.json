@@ -45,7 +45,7 @@
     "central_xsec": 0.0, 
     "dataset": "", 
     "is_eft": false, 
-    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelPlusJet/v1/mAOD_step_tHq4fMatched_NoDim6_run0", 
+    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelPlusJet/v1/mAOD_step_tHq4fMatched_HanModelNoDim6_run0", 
     "on_das": false
   }, 
   "tllq4fMatchedNoHiggs_EFTfixed": {
@@ -66,7 +66,7 @@
     "central_xsec": 0.07358, 
     "dataset": "", 
     "is_eft": false, 
-    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelPlusJet/v1/mAOD_step_tllq4fMatchedNoHiggs_NoDim6_run0", 
+    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelPlusJet/v1/mAOD_step_tllq4fMatchedNoHiggs_HanModelNoDim6_run0", 
     "on_das": false
   }, 
   "tllq4fMatched_EFT": {
@@ -136,7 +136,7 @@
     "central_xsec": 0.5638, 
     "dataset": "", 
     "is_eft": false, 
-    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelPlusJet/v1/mAOD_step_ttHJet_NoDim6_run0", 
+    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelPlusJet/v1/mAOD_step_ttHJet_HanModelNoDim6_run0", 
     "on_das": false
   }, 
   "ttH_SM": {
@@ -206,7 +206,7 @@
     "central_xsec": 0.341762, 
     "dataset": "", 
     "is_eft": false, 
-    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelPlusJet/v1/mAOD_step_ttlnuJet_NoDim6_run0", 
+    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelPlusJet/v1/mAOD_step_ttlnuJet_HanModelNoDim6_run0", 
     "on_das": false
   }, 
   "ttlnu_EFT": {
