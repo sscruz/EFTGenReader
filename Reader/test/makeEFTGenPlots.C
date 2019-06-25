@@ -60,13 +60,11 @@ void makeEFTGenPlots(std::vector<TString> input_fnames) {
     palette[4] = kMagenta;
     palette[5] = kCyan;
 
-    //const Int_t kCLRS = 5;
-    //Int_t palette[kCLRS];
-    //palette[kCLRS-1] = kBlack;
-    //palette[kCLRS-2] = kBlue;
-    //palette[kCLRS-3] = kRed;
-    //palette[kCLRS-4] = kGreen+2;
-    //palette[kCLRS-5] = kMagenta+2;
+    const Int_t kCLRS2 = 3;
+    Int_t pal2[kCLRS2];
+    pal2[0] = kBlue;
+    pal2[1] = kRed;
+    pal2[2] = kBlack;
 
     // TLegend parameters
     double left,right,top,bottom,scale_factor,minimum;
@@ -77,6 +75,9 @@ void makeEFTGenPlots(std::vector<TString> input_fnames) {
     minimum      = 0.1;
 
     gStyle->SetPalette(kCLRS,palette);
+    if (input_fnames.size() == 3) {
+        gStyle->SetPalette(kCLRS2,pal2);
+    }
     gStyle->SetOptStat(0);
     gStyle->SetPadRightMargin(0.2);
 
@@ -85,7 +86,7 @@ void makeEFTGenPlots(std::vector<TString> input_fnames) {
         std::cout << "  Input File: " << s << std::endl;
         TFile* f = TFile::Open(s);
         if (f) {
-            f->Print();
+            //f->Print();
             files.push_back(f);
         }
     }
@@ -103,9 +104,13 @@ void makeEFTGenPlots(std::vector<TString> input_fnames) {
         f->Print();
 
         TString fname = f->GetName();
-
-        Ssiz_t idx = fname.First('_');
-        TString sub_str = fname(0,idx);
+        TString sub_str;
+        Ssiz_t idx = fname.First('/');
+        if (idx != TString::kNPOS) {
+            sub_str = fname(idx+1,fname.Length());
+        }
+        idx = sub_str.Index("_NoTopLeptons");
+        sub_str = sub_str(0,idx);
 
         TDirectory* td = f->GetDirectory("EFTGenReader");
         TIter next(td->GetListOfKeys());
@@ -117,6 +122,15 @@ void makeEFTGenPlots(std::vector<TString> input_fnames) {
 
             TH1D* h = (TH1D*)td->Get(key->GetName());
             h->SetMarkerStyle(kFullCircle);
+            h->SetMarkerSize(0.25);
+            h->SetOption("E");
+
+            Int_t nbins = h->GetNbinsX();
+            Double_t intg = h->Integral(0,nbins+1);
+
+            if (intg > 1.0) {
+                h->Scale(1./intg);
+            }
 
             c = findCanvas(key->GetName(),canvs);
             int c_idx = findCanvasIndex(key->GetName(),canvs);
