@@ -1,6 +1,6 @@
 // Created by Andrew Wightman
 
-#include "EFTGenReader/LHEReader/EFTLHEReader.h"
+#include "EFTGenReader/LHEReader/interface/EFTLHEReader.h"
 
 EFTLHEReader::EFTLHEReader(const edm::ParameterSet& constructparams)
 {
