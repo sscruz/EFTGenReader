@@ -18,7 +18,7 @@ SAVE_FILE    = os.path.join(GIT_REPO_DIR,args.dir,args.outf)
 # Basic example of adding/modifying/removing datasets
 def example1(ds_helper):
     # Add a sample by specifying all the relevant info directly
-    ds_helper.updateDataset('new_dataset',
+    ds_helper.newDataset('new_dataset',
         dataset='/my_dataset/somwhere/on_DAS',
         loc=None,
         on_das=True,
@@ -35,7 +35,7 @@ def example1(ds_helper):
     }
 
     # Add a new sample by passing a dictionary with all the relevant info
-    ds_helper.updateDataset('another_dataset',**new_ds)
+    ds_helper.newDataset('another_dataset',**new_ds)
 
     # Modify a setting in an already existing sample
     ds_helper.updateDataset('central_tZq',is_eft=True)
@@ -52,37 +52,40 @@ def example2(ds_helper):
     ttH_xsec = 0.5638
 
     lst1 = [
-        ('tHq4fMatched',0.0),
-        ('tllq4fMatchedNoHiggs',tZq_xsec),
-        ('ttHJet',ttH_xsec),
-        ('ttlnuJet',ttW_xsec)
+        ('tHq',0.0),
+        ('tllq4f',tZq_xsec),
+        ('tllq',tZq_xsec),
+        ('ttH',ttH_xsec),
+        ('ttllNoHiggs',ttZ_xsec),
+        ('ttllNuNuNoHiggs',ttZ_xsec),
+        ('ttlnu',ttW_xsec)
     ]
     lst2 = [
-        ('HanModel16DttllScanpoints_run1','EFTsp',True),
-        ('HanModelFixedStartingPt_run0','EFTfixed',True),
-        ('NoDim6_run0','SM',False)
+        ('HanModel16DttllScanpoints_run1','HanModelEFTsp',True),
+        ('HanModelFixedStartingPt_run0','HanModelEFTfixed',True),
+        ('HanModelNoDim6_run0','HanModelSM',False)
     ]
 
     for proc,central_xsec in lst1:
         for typ,suffix,is_eft in lst2:
-            hadoop_path = '/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelPlusJet/v1/mAOD_step_%s_%s' % (proc,typ)
+            hadoop_path = '/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelBaseline/v1/mAOD_step_%s_%s' % (proc,typ)
             new_name = '%s_%s' % (proc,suffix)
-            ds_helper.updateDataset(new_name,
-                dataset='',
-                loc=hadoop_path,
-                is_eft=is_eft,
-                on_das=False,
-                central_xsec=central_xsec
-            )
+            #ds_helper.newDataset(new_name,force=False,
+            #    dataset='',
+            #    loc=hadoop_path,
+            #    is_eft=is_eft,
+            #    on_das=False,
+            #    central_xsec=central_xsec
+            #)
             print new_name
-            ds_helper.dump(new_name)
+            #ds_helper.dump(new_name)
 
 def main():
     ds_helper = DatasetHelper()
     ds_helper.load(DATASET_FILE)
 
     #example1(ds_helper)
-    #example2(ds_helper)
+    example2(ds_helper)
 
     # Save the dataset to json file
     if not args.dry_run:

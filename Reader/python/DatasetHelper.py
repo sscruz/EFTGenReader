@@ -50,7 +50,17 @@ class DatasetHelper(object):
     def clear(self):
         self.__datasets.clear()
 
-    # Create/Update/Modify a dataset
+    # Create a new dataset entry, only overwrites if force=True
+    def newDataset(self,name,force=False,**kwargs):
+        if force:
+            self.updateDataset(name,**kwargs)
+        else:
+            if self.__datasets.has_key(name):
+                print "ERROR: Skipping %s since it already exists!" % (name)
+                return
+            self.__datasets[name] = DSContainer(**kwargs)
+
+    # Modify a dataset (creates one if none exists)
     def updateDataset(self,name,**kwargs):
         if not self.__datasets.has_key(name):
             self.__datasets[name] = DSContainer()
@@ -60,6 +70,12 @@ class DatasetHelper(object):
     def removeDataset(self,name):
         if self.__datasets.has_key(name):
             del self.__datasets[name]
+
+    # Renames a dataset entry
+    def renameDataset(self,old,new):
+        if not self.__datasets.has_key(name):
+            return
+        self.__datasets[new] = self.__datasets.pop(old)
 
     # Returns a list of root file locations corresponding to the specified dataset
     def getFiles(self,name):

@@ -58,6 +58,7 @@ def getImages(tar_dir,file_type='png'):
         fnames.append(out)
     return fnames
 
+# Creates an index.html file at the specified location for displaying .png files in a web-browser
 def make_html(tar_dir):
     home_dir = os.getcwd()
     if not os.path.exists(tar_dir):
@@ -107,7 +108,7 @@ def make_html(tar_dir):
         div_tag.addAttributes(cls='image')
 
 
-    print my_html.dumpHTML()
+    #print my_html.dumpHTML()
     my_html.saveHTML(f_name='index.html',f_dir=tar_dir)
 
 
