@@ -14,7 +14,7 @@ If reading files from the grid (e.g. for central samples) make sure to initializ
 
 To run the code:
 
-    cd $CMSSW_BASE/src/EFTGenReader/Reader/test
+    cd $CMSSW_BASE/src/EFTGenReader/GenReader/test
     cmsRun EFTGenReader_cfg.py
     python wrapperEFTGenPlots.py output_dir_name fpath1 fpath2 etc...
 

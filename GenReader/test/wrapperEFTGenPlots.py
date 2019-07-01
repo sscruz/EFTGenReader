@@ -2,8 +2,8 @@ import sys
 import os
 import subprocess
 import argparse
-from EFTGenReader.Reader.utils import regex_match
-from EFTGenReader.Reader.make_html import make_html
+from EFTGenReader.GenReader.utils import regex_match
+from EFTGenReader.GenReader.make_html import make_html
 
 USER_DIR = os.path.expanduser('~')
 

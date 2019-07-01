@@ -3,7 +3,7 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 import sys
 import os
 
-from EFTGenReader.Reader.DatasetHelper import DatasetHelper
+from EFTGenReader.GenReader.DatasetHelper import DatasetHelper
 
 options = VarParsing.VarParsing('analysis')
 
@@ -48,7 +48,7 @@ fnal_redirect = "root://cmsxrootd.fnal.gov/"
 global_redirect = "root://cms-xrd-global.cern.ch/"
 
 cmssw_base_dir = os.environ['CMSSW_BASE']
-dataset_fpath = os.path.join(cmssw_base_dir,"src/EFTGenReader/Reader/data/JSON/datasets.json")
+dataset_fpath = os.path.join(cmssw_base_dir,"src/EFTGenReader/GenReader/data/JSON/datasets.json")
 
 ds_helper = DatasetHelper()
 ds_helper.load(dataset_fpath)
@@ -117,7 +117,7 @@ process.source = cms.Source("PoolSource",
     )
 )
 
-process.load("EFTGenReader.Reader.EFTGenReader_cfi")
+process.load("EFTGenReader.GenReader.EFTGenReader_cfi")
 
 process.EFTGenReader.debug     = options.debug
 process.EFTGenReader.norm_type = options.normType      # 0 - No norm, 1 - unit norm, 2 - xsec norm

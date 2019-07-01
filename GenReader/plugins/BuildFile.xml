@@ -14,7 +14,7 @@
 <use name="DataFormats/HepMCCandidate"/>
 <use name="DataFormats/PatCandidates"/>
 <use name="SimDataFormats/GeneratorProducts"/>
-<use name="EFTGenReader/Reader"/>
+<use name="EFTGenReader/GenReader"/>
 <library name="eftgenreader_plugins" file="*.cc">
 	<flags EDM_PLUGIN="1"/>
 </library>

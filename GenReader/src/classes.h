@@ -1,5 +1,5 @@
-#include "EFTGenReader/Reader/interface/WCPoint.h"
-#include "EFTGenReader/Reader/interface/WCFit.h"
+#include "EFTGenReader/GenReader/interface/WCPoint.h"
+#include "EFTGenReader/GenReader/interface/WCFit.h"
 
 #ifndef EFTGENREADER_DUMMY_OBJS
 #define EFTGENREADER_DUMMY_OBJS

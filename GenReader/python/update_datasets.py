@@ -7,7 +7,7 @@ arg_parser = argparse.ArgumentParser(prog='update_datasets.py')
 arg_parser.add_argument('-n','--dry-run',action='store_true',help='perform a trial run with no changes made')
 arg_parser.add_argument('-l','--load',metavar='FILE',dest='inf',default='datasets.json',help='load datasets from %(metavar)s')
 arg_parser.add_argument('-s','--save',metavar='FILE',dest='outf',default='test.json',help='save datasets to %(metavar)s')
-arg_parser.add_argument('-d','--dir',metavar='DIR',default='Reader/data/JSON',help='load and save files from %(metavar)s; %(metavar)s should be relative to the top directory of the git repo')
+arg_parser.add_argument('-d','--dir',metavar='DIR',default='GenReader/data/JSON',help='load and save files from %(metavar)s; %(metavar)s should be relative to the top directory of the git repo')
 
 args = arg_parser.parse_args()
 

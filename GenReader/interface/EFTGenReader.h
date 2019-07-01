@@ -1,6 +1,6 @@
 // created by Andrew Wightman
-#ifndef EFTGENREADER_READER_EFTGENREADER_h
-#define EFTGENREADER_READER_EFTGENREADER_h
+#ifndef EFTGENREADER_GENREADER_EFTGENREADER_h
+#define EFTGENREADER_GENREADER_EFTGENREADER_h
 
 #include <cstdlib>
 #include <memory>
@@ -60,7 +60,7 @@
 //#include "ttH-13TeVMultiLeptons/TemplateMakers/interface/objectClasses.h"
 
 //#include "ttH-13TeVMultiLeptons/TemplateMakers/interface/WCPoint.h"
-#include "EFTGenReader/Reader/interface/WCPoint.h"
+#include "EFTGenReader/GenReader/interface/WCPoint.h"
 
 // end includes
 // -----------------------------------------------
