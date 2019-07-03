@@ -45,6 +45,9 @@
 #include "Math/LorentzVector.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
+#include "EFTGenReader/GenReader/interface/WCPoint.h"
+#include "EFTGenReader/GenReader/interface/WCFit.h"
+
 // end includes
 // -----------------------------------------------
 
