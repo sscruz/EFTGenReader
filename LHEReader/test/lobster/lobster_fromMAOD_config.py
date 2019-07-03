@@ -38,15 +38,15 @@ if RUN_SETUP == 'local':
     plotdir_path = "~/www/lobster/tests/lobster_%s" % (timestamp_tag)
 elif RUN_SETUP == 'mg_studies':
     # For MadGraph test studies
-    input_path   = "/store/user/%s/LHE_step/%s/%s/" % (username,grp_tag,input_version)
-    output_path  = "/store/user/$USER/summaryTree_LHE/%s/%s" % (grp_tag,output_version)
-    workdir_path = "/tmpscratch/users/$USER/summaryTree_LHE/%s/%s" % (grp_tag,output_version)
-    plotdir_path = "~/www/lobster/summaryTree_LHE/%s/%s" % (grp_tag,output_version)
+    input_path   = "/store/user/%s/postLHE_step/%s/%s/" % (username,grp_tag,input_version)
+    output_path  = "/store/user/$USER/summaryTree_LHE/%s-mAOD/%s" % (grp_tag,output_version)
+    workdir_path = "/tmpscratch/users/$USER/summaryTree_LHE/%s-mAOD/%s" % (grp_tag,output_version)
+    plotdir_path = "~/www/lobster/summaryTree_LHE/%s-mAOD/%s" % (grp_tag,output_version)
 elif RUN_SETUP == 'full_production':
-    input_path   = "/store/user/%s/FullProduction/%s/LHE_step/%s/" % (username,prod_tag,input_version)
-    output_path  = "/store/user/$USER/summaryTree_LHE/FP/%s/%s" % (prod_tag,output_version)
-    workdir_path = "/tmpscratch/users/$USER/summaryTree_LHE/FP/%s/%s" % (prod_tag,output_version)
-    plotdir_path = "~/www/lobster/summaryTree_LHE/FP/%s/%s" % (prod_tag,output_version)
+    input_path   = "/store/user/%s/FullProduction/%s/postLHE_step/%s/" % (username,prod_tag,input_version)
+    output_path  = "/store/user/$USER/summaryTree_LHE/FP/%s-mAOD/%s" % (prod_tag,output_version)
+    workdir_path = "/tmpscratch/users/$USER/summaryTree_LHE/FP/%s-mAOD/%s" % (prod_tag,output_version)
+    plotdir_path = "~/www/lobster/summaryTree_LHE/FP/%s-mAOD/%s" % (prod_tag,output_version)
 else:
     print "Unknown run setup, %s" % (RUN_SETUP)
     raise ValueError
@@ -77,7 +77,7 @@ processing = Category(
     disk=500
 )
 
-lhe_dirs = []
+maod_dirs = []
 for f in os.listdir(input_path_full):
     dir_path = os.path.join(input_path_full,f)
     if not os.path.isdir(dir_path):
@@ -86,6 +86,8 @@ for f in os.listdir(input_path_full):
         print "[WARNING] Skipping empty directory, %s" % (f)
         continue
     arr = f.split('_')
+    if arr[0] != 'mAOD':
+        continue
     p,c,r = arr[2],arr[3],arr[4]
     if len(process_whitelist) > 0 and not p in process_whitelist:
         continue
@@ -93,22 +95,22 @@ for f in os.listdir(input_path_full):
         continue
     elif len(runs_whitelist) > 0 and not r in runs_whitelist:
         continue
-    lhe_dirs.append(f)
+    maod_dirs.append(f)
 
 wf = []
 
 print "Generating workflows:"
-for idx,lhe_dir in enumerate(lhe_dirs):
-    arr = lhe_dir.split('_')
+for idx,maod_dir in enumerate(maod_dirs):
+    arr = maod_dir.split('_')
     p,c,r = arr[2],arr[3],arr[4]
-    print "\t[%d/%d] LHE Input: %s" % (idx+1,len(lhe_dirs),lhe_dir)
+    print "\t[{n}/{tot}] mAOD Input: {dir}".format(n=idx+1,tot=len(maod_dirs),dir=maod_dir)
     output = Workflow(
-        label='output_%s_%s_%s' % (p,c,r),
+        label='output_{p}_{c}_{r}'.format(p=p,c=c,r=r)
         command='cmsRun EFTLHEReader_cfg.py',
         merge_size='1.0G',
         cleanup_input=False,
         dataset=Dataset(
-            files=lhe_dir,
+            files=maod_dir,
             files_per_task=10,
             patterns=["*.root"]
         ),
