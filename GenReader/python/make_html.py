@@ -1,4 +1,5 @@
 import os
+import sys
 
 from HTMLGenerator import *
 # Create an index.html file for a web-directory with .png files
@@ -117,10 +118,12 @@ def make_html(tar_dir):
 def main():
     web_area = "/afs/crc.nd.edu/user/a/awightma/www/"
     if len(sys.argv) == 2:
-        dir_name = os.path.join("eft_stuff/misc/gen_plots",sys.argv[1])
+        fpath = sys.argv[1]
     else:
-        dir_name = "eft_stuff/tmp"
-    fpath = os.path.join(web_area,dir_name)
+        fpath = os.path.join(web_area,'eft_stuff/tmp')
+    if not os.path.exists(fpath):
+        print "ERROR: Unknown path {}".format(fpath)
+        return
     make_html(fpath)
 
 if __name__ == "__main__":
