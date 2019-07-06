@@ -74,7 +74,8 @@ processing = Category(
     name='processing',
     cores=1,
     memory=1200,
-    disk=500
+    disk=1000,
+    mode='fixed'
 )
 
 lhe_dirs = []

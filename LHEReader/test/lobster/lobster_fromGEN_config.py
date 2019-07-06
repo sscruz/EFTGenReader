@@ -74,7 +74,8 @@ processing = Category(
     name='processing',
     cores=1,
     memory=1200,
-    disk=500
+    disk=1000,
+    mode='fixed'
 )
 
 gen_dirs = []
@@ -111,7 +112,7 @@ for idx,gen_dir in enumerate(gen_dirs):
         cleanup_input=False,
         dataset=Dataset(
             files=gen_dir,
-            files_per_task=3,   # Remember that the GEN step already does 5-10 files per task
+            files_per_task=5,   # Remember that the GEN step already does 5-10 files per task
             patterns=["*.root"]
         ),
         category=processing

@@ -74,7 +74,8 @@ processing = Category(
     name='processing',
     cores=1,
     memory=1200,
-    disk=500
+    disk=100,
+    mode='fixed'
 )
 
 maod_dirs = []
