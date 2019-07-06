@@ -74,8 +74,8 @@ processing = Category(
     name='processing',
     cores=1,
     memory=1200,
-    disk=1000,
-    mode='fixed'
+    disk=1000
+    #mode='fixed'
 )
 
 gen_dirs = []
