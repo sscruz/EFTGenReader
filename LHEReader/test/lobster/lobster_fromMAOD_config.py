@@ -18,7 +18,7 @@ RUN_SETUP = 'mg_studies'
 
 input_version  = "v1"
 output_version = "v1"
-grp_tag  = "2019_05_06/2HeavyScan10kPilot"
+grp_tag  = "2019_04_19/ValidationHanModelPlusJet"
 test_tag = "lobster_20180505_1440"      # If the input LHE files were also produced in 'local' running
 prod_tag = "Round1/Batch1"
 
@@ -82,11 +82,11 @@ for f in os.listdir(input_path_full):
     dir_path = os.path.join(input_path_full,f)
     if not os.path.isdir(dir_path):
         continue
-    elif len(os.listdir(dir_path)) == 0:
-        print "[WARNING] Skipping empty directory, %s" % (f)
-        continue
     arr = f.split('_')
     if arr[0] != 'mAOD':
+        continue
+    elif len(os.listdir(dir_path)) == 0:
+        print "[WARNING] Skipping empty directory, %s" % (f)
         continue
     p,c,r = arr[2],arr[3],arr[4]
     if len(process_whitelist) > 0 and not p in process_whitelist:
@@ -105,13 +105,13 @@ for idx,maod_dir in enumerate(maod_dirs):
     p,c,r = arr[2],arr[3],arr[4]
     print "\t[{n}/{tot}] mAOD Input: {dir}".format(n=idx+1,tot=len(maod_dirs),dir=maod_dir)
     output = Workflow(
-        label='output_{p}_{c}_{r}'.format(p=p,c=c,r=r)
+        label='output_{p}_{c}_{r}'.format(p=p,c=c,r=r),
         command='cmsRun EFTLHEReader_cfg.py',
         merge_size='1.0G',
         cleanup_input=False,
         dataset=Dataset(
             files=maod_dir,
-            files_per_task=10,
+            files_per_task=5,
             patterns=["*.root"]
         ),
         category=processing

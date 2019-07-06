@@ -21,9 +21,10 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
         #"file:///hadoop/store/user/awightma/LHE_step/2018_04_17/v1/lhe_step_ttH_cblS1_run0/HIG-RunIIFall17wmLHE-00000ND_20123.root",
         #"file:///hadoop/store/user/awightma/LHE_step/2018_04_17/v1/lhe_step_ttH_cblS1_run0/HIG-RunIIFall17wmLHE-00000ND_20443.root"
-        "file:///hadoop/store/user/awightma/LHE_step/2019_04_19/ValidationHanModelPlusJet/v1/lhe_step_ttHJet_HanModel16DttllScanpoints_run1/HIG-RunIIFall17wmLHE-00000ND_7021.root",
+        #"file:///hadoop/store/user/awightma/LHE_step/2019_04_19/ValidationHanModelPlusJet/v1/lhe_step_ttHJet_HanModel16DttllScanpoints_run1/HIG-RunIIFall17wmLHE-00000ND_7021.root",
         "file:///hadoop/store/user/awightma/LHE_step/2019_04_19/ValidationHanModelPlusJet/v1/lhe_step_ttHJet_HanModel16DttllScanpoints_run1/HIG-RunIIFall17wmLHE-00000ND_7022.root",
         "file:///hadoop/store/user/awightma/LHE_step/2019_04_19/ValidationHanModelPlusJet/v1/lhe_step_ttHJet_HanModel16DttllScanpoints_run1/HIG-RunIIFall17wmLHE-00000ND_7023.root"
+        #"file:///hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelPlusJet/v1/mAOD_step_ttHJet_HanModel16DttllScanpoints_run1/HIG-RunIIFall17MiniAOD-00821ND_74026.root"
     )
 )
 
