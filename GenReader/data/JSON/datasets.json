@@ -195,6 +195,69 @@
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelPlusJet/v1/mAOD_step_ttHJet_HanModel16DttllScanpoints_run1", 
     "on_das": false
   }, 
+  "ttHJet_HanModelxqcut25-qCut19": {
+    "central_xsec": 0.5638, 
+    "dataset": "", 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttHJet-xqcutStudies/v1/mAOD_step_ttHJet_HanModelxqcut25_run0", 
+    "on_das": false
+  }, 
+  "ttHJet_HanModelxqcut25-qCut30": {
+    "central_xsec": 0.5638, 
+    "dataset": "", 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttHJet-xqcutStudies/v2/mAOD_step_ttHJet_HanModelxqcut25_run0", 
+    "on_das": false
+  }, 
+  "ttHJet_HanModelxqcut25-qCut45": {
+    "central_xsec": 0.5638, 
+    "dataset": "", 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttHJet-xqcutStudies/v3/mAOD_step_ttHJet_HanModelxqcut25_run0", 
+    "on_das": false
+  }, 
+  "ttHJet_HanModelxqcut35-qCut19": {
+    "central_xsec": 0.5638, 
+    "dataset": "", 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttHJet-xqcutStudies/v1/mAOD_step_ttHJet_HanModelxqcut35_run0", 
+    "on_das": false
+  }, 
+  "ttHJet_HanModelxqcut35-qCut30": {
+    "central_xsec": 0.5638, 
+    "dataset": "", 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttHJet-xqcutStudies/v2/mAOD_step_ttHJet_HanModelxqcut35_run0", 
+    "on_das": false
+  }, 
+  "ttHJet_HanModelxqcut35-qCut45": {
+    "central_xsec": 0.5638, 
+    "dataset": "", 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttHJet-xqcutStudies/v3/mAOD_step_ttHJet_HanModelxqcut35_run0", 
+    "on_das": false
+  }, 
+  "ttHJet_HanModelxqcut45-qCut19": {
+    "central_xsec": 0.5638, 
+    "dataset": "", 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttHJet-xqcutStudies/v1/mAOD_step_ttHJet_HanModelxqcut45_run0", 
+    "on_das": false
+  }, 
+  "ttHJet_HanModelxqcut45-qCut30": {
+    "central_xsec": 0.5638, 
+    "dataset": "", 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttHJet-xqcutStudies/v2/mAOD_step_ttHJet_HanModelxqcut45_run0", 
+    "on_das": false
+  }, 
+  "ttHJet_HanModelxqcut45-qCut45": {
+    "central_xsec": 0.5638, 
+    "dataset": "", 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttHJet-xqcutStudies/v3/mAOD_step_ttHJet_HanModelxqcut45_run0", 
+    "on_das": false
+  }, 
   "ttHJet_SM": {
     "central_xsec": 0.5638, 
     "dataset": "", 
