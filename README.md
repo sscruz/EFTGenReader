@@ -15,10 +15,10 @@ If reading files from the grid (e.g. for central samples) make sure to initializ
 To run the code:
 
     cd $CMSSW_BASE/src/EFTGenReader/GenReader/test
-    cmsRun EFTGenReader_cfg.py
-    python wrapperEFTGenPlots.py output_dir_name fpath1 fpath2 etc...
+    cmsRun EFTGenReader_cfg.py json_sample_name
+    python wrapperEFTGenPlots.py --web-dir=/absolute/or/relative/path/to/some/output/directory --dir=sub-directory_name fpath1 fpath2 etc...
 
-Where `fpath1`, `fpath2`, etc. are the (relative) file paths to the root files produced by running `EFTGenReader_cfg`. Each root file passed to `wrapperEFTGenPlots` will have the same named histograms overlayed with one another on a single plot.
+Where `json_sample_name` is the name of an entry in the `datasets.json` file. The non-DAS samples are only reachable from earth. `fpath1`, `fpath2`, etc. are the (relative) file paths to the root files produced by running `EFTGenReader_cfg`. Each root file passed to `wrapperEFTGenPlots` will have the same named histograms overlayed with one another on a single plot.
 
 ### cmsRun Options
 The `EFTGenReader_cfg` supports a number of command-line options for configuring the cmsRun job, which are implemented using the CMSSW `VarParsing` package:
@@ -43,9 +43,10 @@ Examples:
     cmsRun EFTGenReader_cfg.py normType=0 dataset=central_ttH
 ```
 
+### chainGenReader Options
+The python script `chainGenReader.py` can be used to do multiple `cmsRun` commands in series. All of the config options available to `EFTGenReader_cfg` can be specified at the command-line for `chainGenReader`, which will then be passed on to the underlying `cmsRun` call. All samples in the chain will be ran with the same command-line options. Type `python chainGenReader.py --help` for a complete list of available options.
+
 ### Misc. Other
-The information used to find the samples is stored in the `datasets.json` file located in `Reader/data/JSON`. Currently, the code is only able to run on samples that are located locally on hadoop, or on DAS. Local files are found by looking in the directory specified by the `loc` entry. DAS files are found by querying via the command line utility `dasgoclient`, which should be available from in any recent `CMSSW` release. The DAS query is specified via the `dataset` entry in the JSON file.
+The information used to find the samples is stored in the `datasets.json` file located in `Reader/data/JSON`. Currently, the code is only able to run on samples that are located locally on hadoop, or on DAS. Files are found by looking in the directory specified by the `loc` entry. DAS files are found by querying via the command line utility `dasgoclient`, which should be available from in any recent `CMSSW` release.
 
-**Note:** Currently, all DAS entries have a value of `null` for the `loc` entry and all local entries have an empty string value for the `dataset` entry. In the future, this may be changed to consolidate the two into a single entry in the JSON file.
-
-Additional datasets can be added/modified/removed from the `datasets.json` file either by hand or by making use of the `update_datasets.py` script. The script shows some examples of how to add/modify/remove entries from the `dataset.json` file via the `DatasetHelper` class. Currently, there is no way to edit the JSON file entirely from the command-line.
+Additional datasets can be added/modified/removed from the `datasets.json` file either by hand (not recommended) or by making use of the `update_datasets.py` script. The script shows some examples of how to add/modify/remove entries from the `dataset.json` file via the `DatasetHelper` class. Currently, there is no way to edit the JSON file entirely from the command-line.
