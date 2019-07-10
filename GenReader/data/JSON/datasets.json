@@ -2,34 +2,39 @@
   "central_tZq": {
     "central_xsec": 0.07358, 
     "dataset": "/tZq_ll_4f_ckm_NLO_TuneCP5_PSweights_13TeV-amcatnlo-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM", 
+    "datatier": "MINIAODSIM", 
     "is_eft": false, 
-    "loc": null, 
+    "loc": "/tZq_ll_4f_ckm_NLO_TuneCP5_PSweights_13TeV-amcatnlo-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM", 
     "on_das": true
   }, 
   "central_ttH": {
     "central_xsec": 0.5638, 
     "dataset": "/ttHToNonbb_M125_TuneCP5_13TeV-powheg-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM", 
+    "datatier": "MINIAODSIM", 
     "is_eft": false, 
-    "loc": null, 
+    "loc": "/ttHToNonbb_M125_TuneCP5_13TeV-powheg-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM", 
     "on_das": true
   }, 
   "central_ttW": {
     "central_xsec": 0.341762, 
     "dataset": "/TTWJetsToLNu_TuneCP5_PSweights_13TeV-amcatnloFXFX-madspin-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_new_pmx_94X_mc2017_realistic_v14-v1/MINIAODSIM", 
+    "datatier": "MINIAODSIM", 
     "is_eft": false, 
-    "loc": null, 
+    "loc": "/TTWJetsToLNu_TuneCP5_PSweights_13TeV-amcatnloFXFX-madspin-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_new_pmx_94X_mc2017_realistic_v14-v1/MINIAODSIM", 
     "on_das": true
   }, 
   "central_ttZ": {
     "central_xsec": 0.244109, 
     "dataset": "/TTZToLLNuNu_M-10_TuneCP5_PSweights_13TeV-amcatnlo-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM", 
+    "datatier": "MINIAODSIM", 
     "is_eft": false, 
-    "loc": null, 
+    "loc": "/TTZToLLNuNu_M-10_TuneCP5_PSweights_13TeV-amcatnlo-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM", 
     "on_das": true
   }, 
   "tHq4fMatched_EFTfixed": {
     "central_xsec": 0.0, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelPlusJet/v1/mAOD_step_tHq4fMatched_HanModelFixedStartingPt_run0", 
     "on_das": false
@@ -37,6 +42,7 @@
   "tHq4fMatched_EFTsp": {
     "central_xsec": 0.0, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelPlusJet/v1/mAOD_step_tHq4fMatched_HanModel16DttllScanpoints_run1", 
     "on_das": false
@@ -44,6 +50,7 @@
   "tHq4fMatched_SM": {
     "central_xsec": 0.0, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": false, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelPlusJet/v1/mAOD_step_tHq4fMatched_HanModelNoDim6_run0", 
     "on_das": false
@@ -51,6 +58,7 @@
   "tHq_HanModelEFTfixed": {
     "central_xsec": 0.0, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelBaseline/v1/mAOD_step_tHq_HanModelFixedStartingPt_run0", 
     "on_das": false
@@ -58,6 +66,7 @@
   "tHq_HanModelEFTsp": {
     "central_xsec": 0.0, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelBaseline/v1/mAOD_step_tHq_HanModel16DttllScanpoints_run1", 
     "on_das": false
@@ -65,6 +74,7 @@
   "tHq_HanModelSM": {
     "central_xsec": 0.0, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": false, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelBaseline/v1/mAOD_step_tHq_HanModelNoDim6_run0", 
     "on_das": false
@@ -72,6 +82,7 @@
   "tllq4fMatchedNoHiggs_EFTfixed": {
     "central_xsec": 0.07358, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelPlusJet/v1/mAOD_step_tllq4fMatchedNoHiggs_HanModelFixedStartingPt_run0", 
     "on_das": false
@@ -79,6 +90,7 @@
   "tllq4fMatchedNoHiggs_EFTsp": {
     "central_xsec": 0.07358, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelPlusJet/v1/mAOD_step_tllq4fMatchedNoHiggs_HanModel16DttllScanpoints_run1", 
     "on_das": false
@@ -86,6 +98,7 @@
   "tllq4fMatchedNoHiggs_SM": {
     "central_xsec": 0.07358, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": false, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelPlusJet/v1/mAOD_step_tllq4fMatchedNoHiggs_HanModelNoDim6_run0", 
     "on_das": false
@@ -93,6 +106,7 @@
   "tllq4fMatched_EFT": {
     "central_xsec": 0.07358, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttll-tllq-ProcessCardStudies/v2/mAOD_step_tllq4fMatched_16DttllScanpoints_run1/", 
     "on_das": false
@@ -100,6 +114,7 @@
   "tllq4fMatched_SM": {
     "central_xsec": 0.07358, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": false, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttll-tllq-ProcessCardStudies/v1/mAOD_step_tllq4fMatched_NoDim6_run0/", 
     "on_das": false
@@ -107,6 +122,7 @@
   "tllq4fNoHiggs_EFT": {
     "central_xsec": 0.07358, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttll-tllq-ProcessCardStudies/v2/mAOD_step_tllq4fNoHiggs_16DttllScanpoints_run1/", 
     "on_das": false
@@ -114,6 +130,7 @@
   "tllq4fNoHiggs_SM": {
     "central_xsec": 0.07358, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": false, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttll-tllq-ProcessCardStudies/v1/mAOD_step_tllq4fNoHiggs_NoDim6_run0/", 
     "on_das": false
@@ -121,6 +138,7 @@
   "tllq4f_HanModelEFTfixed": {
     "central_xsec": 0.07358, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelBaseline/v1/mAOD_step_tllq4f_HanModelFixedStartingPt_run0", 
     "on_das": false
@@ -128,6 +146,7 @@
   "tllq4f_HanModelEFTsp": {
     "central_xsec": 0.07358, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelBaseline/v1/mAOD_step_tllq4f_HanModel16DttllScanpoints_run1", 
     "on_das": false
@@ -135,6 +154,7 @@
   "tllq4f_HanModelSM": {
     "central_xsec": 0.07358, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": false, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelBaseline/v1/mAOD_step_tllq4f_HanModelNoDim6_run0", 
     "on_das": false
@@ -142,6 +162,7 @@
   "tllq4f_SMNoSchanW": {
     "central_xsec": 0.07358, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": false, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/tllq4f-NoDim6Diagrams/v2/mAOD_step_tllq4f_NoDim6NoSchanW_run0/", 
     "on_das": false
@@ -149,6 +170,7 @@
   "tllq_FR_R4B9": {
     "central_xsec": 0.07358, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/FullProduction/Round4/Batch9/postLHE_step/v1/mAOD_step_tllq_16DcentralCuts_run0/", 
     "on_das": false
@@ -156,6 +178,7 @@
   "tllq_HanModelEFTfixed": {
     "central_xsec": 0.07358, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelBaseline/v1/mAOD_step_tllq_HanModelFixedStartingPt_run0", 
     "on_das": false
@@ -163,6 +186,7 @@
   "tllq_HanModelEFTsp": {
     "central_xsec": 0.07358, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelBaseline/v1/mAOD_step_tllq_HanModel16DttllScanpoints_run1", 
     "on_das": false
@@ -170,6 +194,7 @@
   "tllq_HanModelSM": {
     "central_xsec": 0.07358, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": false, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelBaseline/v1/mAOD_step_tllq_HanModelNoDim6_run0", 
     "on_das": false
@@ -177,6 +202,7 @@
   "tllq_SM": {
     "central_xsec": 0.07358, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": false, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/4ProcNoDim6/v1/mAOD_step_tllq_NoDim6_run0/", 
     "on_das": false
@@ -184,6 +210,7 @@
   "ttHJet_EFTfixed": {
     "central_xsec": 0.5638, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelPlusJet/v1/mAOD_step_ttHJet_HanModelFixedStartingPt_run0", 
     "on_das": false
@@ -191,6 +218,7 @@
   "ttHJet_EFTsp": {
     "central_xsec": 0.5638, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelPlusJet/v1/mAOD_step_ttHJet_HanModel16DttllScanpoints_run1", 
     "on_das": false
@@ -198,6 +226,7 @@
   "ttHJet_HanModelxqcut25-qCut19": {
     "central_xsec": 0.5638, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttHJet-xqcutStudies/v1/mAOD_step_ttHJet_HanModelxqcut25_run0", 
     "on_das": false
@@ -205,6 +234,7 @@
   "ttHJet_HanModelxqcut25-qCut30": {
     "central_xsec": 0.5638, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttHJet-xqcutStudies/v2/mAOD_step_ttHJet_HanModelxqcut25_run0", 
     "on_das": false
@@ -212,6 +242,7 @@
   "ttHJet_HanModelxqcut25-qCut45": {
     "central_xsec": 0.5638, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttHJet-xqcutStudies/v3/mAOD_step_ttHJet_HanModelxqcut25_run0", 
     "on_das": false
@@ -219,6 +250,7 @@
   "ttHJet_HanModelxqcut35-qCut19": {
     "central_xsec": 0.5638, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttHJet-xqcutStudies/v1/mAOD_step_ttHJet_HanModelxqcut35_run0", 
     "on_das": false
@@ -226,6 +258,7 @@
   "ttHJet_HanModelxqcut35-qCut30": {
     "central_xsec": 0.5638, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttHJet-xqcutStudies/v2/mAOD_step_ttHJet_HanModelxqcut35_run0", 
     "on_das": false
@@ -233,6 +266,7 @@
   "ttHJet_HanModelxqcut35-qCut45": {
     "central_xsec": 0.5638, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttHJet-xqcutStudies/v3/mAOD_step_ttHJet_HanModelxqcut35_run0", 
     "on_das": false
@@ -240,6 +274,7 @@
   "ttHJet_HanModelxqcut45-qCut19": {
     "central_xsec": 0.5638, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttHJet-xqcutStudies/v1/mAOD_step_ttHJet_HanModelxqcut45_run0", 
     "on_das": false
@@ -247,6 +282,7 @@
   "ttHJet_HanModelxqcut45-qCut30": {
     "central_xsec": 0.5638, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttHJet-xqcutStudies/v2/mAOD_step_ttHJet_HanModelxqcut45_run0", 
     "on_das": false
@@ -254,6 +290,7 @@
   "ttHJet_HanModelxqcut45-qCut45": {
     "central_xsec": 0.5638, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttHJet-xqcutStudies/v3/mAOD_step_ttHJet_HanModelxqcut45_run0", 
     "on_das": false
@@ -261,6 +298,7 @@
   "ttHJet_SM": {
     "central_xsec": 0.5638, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": false, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelPlusJet/v1/mAOD_step_ttHJet_HanModelNoDim6_run0", 
     "on_das": false
@@ -268,6 +306,7 @@
   "ttH_HanModelEFTfixed": {
     "central_xsec": 0.5638, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelBaseline/v1/mAOD_step_ttH_HanModelFixedStartingPt_run0", 
     "on_das": false
@@ -275,6 +314,7 @@
   "ttH_HanModelEFTsp": {
     "central_xsec": 0.5638, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelBaseline/v1/mAOD_step_ttH_HanModel16DttllScanpoints_run1", 
     "on_das": false
@@ -282,6 +322,7 @@
   "ttH_HanModelSM": {
     "central_xsec": 0.5638, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": false, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelBaseline/v1/mAOD_step_ttH_HanModelNoDim6_run0", 
     "on_das": false
@@ -289,6 +330,7 @@
   "ttH_SM": {
     "central_xsec": 0.5638, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": false, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/4ProcNoDim6/v1/mAOD_step_ttH_NoDim6_run0/", 
     "on_das": false
@@ -296,6 +338,7 @@
   "ttllNoHiggs_EFT": {
     "central_xsec": 0.244109, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttll-tllq-ProcessCardStudies/v2/mAOD_step_ttllNoHiggs_16DttllScanpoints_run1/", 
     "on_das": false
@@ -303,6 +346,7 @@
   "ttllNoHiggs_HanModelEFTfixed": {
     "central_xsec": 0.244109, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelBaseline/v1/mAOD_step_ttllNoHiggs_HanModelFixedStartingPt_run0", 
     "on_das": false
@@ -310,6 +354,7 @@
   "ttllNoHiggs_HanModelEFTsp": {
     "central_xsec": 0.244109, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelBaseline/v1/mAOD_step_ttllNoHiggs_HanModel16DttllScanpoints_run1", 
     "on_das": false
@@ -317,6 +362,7 @@
   "ttllNoHiggs_HanModelSM": {
     "central_xsec": 0.244109, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": false, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelBaseline/v1/mAOD_step_ttllNoHiggs_HanModelNoDim6_run0", 
     "on_das": false
@@ -324,6 +370,7 @@
   "ttllNoHiggs_SM": {
     "central_xsec": 0.244109, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": false, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttll-tllq-ProcessCardStudies/v2/mAOD_step_ttllNoHiggs_NoDim6_run0/", 
     "on_das": false
@@ -331,6 +378,7 @@
   "ttllNuNuJetNoHiggs_EFTfixed": {
     "central_xsec": 0.244109, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelPlusJet/v2/mAOD_step_ttllNuNuJetNoHiggs_HanModelFixedStartingPt_run0", 
     "on_das": false
@@ -338,6 +386,7 @@
   "ttllNuNuJetNoHiggs_EFTsp": {
     "central_xsec": 0.244109, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelPlusJet/v2/mAOD_step_ttllNuNuJetNoHiggs_HanModel16DttllScanpoints_run1", 
     "on_das": false
@@ -345,6 +394,7 @@
   "ttllNuNuJetNoHiggs_SM": {
     "central_xsec": 0.244109, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": false, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelPlusJet/v2/mAOD_step_ttllNuNuJetNoHiggs_HanModelNoDim6_run0", 
     "on_das": false
@@ -352,6 +402,7 @@
   "ttllNuNuNoHiggs_HanModelEFTfixed": {
     "central_xsec": 0.244109, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelBaseline/v1/mAOD_step_ttllNuNuNoHiggs_HanModelFixedStartingPt_run0", 
     "on_das": false
@@ -359,6 +410,7 @@
   "ttllNuNuNoHiggs_HanModelEFTsp": {
     "central_xsec": 0.244109, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelBaseline/v1/mAOD_step_ttllNuNuNoHiggs_HanModel16DttllScanpoints_run1", 
     "on_das": false
@@ -366,6 +418,7 @@
   "ttllNuNuNoHiggs_HanModelSM": {
     "central_xsec": 0.244109, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": false, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelBaseline/v1/mAOD_step_ttllNuNuNoHiggs_HanModelNoDim6_run0", 
     "on_das": false
@@ -373,6 +426,7 @@
   "ttll_FP_R4B9": {
     "central_xsec": 0.244109, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/FullProduction/Round4/Batch9/postLHE_step/v1/mAOD_step_ttll_16DcentralCuts_run0/", 
     "on_das": false
@@ -380,6 +434,7 @@
   "ttll_SM": {
     "central_xsec": 0.244109, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": false, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/4ProcNoDim6/v1/mAOD_step_ttll_NoDim6_run0/", 
     "on_das": false
@@ -387,6 +442,7 @@
   "ttllnunuNoHiggs_SM": {
     "central_xsec": 0.244109, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": false, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttllWithNuNu/v1/mAOD_step_ttllnunuNoHiggs_NoDim6_run0/", 
     "on_das": false
@@ -394,6 +450,7 @@
   "ttlnuJet_EFT": {
     "central_xsec": 0.341762, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttlnu-NoDim6Diagrams/v2/mAOD_step_ttlnuJet_1JetNoDim6_run0/", 
     "on_das": false
@@ -401,6 +458,7 @@
   "ttlnuJet_EFTfixed": {
     "central_xsec": 0.341762, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelPlusJet/v1/mAOD_step_ttlnuJet_HanModelFixedStartingPt_run0", 
     "on_das": false
@@ -408,6 +466,7 @@
   "ttlnuJet_EFTsp": {
     "central_xsec": 0.341762, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelPlusJet/v1/mAOD_step_ttlnuJet_HanModel16DttllScanpoints_run1", 
     "on_das": false
@@ -415,6 +474,7 @@
   "ttlnuJet_SM": {
     "central_xsec": 0.341762, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": false, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelPlusJet/v1/mAOD_step_ttlnuJet_HanModelNoDim6_run0", 
     "on_das": false
@@ -422,6 +482,7 @@
   "ttlnu_EFT": {
     "central_xsec": 0.341762, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttlnu-NoDim6Diagrams/v2/mAOD_step_ttlnu_NoDim6_run0/", 
     "on_das": false
@@ -429,6 +490,7 @@
   "ttlnu_FP_R4B9": {
     "central_xsec": 0.341762, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/FullProduction/Round4/Batch9/postLHE_step/v1/mAOD_step_ttlnu_16DcentralCuts_run0/", 
     "on_das": false
@@ -436,6 +498,7 @@
   "ttlnu_HanModelEFTfixed": {
     "central_xsec": 0.341762, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelBaseline/v1/mAOD_step_ttlnu_HanModelFixedStartingPt_run0", 
     "on_das": false
@@ -443,6 +506,7 @@
   "ttlnu_HanModelEFTsp": {
     "central_xsec": 0.341762, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelBaseline/v1/mAOD_step_ttlnu_HanModel16DttllScanpoints_run1", 
     "on_das": false
@@ -450,6 +514,7 @@
   "ttlnu_HanModelSM": {
     "central_xsec": 0.341762, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": false, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelBaseline/v1/mAOD_step_ttlnu_HanModelNoDim6_run0", 
     "on_das": false
@@ -457,6 +522,7 @@
   "ttlnu_NoPDFWeights": {
     "central_xsec": 0.341762, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttlnuJet-NoPDFWeights/v2/mAOD_step_ttlnuJet_16DttlnuScanpointsAutoJetCuts_run1/", 
     "on_das": false
@@ -464,6 +530,7 @@
   "ttlnu_SM": {
     "central_xsec": 0.341762, 
     "dataset": "", 
+    "datatier": "MINIAODSIM", 
     "is_eft": false, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/4ProcNoDim6/v1/mAOD_step_ttlnu_NoDim6_run0/", 
     "on_das": false

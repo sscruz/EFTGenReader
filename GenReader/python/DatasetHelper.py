@@ -16,12 +16,12 @@ class DatasetHelper(object):
         # update: If set to false, will remove any pre-existing datasets and only include ones
         #         found in the specified file
         if not os.path.exists(fn):
-            print "ERROR: Unknown file/directory: %s" % (fn)
+            print "ERROR: Unknown file/directory: {fn}".format(fn=fn)
             return
         if not update:
             self.__datasets = {}
             self.__json_files = []
-        print "Loading JSON: %s" % (fn)
+        print "Loading JSON: {fn}".format(fn=fn)
         self.__json_files.append(fn)
         with open(fn) as f:
             d = json.load(f)
@@ -30,7 +30,7 @@ class DatasetHelper(object):
 
     # Save the dataset info to a json file
     def save(self,fn):
-        print "Saving JSON: %s" % (fn)
+        print "Saving JSON: {fn}".format(fn=fn)
         with open(fn,'w') as f:
             d = self.toDict()
             json.dump(d,f,indent=2,sort_keys=True)
@@ -56,7 +56,7 @@ class DatasetHelper(object):
             self.updateDataset(name,**kwargs)
         else:
             if self.__datasets.has_key(name):
-                print "ERROR: Skipping %s since it already exists!" % (name)
+                print "ERROR: Skipping {name} since it already exists!".format(name=name)
                 return
             self.__datasets[name] = DSContainer(**kwargs)
 
@@ -99,7 +99,7 @@ class DatasetHelper(object):
     #       in any CMSSW release after doing 'cmsenv'
     def findOnDAS(self,ds):
         lst = []
-        das_query = 'file dataset=%s | grep file.name, file.size, file.nevents' % (ds.getData('dataset'))
+        das_query = 'file dataset={ds} | grep file.name, file.size, file.nevents'.format(ds=ds.getData('loc'))
         ret = subprocess.check_output(['dasgoclient','--query',das_query])
         ret = ret.split('\n')
         max_files = 10      # currently arbitrary
@@ -114,7 +114,7 @@ class DatasetHelper(object):
         lst = []
         loc = str(ds.getData('loc'))    # converts from a unicode string object to a normal str
         if not os.path.exists(loc):
-            print "Unknown fpath: %s" % (loc)
+            print "Unknown fpath: {loc}".format(loc=loc)
             return []
         idx = 0
         max_files = 100     # currently arbitrary
@@ -138,6 +138,7 @@ class DatasetHelper(object):
 class DSContainer(object):
     def __init__(self,**kwargs):
         self.__data = {
+            'datatier': '',
             'dataset': '',
             'loc': None,
             'on_das': False,
@@ -150,6 +151,7 @@ class DSContainer(object):
     def setData(self,**kwargs):
         for k,v in kwargs.iteritems():
             if not self.__data.has_key(k):
+                print "Unknown key: {key}".format(key=k)
                 continue
             self.__data[k] = v
 
