@@ -39,9 +39,13 @@ class DatasetHelper(object):
     def list(self):
         return self.__datasets.keys()
 
+    # Return if the dataset name is known
+    def exists(self,name):
+        return self.__datasets.has_key(name)
+
     # Print a dataset as formatted json
     def dump(self,name):
-        if not self.__datasets.has_key(name):
+        if not self.exists(name):
             return
         ds = self.__datasets[name]
         print json.dumps(ds.toDict(),indent=2,sort_keys=True)
@@ -55,31 +59,31 @@ class DatasetHelper(object):
         if force:
             self.updateDataset(name,**kwargs)
         else:
-            if self.__datasets.has_key(name):
+            if self.exists(name):
                 print "ERROR: Skipping {name} since it already exists!".format(name=name)
                 return
             self.__datasets[name] = DSContainer(**kwargs)
 
     # Modify a dataset (creates one if none exists)
     def updateDataset(self,name,**kwargs):
-        if not self.__datasets.has_key(name):
+        if not self.exists(name):
             self.__datasets[name] = DSContainer()
         self.__datasets[name].setData(**kwargs)
 
     # Remove a specific dataset
     def removeDataset(self,name):
-        if self.__datasets.has_key(name):
+        if self.exists(name):
             del self.__datasets[name]
 
     # Renames a dataset entry
     def renameDataset(self,old,new):
-        if not self.__datasets.has_key(name):
+        if not self.exists(old):
             return
         self.__datasets[new] = self.__datasets.pop(old)
 
     # Returns a list of root file locations corresponding to the specified dataset
     def getFiles(self,name):
-        if not self.__datasets.has_key(name):
+        if not self.exists(name):
             return []
         ds = self.__datasets[name]
         if ds.getData('on_das'):
@@ -90,7 +94,7 @@ class DatasetHelper(object):
 
     # Passthrough to underlying dataset getter
     def getData(self,name,data_field):
-        if not self.__datasets.has_key(name):
+        if not self.exists(name):
             return None
         return self.__datasets[name].getData(data_field)
 
