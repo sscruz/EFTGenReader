@@ -83,7 +83,7 @@ Bool_t TH1EFT::Add(const TH1 *h1, Double_t c1)
             }
         } else { 
             std::cout << "Attempt to add 2 TH1EFTs with different # of fits!" << std::endl;
-            std::cout << this->hist_fits.size() << ", " << ((TH1EFT*)h1)->hist_fits.size() << endl;
+            std::cout << this->hist_fits.size() << ", " << ((TH1EFT*)h1)->hist_fits.size() << std::endl;
         }
         this->overflow_fit.addFit( ((TH1EFT*)h1)->overflow_fit );
         this->underflow_fit.addFit( ((TH1EFT*)h1)->underflow_fit );
