@@ -39,10 +39,12 @@ void EFTGenReader::beginJob()
     edm::Service<TFileService> newfs;
 
     int pdg_bins = 100;
-    int pt_bins = 200;
+    int pt_bins = 20;//200;
     int eta_bins = 100;
 
     // Book the histograms that we will fill in the event loop
+
+    h_lep_ptEFT = newfs->make<TH1EFT>("h_lep_ptEFT","h_lep_ptEFT",pt_bins,0,300);
 
     // lep pt
     h_lep_pt = newfs->make<TH1D>("h_lep_pt","h_lep_pt",pt_bins,0,300);
@@ -256,6 +258,7 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
     originalXWGTUP_intree = LHEInfo->originalXWGTUP();  // original cross-section
     double sm_wgt = 0.;
     double norm_sm_wgt = -1.;
+    std::vector<WCPoint> wc_pts;
     if (iseft) {// Add EFT weights 
         for (auto wgt_info: LHEInfo->weights()) {
             auto LHEwgtstr = std::string(wgt_info.id);
@@ -269,11 +272,11 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
                 //    norm_sm_wgt = wgt_info.wgt / originalXWGTUP_intree;
                 //    sm_wgt = wgt_info.wgt;
                 //}
-                WCPoint wc_pt(wgt_info.id);
+                WCPoint wc_pt(wgt_info.id,wgt_info.wgt);
+                wc_pts.push_back(wc_pt);
                 if (wc_pt.isSMPoint()) {
                     norm_sm_wgt = wgt_info.wgt / originalXWGTUP_intree;
                     sm_wgt = wgt_info.wgt;
-                    break;
                 }
             }
         }
@@ -281,6 +284,8 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
         norm_sm_wgt = 1.0;
         sm_wgt = originalXWGTUP_intree;
     }
+
+    WCFit eft_fit(wc_pts,"");
 
     //if (eventcount % 25 == 1) {
     //    std::cout << "EVENTNUMBER: " << eventcount << std::endl;
@@ -328,6 +333,8 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
         //          << "\n\tDirect pdgId:  " << direct_id
         //          << "\n\tMother pdgId:  " << mom_id
         //          << "\n\tGMother pdgId: " << gmom_id << std::endl;
+
+        h_lep_ptEFT->Fill(pt,1.0,eft_fit);
 
         h_pdgId->Fill(id);                 h_pdgIdSM->Fill(id,norm_sm_wgt);
         h_lep_pt->Fill(pt);                h_lep_ptSM->Fill(pt,norm_sm_wgt);

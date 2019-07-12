@@ -61,6 +61,8 @@
 
 //#include "ttH-13TeVMultiLeptons/TemplateMakers/interface/WCPoint.h"
 #include "EFTGenReader/GenReader/interface/WCPoint.h"
+#include "EFTGenReader/GenReader/interface/WCFit.h"
+#include "EFTGenReader/GenReader/interface/TH1EFT.h"
 
 // end includes
 // -----------------------------------------------
@@ -121,6 +123,8 @@ class EFTGenReader: public edm::EDAnalyzer
         double max_eta_lep;
 
         std::vector<TH1D*> th1d_hists;
+
+        TH1EFT* h_lep_ptEFT;
 
         TH1D* h_SMwgt_norm;
 
