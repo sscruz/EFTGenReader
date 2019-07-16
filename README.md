@@ -43,10 +43,12 @@ Examples:
     cmsRun EFTGenReader_cfg.py normType=0 dataset=central_ttH
 ```
 
-### chainGenReader Options
+### chainGenReader
 The python script `chainGenReader.py` can be used to do multiple `cmsRun` commands in series. All of the config options available to `EFTGenReader_cfg` can be specified at the command-line for `chainGenReader`, which will then be passed on to the underlying `cmsRun` call. All samples in the chain will be ran with the same command-line options. Type `python chainGenReader.py --help` for a complete list of available options.
 
 ### Misc. Other
-The information used to find the samples is stored in the `datasets.json` file located in `Reader/data/JSON`. Currently, the code is only able to run on samples that are located locally on hadoop, or on DAS. Files are found by looking in the directory specified by the `loc` entry. DAS files are found by querying via the command line utility `dasgoclient`, which should be available from in any recent `CMSSW` release.
+The information used to find the samples is stored in the `datasets.json` file located in `GenReader/data/JSON`. Currently, the code is only able to run on samples that are located locally on hadoop, or on DAS. Files are found by looking in the directory specified by the `loc` entry. DAS files are found by querying via the command line utility `dasgoclient`, which should be available from in any recent `CMSSW` release.
 
 Additional datasets can be added/modified/removed from the `datasets.json` file either by hand (not recommended) or by making use of the `update_datasets.py` script. The script shows some examples of how to add/modify/remove entries from the `dataset.json` file via the `DatasetHelper` class. Currently, there is no way to edit the JSON file entirely from the command-line.
+
+**Note:** The versions of the `TH1EFT` and `WCFit` classes in this repo have been modified relative to the ones in the `ttH-Multilepton` repository. Here we have re-enabled the storing of the fit errors as well as switched back to the alternative `TH1EFT::Scale` member function.
