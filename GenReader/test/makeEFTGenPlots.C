@@ -24,6 +24,9 @@
 //    f->Close();
 //}
 
+#include "EFTGenReader/GenReader/interface/TH1EFT.h"
+#include "EFTGenReader/GenReader/interface/WCPoint.h"
+
 TCanvas* findCanvas(TString search,std::vector<TCanvas*> canvs) {
     //TCanvas* canv = nullptr;
     for (auto c: canvs) {
@@ -51,7 +54,9 @@ int findCanvasIndex(TString search,std::vector<TCanvas*> canvs) {
 void makeEFTGenPlots(std::vector<TString> input_fnames) {
     std::vector<TFile*> files;
 
-    const Int_t kCLRS = 6;
+    TH1::SetDefaultSumw2();
+
+    const Int_t kCLRS = 9;
     Int_t palette[kCLRS];
     palette[0] = kBlack;
     palette[1] = kBlue;
@@ -59,6 +64,10 @@ void makeEFTGenPlots(std::vector<TString> input_fnames) {
     palette[3] = kGreen;
     palette[4] = kMagenta;
     palette[5] = kCyan;
+    palette[6] = kCyan+3;
+    palette[7] = kGreen+3;
+    palette[8] = kRed+3;
+    //palette[9] = kMagenta+3;
 
     const Int_t kCLRS2 = 3;
     Int_t pal2[kCLRS2];
@@ -75,7 +84,7 @@ void makeEFTGenPlots(std::vector<TString> input_fnames) {
     minimum      = 0.1;
 
     gStyle->SetPalette(kCLRS,palette);
-    if (input_fnames.size() == 3) {
+    if (input_fnames.size() <= 3) {
         gStyle->SetPalette(kCLRS2,pal2);
     }
     gStyle->SetOptStat(0);
@@ -99,6 +108,11 @@ void makeEFTGenPlots(std::vector<TString> input_fnames) {
 
     std::vector<TCanvas*> canvs;
     std::vector<TLegend*> legs;
+    //WCPoint* smpt = new WCPoint();
+    WCPoint* wc_pt = new WCPoint("wcpoint");
+    //wc_pt->setSMPoint();
+    //wc_pt->setStrength("ctG",4.0);
+    wc_pt->setStrength("ctW",4.0);
     int filecounter = 0;
     for (auto f: files) {
         f->Print();
@@ -106,11 +120,16 @@ void makeEFTGenPlots(std::vector<TString> input_fnames) {
         TString fname = f->GetName();
         TString sub_str;
         Ssiz_t idx = fname.First('/');
+        int idx_begin = 0;
+        int idx_end = 0;
         if (idx != TString::kNPOS) {
             sub_str = fname(idx+1,fname.Length());
         }
-        idx = sub_str.Index("_NoTopLeptons");
-        sub_str = sub_str(0,idx);
+        //idx = sub_str.Index("_NoTopLeptons");
+        //sub_str = sub_str(0,idx);
+        idx_begin = sub_str.Index("output_")+7;
+        idx_end = sub_str.Index("output_tree_")-1;
+        sub_str = sub_str(idx_begin,idx_end-idx_begin);
 
         TDirectory* td = f->GetDirectory("EFTGenReader");
         TIter next(td->GetListOfKeys());
@@ -120,17 +139,24 @@ void makeEFTGenPlots(std::vector<TString> input_fnames) {
             TString s = key->GetName();
             if (s == cmp) continue;
 
-            TH1D* h = (TH1D*)td->Get(key->GetName());
+            //TH1D* h = (TH1D*)td->Get(key->GetName());
+            TH1EFT* h = (TH1EFT*)td->Get(key->GetName());
             h->SetMarkerStyle(kFullCircle);
             h->SetMarkerSize(0.25);
             h->SetOption("E");
 
-            Int_t nbins = h->GetNbinsX();
-            Double_t intg = h->Integral(0,nbins+1);
+            //Int_t nbins = h->GetNbinsX();
+            //Double_t intg = h->Integral(0,nbins+1);
 
-            if (intg > 1.0) {
-                h->Scale(1./intg);
-            }
+            //if (intg > 1.0) {
+            //    h->Scale(1./intg);
+            //}
+
+            //// Rebin the pt distrubutions
+            //if (s.Index("_pt") != -1) {
+            //    //cout << "this is a pt plot!" << s << "\n";
+            //	h->Rebin(10);
+            //}
 
             c = findCanvas(key->GetName(),canvs);
             int c_idx = findCanvasIndex(key->GetName(),canvs);
@@ -151,10 +177,30 @@ void makeEFTGenPlots(std::vector<TString> input_fnames) {
 
             c->cd();
 
+            //WCPoint smpt("SMpt");
+            if (s.Index("EFT") != -1) {
+                for (Int_t bin_idx = 0; bin_idx <= h->GetNbinsX()+1; bin_idx++) {
+                    //double wcfit_bin_val = h->GetBinContent(bin_idx,smpt);
+                    //double wcfit_bin_val = h->GetBinFit(bin_idx).evalPoint(smpt);
+                    //double wcfit_bin_err = h->GetBinFit(bin_idx).evalPointError(smpt);
+                    double wcfit_bin_val = h->GetBinFit(bin_idx).evalPoint(wc_pt);
+                    double wcfit_bin_err = h->GetBinFit(bin_idx).evalPointError(wc_pt);
+                    h->SetBinContent(bin_idx,wcfit_bin_val);
+                    h->SetBinError(bin_idx,wcfit_bin_err);
+                    //h->SetBinError(bin_idx,sqrt(wcfit_bin_val));
+                }
+            }
+
+            Int_t nbins = h->GetNbinsX();
+            Double_t intg = h->Integral(0,nbins+1);
+            if (intg > 1.0) {
+               h->Scale(1./intg);
+            }
+
             if (is_new) {
-                h->Draw("PLC PMC");
+                h->Draw("E PLC PMC");
             } else {
-                h->Draw("SAME PLC PMC");
+                h->Draw("E SAME PLC PMC");
             }
             leg->AddEntry(h,sub_str,"l");
             c->Update();
@@ -175,6 +221,8 @@ void makeEFTGenPlots(std::vector<TString> input_fnames) {
         c->Print(s,"png");
     }
 
+    //delete smpt;
+    delete wc_pt;
     for (auto f: files) {
         f->Close();
     }

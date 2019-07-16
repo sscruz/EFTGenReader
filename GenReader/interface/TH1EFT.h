@@ -167,7 +167,6 @@ Double_t TH1EFT::GetBinContent(Int_t bin, WCPoint wc_pt)
 
     return scale_value;
 }
-/*
 void TH1EFT::Scale(WCPoint wc_pt)
 {
     // Warning: calling GetEntries after a call to this function will return a 
@@ -181,8 +180,8 @@ void TH1EFT::Scale(WCPoint wc_pt)
     }
     
 }
-*/
 // evalPointError disabled:
+/*
 void TH1EFT::Scale(WCPoint wc_pt)
 {
     // Warning: calling GetEntries after a call to this function will return a 
@@ -197,6 +196,7 @@ void TH1EFT::Scale(WCPoint wc_pt)
     }
     
 }
+*/
 // Uniformly scale all fits by amt
 void TH1EFT::ScaleFits(double amt)
 {

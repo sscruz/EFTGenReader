@@ -124,38 +124,38 @@ class EFTGenReader: public edm::EDAnalyzer
 
         std::vector<TH1D*> th1d_hists;
 
-        TH1EFT* h_lep_ptEFT;
+        //TH1EFT* h_lep_ptEFT;
 
         TH1D* h_SMwgt_norm;
 
         // pdgId Histograms
-        TH1D* h_pdgId;            TH1D* h_pdgIdSM;
-        TH1D* h_pdgIdFromZ;       TH1D* h_pdgIdFromZSM;
-        TH1D* h_pdgIdFromH;       TH1D* h_pdgIdFromHSM;
-        TH1D* h_pdgIdFromW;       TH1D* h_pdgIdFromWSM;
-        TH1D* h_pdgIdFromPhoton;  TH1D* h_pdgIdFromPhotonSM;
-        TH1D* h_pdgIdFromGluon;   TH1D* h_pdgIdFromGluonSM;
-        TH1D* h_pdgIdFromQCD;     TH1D* h_pdgIdFromQCDSM;
-        TH1D* h_pdgIdFromOther;   TH1D* h_pdgIdFromOtherSM;
-        TH1D* h_pdgIdLepMother;   TH1D* h_pdgIdLepMotherSM;
-        TH1D* h_pdgIdLepGrMother; TH1D* h_pdgIdLepGrMotherSM;
+        TH1EFT* h_pdgIdEFT;            TH1D* h_pdgIdSM;
+        TH1EFT* h_pdgIdFromZEFT;       TH1D* h_pdgIdFromZSM;
+        TH1EFT* h_pdgIdFromHEFT;       TH1D* h_pdgIdFromHSM;
+        TH1EFT* h_pdgIdFromWEFT;       TH1D* h_pdgIdFromWSM;
+        TH1EFT* h_pdgIdFromPhotonEFT;  TH1D* h_pdgIdFromPhotonSM;
+        TH1EFT* h_pdgIdFromGluonEFT;   TH1D* h_pdgIdFromGluonSM;
+        TH1EFT* h_pdgIdFromQCDEFT;     TH1D* h_pdgIdFromQCDSM;
+        TH1EFT* h_pdgIdFromOtherEFT;   TH1D* h_pdgIdFromOtherSM;
+        TH1EFT* h_pdgIdLepMotherEFT;   TH1D* h_pdgIdLepMotherSM;
+        TH1EFT* h_pdgIdLepGrMotherEFT; TH1D* h_pdgIdLepGrMotherSM;
         
         // Lepton Histograms
-        TH1D* h_prompt_leptons; TH1D* h_prompt_leptonsSM;
-        TH1D* h_lep_pt;         TH1D* h_lep_ptSM;
-        TH1D* h_lep_eta;        TH1D* h_lep_etaSM;
-        TH1D* h_lep1_pt;        TH1D* h_lep1_ptSM;
-        TH1D* h_lep2_pt;        TH1D* h_lep2_ptSM;
-        TH1D* h_mll;            TH1D* h_mllSM;
-        TH1D* h_deltaR;         TH1D* h_deltaRSM;
-        TH1D* h_lepSum_pt;      TH1D* h_lepSum_ptSM;
+        TH1EFT* h_prompt_leptonsEFT; TH1D* h_prompt_leptonsSM;
+        TH1EFT* h_lep_ptEFT;         TH1D* h_lep_ptSM;
+        TH1EFT* h_lep_etaEFT;        TH1D* h_lep_etaSM;
+        TH1EFT* h_lep1_ptEFT;        TH1D* h_lep1_ptSM;
+        TH1EFT* h_lep2_ptEFT;        TH1D* h_lep2_ptSM;
+        TH1EFT* h_mllEFT;            TH1D* h_mllSM;
+        TH1EFT* h_deltaREFT;         TH1D* h_deltaRSM;
+        TH1EFT* h_lepSum_ptEFT;      TH1D* h_lepSum_ptSM;
 
         // Jet Histograms
-        TH1D* h_nJets;   TH1D* h_nJetsSM;
-        TH1D* h_jet_pt;  TH1D* h_jet_ptSM;
-        TH1D* h_jet1_pt; TH1D* h_jet1_ptSM;
-        TH1D* h_jet2_pt; TH1D* h_jet2_ptSM;
-        TH1D* h_jet_eta; TH1D* h_jet_etaSM;
+        TH1EFT* h_nJetsEFT;   TH1D* h_nJetsSM;
+        TH1EFT* h_jet_ptEFT;  TH1D* h_jet_ptSM;
+        TH1EFT* h_jet1_ptEFT; TH1D* h_jet1_ptSM;
+        TH1EFT* h_jet2_ptEFT; TH1D* h_jet2_ptSM;
+        TH1EFT* h_jet_etaEFT; TH1D* h_jet_etaSM;
 
         edm::ParameterSet entire_pset;
 

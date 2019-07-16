@@ -44,127 +44,127 @@ void EFTGenReader::beginJob()
 
     // Book the histograms that we will fill in the event loop
 
-    h_lep_ptEFT = newfs->make<TH1EFT>("h_lep_ptEFT","h_lep_ptEFT",pt_bins,0,300);
+    //h_lep_ptEFT = newfs->make<TH1EFT>("h_lep_ptEFT","h_lep_ptEFT",pt_bins,0,300);
 
     // lep pt
-    h_lep_pt = newfs->make<TH1D>("h_lep_pt","h_lep_pt",pt_bins,0,300);
+    h_lep_ptEFT = newfs->make<TH1EFT>("h_lep_ptEFT","h_lep_ptEFT",pt_bins,0,300);
     h_lep_ptSM = newfs->make<TH1D>("h_lep_ptSM","h_lep_ptSM",pt_bins,0,300);
-    th1d_hists.push_back(h_lep_pt);
+    th1d_hists.push_back(h_lep_ptEFT);
     th1d_hists.push_back(h_lep_ptSM);
     
-    h_lep1_pt = newfs->make<TH1D>("h_lep1_pt","h_lep1_pt",pt_bins,0,300);
+    h_lep1_ptEFT = newfs->make<TH1EFT>("h_lep1_ptEFT","h_lep1_ptEFT",pt_bins,0,300);
     h_lep1_ptSM = newfs->make<TH1D>("h_lep1_ptSM","h_lep1_ptSM",pt_bins,0,300);
-    th1d_hists.push_back(h_lep1_pt);
+    th1d_hists.push_back(h_lep1_ptEFT);
     th1d_hists.push_back(h_lep1_ptSM);
     
-    h_lep2_pt = newfs->make<TH1D>("h_lep2_pt","h_lep2_pt",pt_bins,0,300);
+    h_lep2_ptEFT = newfs->make<TH1EFT>("h_lep2_ptEFT","h_lep2_ptEFT",pt_bins,0,300);
     h_lep2_ptSM = newfs->make<TH1D>("h_lep2_ptSM","h_lep2_ptSM",pt_bins,0,300);
-    th1d_hists.push_back(h_lep2_pt);
+    th1d_hists.push_back(h_lep2_ptEFT);
     th1d_hists.push_back(h_lep2_ptSM);
     
-    h_lepSum_pt = newfs->make<TH1D>("h_lepSum_pt","h_lepSum_pt",pt_bins,0,300);
+    h_lepSum_ptEFT = newfs->make<TH1EFT>("h_lepSum_ptEFT","h_lepSum_ptEFT",pt_bins,0,300);
     h_lepSum_ptSM = newfs->make<TH1D>("h_lepSum_ptSM","h_lepSum_ptSM",pt_bins,0,300);
-    th1d_hists.push_back(h_lepSum_pt);
+    th1d_hists.push_back(h_lepSum_ptEFT);
     th1d_hists.push_back(h_lepSum_ptSM);
 
     // lep eta
-    h_lep_eta = newfs->make<TH1D>("h_lep_eta","h_lep_eta",eta_bins,-5.0,5.0);
+    h_lep_etaEFT = newfs->make<TH1EFT>("h_lep_etaEFT","h_lep_etaEFT",eta_bins,-5.0,5.0);
     h_lep_etaSM = newfs->make<TH1D>("h_lep_etaSM","h_lep_etaSM",eta_bins,-5.0,5.0);
-    th1d_hists.push_back(h_lep_eta);
+    th1d_hists.push_back(h_lep_etaEFT);
     th1d_hists.push_back(h_lep_etaSM);
 
     // dilep inv mass
-    h_mll = newfs->make<TH1D>("h_mll","h_mll",pt_bins,0,300);
+    h_mllEFT = newfs->make<TH1EFT>("h_mllEFT","h_mllEFT",pt_bins,0,300);
     h_mllSM = newfs->make<TH1D>("h_mllSM","h_mllSM",pt_bins,0,300);
-    th1d_hists.push_back(h_mll);
+    th1d_hists.push_back(h_mllEFT);
     th1d_hists.push_back(h_mllSM);
 
     // Jet histograms
-    h_nJets = newfs->make<TH1D>("h_njets","h_njets",16,0,15);
+    h_nJetsEFT = newfs->make<TH1EFT>("h_njetsEFT","h_njetsEFT",16,0,15);
     h_nJetsSM = newfs->make<TH1D>("h_njetsSM","h_njetsSM",16,0,15);
-    th1d_hists.push_back(h_nJets);
+    th1d_hists.push_back(h_nJetsEFT);
     th1d_hists.push_back(h_nJetsSM);
 
-    h_jet_pt = newfs->make<TH1D>("h_jet_pt","h_jet_pt",pt_bins,0,300);
+    h_jet_ptEFT = newfs->make<TH1EFT>("h_jet_ptEFT","h_jet_ptEFT",pt_bins,0,300);
     h_jet_ptSM = newfs->make<TH1D>("h_jet_ptSM","h_jet_ptSM",pt_bins,0,300);
-    th1d_hists.push_back(h_jet_pt);
+    th1d_hists.push_back(h_jet_ptEFT);
     th1d_hists.push_back(h_jet_ptSM);
 
-    h_jet1_pt = newfs->make<TH1D>("h_jet1_pt","h_jet1_pt",pt_bins,0,300);
+    h_jet1_ptEFT = newfs->make<TH1EFT>("h_jet1_ptEFT","h_jet1_ptEFT",pt_bins,0,300);
     h_jet1_ptSM = newfs->make<TH1D>("h_jet1_ptSM","h_jet1_ptSM",pt_bins,0,300);
-    th1d_hists.push_back(h_jet1_pt);
+    th1d_hists.push_back(h_jet1_ptEFT);
     th1d_hists.push_back(h_jet1_ptSM);
 
-    h_jet2_pt = newfs->make<TH1D>("h_jet2_pt","h_jet2_pt",pt_bins,0,300);
+    h_jet2_ptEFT = newfs->make<TH1EFT>("h_jet2_ptEFT","h_jet2_ptEFT",pt_bins,0,300);
     h_jet2_ptSM = newfs->make<TH1D>("h_jet2_ptSM","h_jet2_ptSM",pt_bins,0,300);
-    th1d_hists.push_back(h_jet2_pt);
+    th1d_hists.push_back(h_jet2_ptEFT);
     th1d_hists.push_back(h_jet2_ptSM);
 
-    h_jet_eta = newfs->make<TH1D>("h_jet_eta","h_jet_eta",eta_bins,-5.0,5.0);
+    h_jet_etaEFT = newfs->make<TH1EFT>("h_jet_etaEFT","h_jet_etaEFT",eta_bins,-5.0,5.0);
     h_jet_etaSM = newfs->make<TH1D>("h_jet_etaSM","h_jet_etaSM",eta_bins,-5.0,5.0);
-    th1d_hists.push_back(h_jet_eta);
+    th1d_hists.push_back(h_jet_etaEFT);
     th1d_hists.push_back(h_jet_etaSM);
 
     // pdgId histograms
-    h_pdgId = newfs->make<TH1D>("h_pdgId","h_pdgId",2*pdg_bins,-pdg_bins+1,pdg_bins);
+    h_pdgIdEFT = newfs->make<TH1EFT>("h_pdgIdEFT","h_pdgIdEFT",2*pdg_bins,-pdg_bins+1,pdg_bins);
     h_pdgIdSM = newfs->make<TH1D>("h_pdgIdSM","h_pdgIdSM",2*pdg_bins,-pdg_bins+1,pdg_bins);
-    th1d_hists.push_back(h_pdgId);
+    th1d_hists.push_back(h_pdgIdEFT);
     th1d_hists.push_back(h_pdgIdSM);
 
-    h_pdgIdFromZ = newfs->make<TH1D>("h_pdgIdFromZ","h_pdgIdFromZ",2*pdg_bins,-pdg_bins+1,pdg_bins);
+    h_pdgIdFromZEFT = newfs->make<TH1EFT>("h_pdgIdFromZEFT","h_pdgIdFromZEFT",2*pdg_bins,-pdg_bins+1,pdg_bins);
     h_pdgIdFromZSM = newfs->make<TH1D>("h_pdgIdFromZSM","h_pdgIdFromZSM",2*pdg_bins,-pdg_bins+1,pdg_bins);
-    th1d_hists.push_back(h_pdgIdFromZ);
+    th1d_hists.push_back(h_pdgIdFromZEFT);
     th1d_hists.push_back(h_pdgIdFromZSM);
 
-    h_pdgIdFromH = newfs->make<TH1D>("h_pdgIdFromH","h_pdgIdFromH",2*pdg_bins,-pdg_bins+1,pdg_bins);
+    h_pdgIdFromHEFT = newfs->make<TH1EFT>("h_pdgIdFromHEFT","h_pdgIdFromHEFT",2*pdg_bins,-pdg_bins+1,pdg_bins);
     h_pdgIdFromHSM = newfs->make<TH1D>("h_pdgIdFromHSM","h_pdgIdFromHSM",2*pdg_bins,-pdg_bins+1,pdg_bins);
-    th1d_hists.push_back(h_pdgIdFromH);
+    th1d_hists.push_back(h_pdgIdFromHEFT);
     th1d_hists.push_back(h_pdgIdFromHSM);
 
-    h_pdgIdFromW = newfs->make<TH1D>("h_pdgIdFromW","h_pdgIdFromW",2*pdg_bins,-pdg_bins+1,pdg_bins);
+    h_pdgIdFromWEFT = newfs->make<TH1EFT>("h_pdgIdFromWEFT","h_pdgIdFromWEFT",2*pdg_bins,-pdg_bins+1,pdg_bins);
     h_pdgIdFromWSM = newfs->make<TH1D>("h_pdgIdFromWSM","h_pdgIdFromWSM",2*pdg_bins,-pdg_bins+1,pdg_bins);
-    th1d_hists.push_back(h_pdgIdFromW);
+    th1d_hists.push_back(h_pdgIdFromWEFT);
     th1d_hists.push_back(h_pdgIdFromWSM);
 
-    h_pdgIdFromPhoton = newfs->make<TH1D>("h_pdgIdFromPhoton","h_pdgIdFromPhoton",2*pdg_bins,-pdg_bins+1,pdg_bins);
+    h_pdgIdFromPhotonEFT = newfs->make<TH1EFT>("h_pdgIdFromPhotonEFT","h_pdgIdFromPhotonEFT",2*pdg_bins,-pdg_bins+1,pdg_bins);
     h_pdgIdFromPhotonSM = newfs->make<TH1D>("h_pdgIdFromPhotonSM","h_pdgIdFromPhotonSM",2*pdg_bins,-pdg_bins+1,pdg_bins);
-    th1d_hists.push_back(h_pdgIdFromPhoton);
+    th1d_hists.push_back(h_pdgIdFromPhotonEFT);
     th1d_hists.push_back(h_pdgIdFromPhotonSM);
 
-    h_pdgIdFromGluon = newfs->make<TH1D>("h_pdgIdFromGluon","h_pdgIdFromGluon",2*pdg_bins,-pdg_bins+1,pdg_bins);
+    h_pdgIdFromGluonEFT = newfs->make<TH1EFT>("h_pdgIdFromGluonEFT","h_pdgIdFromGluonEFT",2*pdg_bins,-pdg_bins+1,pdg_bins);
     h_pdgIdFromGluonSM = newfs->make<TH1D>("h_pdgIdFromGluonSM","h_pdgIdFromGluonSM",2*pdg_bins,-pdg_bins+1,pdg_bins);
-    th1d_hists.push_back(h_pdgIdFromGluon);
+    th1d_hists.push_back(h_pdgIdFromGluonEFT);
     th1d_hists.push_back(h_pdgIdFromGluonSM);
 
-    h_pdgIdFromQCD = newfs->make<TH1D>("h_pdgIdFromQCD","h_pdgIdFromQCD",2*pdg_bins,-pdg_bins+1,pdg_bins);
+    h_pdgIdFromQCDEFT = newfs->make<TH1EFT>("h_pdgIdFromQCDEFT","h_pdgIdFromQCDEFT",2*pdg_bins,-pdg_bins+1,pdg_bins);
     h_pdgIdFromQCDSM = newfs->make<TH1D>("h_pdgIdFromQCDSM","h_pdgIdFromQCDSM",2*pdg_bins,-pdg_bins+1,pdg_bins);
-    th1d_hists.push_back(h_pdgIdFromQCD);
+    th1d_hists.push_back(h_pdgIdFromQCDEFT);
     th1d_hists.push_back(h_pdgIdFromQCDSM);
 
-    h_pdgIdFromOther = newfs->make<TH1D>("h_pdgIdFromOther","h_pdgIdFromOther",2*pdg_bins,-pdg_bins+1,pdg_bins);
+    h_pdgIdFromOtherEFT = newfs->make<TH1EFT>("h_pdgIdFromOtherEFT","h_pdgIdFromOtherEFT",2*pdg_bins,-pdg_bins+1,pdg_bins);
     h_pdgIdFromOtherSM = newfs->make<TH1D>("h_pdgIdFromOtherSM","h_pdgIdFromOtherSM",2*pdg_bins,-pdg_bins+1,pdg_bins);
-    th1d_hists.push_back(h_pdgIdFromOther);
+    th1d_hists.push_back(h_pdgIdFromOtherEFT);
     th1d_hists.push_back(h_pdgIdFromOtherSM);
 
-    h_pdgIdLepMother = newfs->make<TH1D>("h_pdgIdLepMother","h_pdgIdLepMother",2*pdg_bins,-pdg_bins+1,pdg_bins);
+    h_pdgIdLepMotherEFT = newfs->make<TH1EFT>("h_pdgIdLepMotherEFT","h_pdgIdLepMotherEFT",2*pdg_bins,-pdg_bins+1,pdg_bins);
     h_pdgIdLepMotherSM = newfs->make<TH1D>("h_pdgIdLepMotherSM","h_pdgIdLepMotherSM",2*pdg_bins,-pdg_bins+1,pdg_bins);
-    th1d_hists.push_back(h_pdgIdLepMother);
+    th1d_hists.push_back(h_pdgIdLepMotherEFT);
     th1d_hists.push_back(h_pdgIdLepMotherSM);
 
-    h_pdgIdLepGrMother = newfs->make<TH1D>("h_pdgIdLepGrMother","h_pdgIdLepGrMother",2*pdg_bins,-pdg_bins+1,pdg_bins);
+    h_pdgIdLepGrMotherEFT = newfs->make<TH1EFT>("h_pdgIdLepGrMotherEFT","h_pdgIdLepGrMotherEFT",2*pdg_bins,-pdg_bins+1,pdg_bins);
     h_pdgIdLepGrMotherSM = newfs->make<TH1D>("h_pdgIdLepGrMotherSM","h_pdgIdLepGrMotherSM",2*pdg_bins,-pdg_bins+1,pdg_bins);
-    th1d_hists.push_back(h_pdgIdLepGrMother);
+    th1d_hists.push_back(h_pdgIdLepGrMotherEFT);
     th1d_hists.push_back(h_pdgIdLepGrMotherSM);
 
     // misc. observables
-    h_deltaR = newfs->make<TH1D>("h_deltaR","h_deltaR",100,0,5);
+    h_deltaREFT = newfs->make<TH1EFT>("h_deltaREFT","h_deltaREFT",100,0,5);
     h_deltaRSM = newfs->make<TH1D>("h_deltaRSM","h_deltaRSM",100,0,5);
-    th1d_hists.push_back(h_deltaR);
+    th1d_hists.push_back(h_deltaREFT);
     th1d_hists.push_back(h_deltaRSM);
     
-    h_prompt_leptons = newfs->make<TH1D>("h_prompt_leptons","h_prompt_leptons",30,0,11);
+    h_prompt_leptonsEFT = newfs->make<TH1EFT>("h_prompt_leptonsEFT","h_prompt_leptonsEFT",30,0,11);
     h_prompt_leptonsSM = newfs->make<TH1D>("h_prompt_leptonsSM","h_prompt_leptonsSM",30,0,11);
-    th1d_hists.push_back(h_prompt_leptons);
+    th1d_hists.push_back(h_prompt_leptonsEFT);
     th1d_hists.push_back(h_prompt_leptonsSM);
     
     // Don't normalize these plots
@@ -202,24 +202,24 @@ void EFTGenReader::endJob()
     //}
 
     // Normalize all the plots to unit area
-    for (TH1D* h: th1d_hists) {
-        nbins = h->GetNbinsX();
-        value = h->Integral(0,nbins+1);
-        if (value == 0) value = 1.;
-        if (norm_type == 1) {// Unit normalize        
-            h->Scale(1./value);
-        } else if (norm_type == 2) {
-            // xsec_norm should be the NLO SM xsec for the sample
-            if (iseft) {
-                norm = intg_lumi*xsec_norm*total_sm_xsec / total_sm_xsec;
-            } else {
-                //norm = intg_lumi*xsec_norm / total_events;
-                norm = intg_lumi*total_sm_xsec / total_events;
-            }
-            //norm = norm / value;
-            h->Scale(norm);
-        }
-    }
+    //for (TH1D* h: th1d_hists) {
+    //    nbins = h->GetNbinsX();
+    //    value = h->Integral(0,nbins+1);
+    //    if (value == 0) value = 1.;
+    //    if (norm_type == 1) {// Unit normalize        
+    //        h->Scale(1./value);
+    //    } else if (norm_type == 2) {
+    //        // xsec_norm should be the NLO SM xsec for the sample
+    //        if (iseft) {
+    //            norm = intg_lumi*xsec_norm*total_sm_xsec / total_sm_xsec;
+    //        } else {
+    //            //norm = intg_lumi*xsec_norm / total_events;
+    //            norm = intg_lumi*total_sm_xsec / total_events;
+    //        }
+    //        //norm = norm / value;
+    //        h->Scale(norm);
+    //    }
+    //}
 }
 
 void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evsetup)
@@ -257,7 +257,7 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
 
     originalXWGTUP_intree = LHEInfo->originalXWGTUP();  // original cross-section
     double sm_wgt = 0.;
-    double norm_sm_wgt = -1.;
+    //double norm_sm_wgt = -1.;
     std::vector<WCPoint> wc_pts;
     if (iseft) {// Add EFT weights 
         for (auto wgt_info: LHEInfo->weights()) {
@@ -275,13 +275,13 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
                 WCPoint wc_pt(wgt_info.id,wgt_info.wgt);
                 wc_pts.push_back(wc_pt);
                 if (wc_pt.isSMPoint()) {
-                    norm_sm_wgt = wgt_info.wgt / originalXWGTUP_intree;
+                    //norm_sm_wgt = wgt_info.wgt / originalXWGTUP_intree;
                     sm_wgt = wgt_info.wgt;
                 }
             }
         }
     } else {
-        norm_sm_wgt = 1.0;
+        //norm_sm_wgt = 1.0;
         sm_wgt = originalXWGTUP_intree;
     }
 
@@ -301,7 +301,8 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
     //std::cout << "Norm Wgt: " << norm_sm_wgt << std::endl;
     //std::cout << std::endl;
 
-    h_SMwgt_norm->Fill(norm_sm_wgt);
+    //h_SMwgt_norm->Fill(norm_sm_wgt);
+    h_SMwgt_norm->Fill(sm_wgt);
 
     reco::GenParticleCollection gen_leptons = GetGenLeptons(*prunedParticles);
 
@@ -311,8 +312,8 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
     //}
     //dumpParticles(gen_leptons);
 
-    h_prompt_leptons->Fill(gen_leptons.size());
-    h_prompt_leptonsSM->Fill(gen_leptons.size(),norm_sm_wgt);
+    h_prompt_leptonsEFT->Fill(gen_leptons.size(),1.0,eft_fit);
+    h_prompt_leptonsSM->Fill(gen_leptons.size(),sm_wgt);
 
     for (size_t i = 0; i < gen_leptons.size(); i++) {
         const reco::GenParticle& p1 = gen_leptons.at(i);
@@ -334,44 +335,44 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
         //          << "\n\tMother pdgId:  " << mom_id
         //          << "\n\tGMother pdgId: " << gmom_id << std::endl;
 
-        h_lep_ptEFT->Fill(pt,1.0,eft_fit);
+        //h_lep_ptEFT->Fill(pt,1.0,eft_fit);
 
-        h_pdgId->Fill(id);                 h_pdgIdSM->Fill(id,norm_sm_wgt);
-        h_lep_pt->Fill(pt);                h_lep_ptSM->Fill(pt,norm_sm_wgt);
-        h_lep_eta->Fill(eta);              h_lep_etaSM->Fill(eta,norm_sm_wgt);
-        h_pdgIdLepMother->Fill(mom_id);    h_pdgIdLepMotherSM->Fill(mom_id,norm_sm_wgt);
-        h_pdgIdLepGrMother->Fill(gmom_id); h_pdgIdLepGrMotherSM->Fill(gmom_id,norm_sm_wgt);
+        h_pdgIdLepGrMotherEFT->Fill(gmom_id,1.0,eft_fit); h_pdgIdLepGrMotherSM->Fill(gmom_id,sm_wgt);
+        h_lep_ptEFT->Fill(pt,1.0,eft_fit);                h_lep_ptSM->Fill(pt,sm_wgt);
+        h_lep_etaEFT->Fill(eta,1.0,eft_fit);              h_lep_etaSM->Fill(eta,sm_wgt);
+        h_pdgIdLepMotherEFT->Fill(mom_id,1.0,eft_fit);    h_pdgIdLepMotherSM->Fill(mom_id,sm_wgt);
+        h_pdgIdLepGrMotherEFT->Fill(gmom_id,1.0,eft_fit); h_pdgIdLepGrMotherSM->Fill(gmom_id,sm_wgt);
 
         // mom_id and direct_id should be the same thing for the gen leptons selected by GetGenLeptons()
         if (mom_id == 21) {
-            h_pdgIdFromGluon->Fill(id);
-            h_pdgIdFromGluonSM->Fill(id,norm_sm_wgt);
+            h_pdgIdFromGluonEFT->Fill(id,1.0,eft_fit);
+            h_pdgIdFromGluonSM->Fill(id,sm_wgt);
         } else if (mom_id >= 1 && mom_id <= 5) {
-            h_pdgIdFromQCD->Fill(id);
-            h_pdgIdFromQCDSM->Fill(id,norm_sm_wgt);  
+            h_pdgIdFromQCDEFT->Fill(id,1.0,eft_fit);
+            h_pdgIdFromQCDSM->Fill(id,sm_wgt);  
         } else if (mom_id == 22) {
-            h_pdgIdFromPhoton->Fill(id);
-            h_pdgIdFromPhotonSM->Fill(id,norm_sm_wgt);
+            h_pdgIdFromPhotonEFT->Fill(id,1.0,eft_fit);
+            h_pdgIdFromPhotonSM->Fill(id,sm_wgt);
         } else if (mom_id == 23) {
-            h_pdgIdFromZ->Fill(id);
-            h_pdgIdFromZSM->Fill(id,norm_sm_wgt);
+            h_pdgIdFromZEFT->Fill(id,1.0,eft_fit);
+            h_pdgIdFromZSM->Fill(id,sm_wgt);
         } else if (mom_id == -24 || mom_id == 24) {
-            h_pdgIdFromW->Fill(id);
-            h_pdgIdFromWSM->Fill(id,norm_sm_wgt);
+            h_pdgIdFromWEFT->Fill(id,1.0,eft_fit);
+            h_pdgIdFromWSM->Fill(id,sm_wgt);
         } else if (mom_id == 25) {
-            h_pdgIdFromH->Fill(id);
-            h_pdgIdFromHSM->Fill(id,norm_sm_wgt);
+            h_pdgIdFromHEFT->Fill(id,1.0,eft_fit);
+            h_pdgIdFromHSM->Fill(id,sm_wgt);
         } else {
-            h_pdgIdFromOther->Fill(id);
-            h_pdgIdFromOtherSM->Fill(id,norm_sm_wgt);
+            h_pdgIdFromOtherEFT->Fill(id,1.0,eft_fit);
+            h_pdgIdFromOtherSM->Fill(id,sm_wgt);
         }
 
         if (i == 0) {
-            h_lep1_pt->Fill(pt);
-            h_lep1_ptSM->Fill(pt,norm_sm_wgt);
+            h_lep1_ptEFT->Fill(pt,1.0,eft_fit);
+            h_lep1_ptSM->Fill(pt,sm_wgt);
         } else if (i == 1) {
-            h_lep2_pt->Fill(pt);
-            h_lep2_ptSM->Fill(pt,norm_sm_wgt);
+            h_lep2_ptEFT->Fill(pt,1.0,eft_fit);
+            h_lep2_ptSM->Fill(pt,sm_wgt);
         }
         for (size_t j = 0; j < gen_leptons.size(); j++) {
             if (i >= j) continue;
@@ -386,30 +387,30 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
             //std::cout << "\t\tdR: " << dR
             //          << "\n\t\tMll: " << mll << std::endl;
 
-            h_mll->Fill(mll);          h_mllSM->Fill(mll,norm_sm_wgt);
-            h_deltaR->Fill(dR);        h_deltaRSM->Fill(dR,norm_sm_wgt);
-            h_lepSum_pt->Fill(sum_pt); h_lepSum_ptSM->Fill(sum_pt,norm_sm_wgt);
+            h_mllEFT->Fill(mll,1.0,eft_fit);          h_mllSM->Fill(mll,sm_wgt);
+            h_deltaREFT->Fill(dR,1.0,eft_fit);        h_deltaRSM->Fill(dR,sm_wgt);
+            h_lepSum_ptEFT->Fill(sum_pt,1.0,eft_fit); h_lepSum_ptSM->Fill(sum_pt,sm_wgt);
         }
     }
 
     std::vector<reco::GenJet> gen_jets = GetGenJets(*slimGenJets);
 
-    h_nJets->Fill(gen_jets.size());
-    h_nJetsSM->Fill(gen_jets.size(),norm_sm_wgt);
+    h_nJetsEFT->Fill(gen_jets.size(),1.0,eft_fit);
+    h_nJetsSM->Fill(gen_jets.size(),sm_wgt);
 
     for (size_t i = 0; i < gen_jets.size(); i++) {
         const reco::GenJet& p1 = gen_jets.at(i);
         double pt = p1.p4().Pt();
         double eta = p1.p4().Eta();
 
-        h_jet_pt->Fill(pt);   h_jet_ptSM->Fill(pt,norm_sm_wgt);
-        h_jet_eta->Fill(eta); h_jet_etaSM->Fill(eta,norm_sm_wgt);
+        h_jet_ptEFT->Fill(pt,1.0,eft_fit);   h_jet_ptSM->Fill(pt,sm_wgt);
+        h_jet_etaEFT->Fill(eta,1.0,eft_fit); h_jet_etaSM->Fill(eta,sm_wgt);
         if (i == 0) {
-            h_jet1_pt->Fill(pt);
-            h_jet1_ptSM->Fill(pt,norm_sm_wgt);
+            h_jet1_ptEFT->Fill(pt,1.0,eft_fit);
+            h_jet1_ptSM->Fill(pt,sm_wgt);
         } else if (i == 1) {
-            h_jet2_pt->Fill(pt);
-            h_jet2_ptSM->Fill(pt,norm_sm_wgt);
+            h_jet2_ptEFT->Fill(pt,1.0,eft_fit);
+            h_jet2_ptSM->Fill(pt,sm_wgt);
         }
     }
 
