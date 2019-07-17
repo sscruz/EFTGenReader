@@ -51,7 +51,7 @@ int findCanvasIndex(TString search,std::vector<TCanvas*> canvs) {
 }
 
 //void makeEFTGenPlots(TString output_fname,std::vector<TString> input_fnames) {
-void makeEFTGenPlots(std::vector<TString> input_fnames) {
+void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
     std::vector<TFile*> files;
 
     TH1::SetDefaultSumw2();
@@ -109,10 +109,8 @@ void makeEFTGenPlots(std::vector<TString> input_fnames) {
     std::vector<TCanvas*> canvs;
     std::vector<TLegend*> legs;
     //WCPoint* smpt = new WCPoint();
-    WCPoint* wc_pt = new WCPoint("wcpoint");
-    //wc_pt->setSMPoint();
-    //wc_pt->setStrength("ctG",4.0);
-    wc_pt->setStrength("ctW",4.0);
+    WCPoint* wc_pt = new WCPoint(wc_string.Data());
+    WCPoint* sm_pt = new WCPoint("smpt");
     int filecounter = 0;
     for (auto f: files) {
         f->Print();

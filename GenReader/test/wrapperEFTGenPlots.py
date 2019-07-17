@@ -11,6 +11,7 @@ arg_parser = argparse.ArgumentParser(prog='wrapperEFTGenPlots.py')
 arg_parser.add_argument('--web-dir',metavar='WEBDIR',default=os.path.join(USER_DIR,'www'),help='location to save all sub-directories to; %(metavar)s can either be an absolute or relative path')
 arg_parser.add_argument('-d','--dir',metavar='DIR',default='testing01',help='name of sub-directory to save plots in')
 arg_parser.add_argument('-f','--force',action='store_true',help='Remove all .png and .html files from output directory before moving plots over')
+arg_parser.add_argument('--wcStr',action='append',metavar='NAME:VAL',help='Specify WC value that the TH1EFT should reweight to. Syntax should be %(metavar)s')
 arg_parser.add_argument('infiles',metavar='FILE',nargs='+',help='%(metavar)s should be a path to root file produced by EFTGenReader_cfg')
 args = arg_parser.parse_args()
 
@@ -47,8 +48,17 @@ def main():
 
     cur_dir = os.getcwd()
 
-    s = ",".join('"{}"'.format(fn) for fn in args.infiles)
-    subprocess.check_call(["root", "-b", "-l", "-q","makeEFTGenPlots.C(%s)" % ("{{{}}}".format(s))])
+    wc_string = "wcpoint"
+    for s in args.wcStr:
+        wc,v = s.split(':')
+        wc_string += "_{wc}_{val}".format(wc=wc,val=v)
+    wc_string = '"{str}"'.format(str=wc_string)
+
+    if len(args.wcStr):
+        print "Reweight String: {str}".format(str=wc_string)
+
+    s = ",".join('"{fn}"'.format(fn=fn) for fn in args.infiles)
+    subprocess.check_call(["root", "-b", "-l", "-q","makeEFTGenPlots.C(%s,%s)" % ("{{{}}}".format(s),wc_string)])
 
     print "Output Dir: {}".format(args.dir)
 
