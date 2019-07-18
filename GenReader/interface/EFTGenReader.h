@@ -122,11 +122,11 @@ class EFTGenReader: public edm::EDAnalyzer
         double max_eta_jet;
         double max_eta_lep;
 
-        std::vector<TH1D*> th1d_hists;
-
         //TH1EFT* h_lep_ptEFT;
 
         TH1D* h_SMwgt_norm;
+
+        TH1EFT* h_eventsumEFT;
 
         // pdgId Histograms
         TH1EFT* h_pdgIdEFT;            TH1D* h_pdgIdSM;

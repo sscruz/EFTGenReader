@@ -337,9 +337,9 @@ public:
             // It is *very* important that we keep track of the err fit coeffs separately, since Sum(f^2) != (Sum(f))^2
             this->err_coeffs.at(i) += added_fit.getErrorCoefficient(i);
         }
-        for (uint i = 0; i < this->size(); i++) {
-            this->coeffs.at(i) += added_fit.getCoefficient(i);
-        }
+        //for (uint i = 0; i < this->size(); i++) {
+        //    this->coeffs.at(i) += added_fit.getCoefficient(i);
+        //}
     }
 
     //NOTE: Should check that we are scaling the error fit properly...

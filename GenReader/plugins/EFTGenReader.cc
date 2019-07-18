@@ -41,131 +41,90 @@ void EFTGenReader::beginJob()
     int pdg_bins = 100;
     int pt_bins = 20;//200;
     int eta_bins = 100;
+    int invmass_bins = 100;
 
     // Book the histograms that we will fill in the event loop
 
     //h_lep_ptEFT = newfs->make<TH1EFT>("h_lep_ptEFT","h_lep_ptEFT",pt_bins,0,300);
 
+    h_eventsumEFT = newfs->make<TH1EFT>("h_eventsumEFT","h_eventsumEFT",1,0,1);
+
     // lep pt
     h_lep_ptEFT = newfs->make<TH1EFT>("h_lep_ptEFT","h_lep_ptEFT",pt_bins,0,300);
     h_lep_ptSM = newfs->make<TH1D>("h_lep_ptSM","h_lep_ptSM",pt_bins,0,300);
-    th1d_hists.push_back(h_lep_ptEFT);
-    th1d_hists.push_back(h_lep_ptSM);
     
     h_lep1_ptEFT = newfs->make<TH1EFT>("h_lep1_ptEFT","h_lep1_ptEFT",pt_bins,0,300);
     h_lep1_ptSM = newfs->make<TH1D>("h_lep1_ptSM","h_lep1_ptSM",pt_bins,0,300);
-    th1d_hists.push_back(h_lep1_ptEFT);
-    th1d_hists.push_back(h_lep1_ptSM);
     
     h_lep2_ptEFT = newfs->make<TH1EFT>("h_lep2_ptEFT","h_lep2_ptEFT",pt_bins,0,300);
     h_lep2_ptSM = newfs->make<TH1D>("h_lep2_ptSM","h_lep2_ptSM",pt_bins,0,300);
-    th1d_hists.push_back(h_lep2_ptEFT);
-    th1d_hists.push_back(h_lep2_ptSM);
     
     h_lepSum_ptEFT = newfs->make<TH1EFT>("h_lepSum_ptEFT","h_lepSum_ptEFT",pt_bins,0,300);
     h_lepSum_ptSM = newfs->make<TH1D>("h_lepSum_ptSM","h_lepSum_ptSM",pt_bins,0,300);
-    th1d_hists.push_back(h_lepSum_ptEFT);
-    th1d_hists.push_back(h_lepSum_ptSM);
 
     // lep eta
     h_lep_etaEFT = newfs->make<TH1EFT>("h_lep_etaEFT","h_lep_etaEFT",eta_bins,-5.0,5.0);
     h_lep_etaSM = newfs->make<TH1D>("h_lep_etaSM","h_lep_etaSM",eta_bins,-5.0,5.0);
-    th1d_hists.push_back(h_lep_etaEFT);
-    th1d_hists.push_back(h_lep_etaSM);
 
     // dilep inv mass
-    h_mllEFT = newfs->make<TH1EFT>("h_mllEFT","h_mllEFT",pt_bins,0,300);
-    h_mllSM = newfs->make<TH1D>("h_mllSM","h_mllSM",pt_bins,0,300);
-    th1d_hists.push_back(h_mllEFT);
-    th1d_hists.push_back(h_mllSM);
+    //h_mllEFT = newfs->make<TH1EFT>("h_mllEFT","h_mllEFT",pt_bins,0,300);
+    //h_mllSM = newfs->make<TH1D>("h_mllSM","h_mllSM",pt_bins,0,300);
+    h_mllEFT = newfs->make<TH1EFT>("h_mllEFT","h_mllEFT",invmass_bins,0,300);
+    h_mllSM = newfs->make<TH1D>("h_mllSM","h_mllSM",invmass_bins,0,300);
 
     // Jet histograms
     h_nJetsEFT = newfs->make<TH1EFT>("h_njetsEFT","h_njetsEFT",16,0,15);
     h_nJetsSM = newfs->make<TH1D>("h_njetsSM","h_njetsSM",16,0,15);
-    th1d_hists.push_back(h_nJetsEFT);
-    th1d_hists.push_back(h_nJetsSM);
 
     h_jet_ptEFT = newfs->make<TH1EFT>("h_jet_ptEFT","h_jet_ptEFT",pt_bins,0,300);
     h_jet_ptSM = newfs->make<TH1D>("h_jet_ptSM","h_jet_ptSM",pt_bins,0,300);
-    th1d_hists.push_back(h_jet_ptEFT);
-    th1d_hists.push_back(h_jet_ptSM);
 
     h_jet1_ptEFT = newfs->make<TH1EFT>("h_jet1_ptEFT","h_jet1_ptEFT",pt_bins,0,300);
     h_jet1_ptSM = newfs->make<TH1D>("h_jet1_ptSM","h_jet1_ptSM",pt_bins,0,300);
-    th1d_hists.push_back(h_jet1_ptEFT);
-    th1d_hists.push_back(h_jet1_ptSM);
 
     h_jet2_ptEFT = newfs->make<TH1EFT>("h_jet2_ptEFT","h_jet2_ptEFT",pt_bins,0,300);
     h_jet2_ptSM = newfs->make<TH1D>("h_jet2_ptSM","h_jet2_ptSM",pt_bins,0,300);
-    th1d_hists.push_back(h_jet2_ptEFT);
-    th1d_hists.push_back(h_jet2_ptSM);
 
     h_jet_etaEFT = newfs->make<TH1EFT>("h_jet_etaEFT","h_jet_etaEFT",eta_bins,-5.0,5.0);
     h_jet_etaSM = newfs->make<TH1D>("h_jet_etaSM","h_jet_etaSM",eta_bins,-5.0,5.0);
-    th1d_hists.push_back(h_jet_etaEFT);
-    th1d_hists.push_back(h_jet_etaSM);
 
     // pdgId histograms
     h_pdgIdEFT = newfs->make<TH1EFT>("h_pdgIdEFT","h_pdgIdEFT",2*pdg_bins,-pdg_bins+1,pdg_bins);
     h_pdgIdSM = newfs->make<TH1D>("h_pdgIdSM","h_pdgIdSM",2*pdg_bins,-pdg_bins+1,pdg_bins);
-    th1d_hists.push_back(h_pdgIdEFT);
-    th1d_hists.push_back(h_pdgIdSM);
 
     h_pdgIdFromZEFT = newfs->make<TH1EFT>("h_pdgIdFromZEFT","h_pdgIdFromZEFT",2*pdg_bins,-pdg_bins+1,pdg_bins);
     h_pdgIdFromZSM = newfs->make<TH1D>("h_pdgIdFromZSM","h_pdgIdFromZSM",2*pdg_bins,-pdg_bins+1,pdg_bins);
-    th1d_hists.push_back(h_pdgIdFromZEFT);
-    th1d_hists.push_back(h_pdgIdFromZSM);
 
     h_pdgIdFromHEFT = newfs->make<TH1EFT>("h_pdgIdFromHEFT","h_pdgIdFromHEFT",2*pdg_bins,-pdg_bins+1,pdg_bins);
     h_pdgIdFromHSM = newfs->make<TH1D>("h_pdgIdFromHSM","h_pdgIdFromHSM",2*pdg_bins,-pdg_bins+1,pdg_bins);
-    th1d_hists.push_back(h_pdgIdFromHEFT);
-    th1d_hists.push_back(h_pdgIdFromHSM);
 
     h_pdgIdFromWEFT = newfs->make<TH1EFT>("h_pdgIdFromWEFT","h_pdgIdFromWEFT",2*pdg_bins,-pdg_bins+1,pdg_bins);
     h_pdgIdFromWSM = newfs->make<TH1D>("h_pdgIdFromWSM","h_pdgIdFromWSM",2*pdg_bins,-pdg_bins+1,pdg_bins);
-    th1d_hists.push_back(h_pdgIdFromWEFT);
-    th1d_hists.push_back(h_pdgIdFromWSM);
 
     h_pdgIdFromPhotonEFT = newfs->make<TH1EFT>("h_pdgIdFromPhotonEFT","h_pdgIdFromPhotonEFT",2*pdg_bins,-pdg_bins+1,pdg_bins);
     h_pdgIdFromPhotonSM = newfs->make<TH1D>("h_pdgIdFromPhotonSM","h_pdgIdFromPhotonSM",2*pdg_bins,-pdg_bins+1,pdg_bins);
-    th1d_hists.push_back(h_pdgIdFromPhotonEFT);
-    th1d_hists.push_back(h_pdgIdFromPhotonSM);
 
     h_pdgIdFromGluonEFT = newfs->make<TH1EFT>("h_pdgIdFromGluonEFT","h_pdgIdFromGluonEFT",2*pdg_bins,-pdg_bins+1,pdg_bins);
     h_pdgIdFromGluonSM = newfs->make<TH1D>("h_pdgIdFromGluonSM","h_pdgIdFromGluonSM",2*pdg_bins,-pdg_bins+1,pdg_bins);
-    th1d_hists.push_back(h_pdgIdFromGluonEFT);
-    th1d_hists.push_back(h_pdgIdFromGluonSM);
 
     h_pdgIdFromQCDEFT = newfs->make<TH1EFT>("h_pdgIdFromQCDEFT","h_pdgIdFromQCDEFT",2*pdg_bins,-pdg_bins+1,pdg_bins);
     h_pdgIdFromQCDSM = newfs->make<TH1D>("h_pdgIdFromQCDSM","h_pdgIdFromQCDSM",2*pdg_bins,-pdg_bins+1,pdg_bins);
-    th1d_hists.push_back(h_pdgIdFromQCDEFT);
-    th1d_hists.push_back(h_pdgIdFromQCDSM);
 
     h_pdgIdFromOtherEFT = newfs->make<TH1EFT>("h_pdgIdFromOtherEFT","h_pdgIdFromOtherEFT",2*pdg_bins,-pdg_bins+1,pdg_bins);
     h_pdgIdFromOtherSM = newfs->make<TH1D>("h_pdgIdFromOtherSM","h_pdgIdFromOtherSM",2*pdg_bins,-pdg_bins+1,pdg_bins);
-    th1d_hists.push_back(h_pdgIdFromOtherEFT);
-    th1d_hists.push_back(h_pdgIdFromOtherSM);
 
     h_pdgIdLepMotherEFT = newfs->make<TH1EFT>("h_pdgIdLepMotherEFT","h_pdgIdLepMotherEFT",2*pdg_bins,-pdg_bins+1,pdg_bins);
     h_pdgIdLepMotherSM = newfs->make<TH1D>("h_pdgIdLepMotherSM","h_pdgIdLepMotherSM",2*pdg_bins,-pdg_bins+1,pdg_bins);
-    th1d_hists.push_back(h_pdgIdLepMotherEFT);
-    th1d_hists.push_back(h_pdgIdLepMotherSM);
 
     h_pdgIdLepGrMotherEFT = newfs->make<TH1EFT>("h_pdgIdLepGrMotherEFT","h_pdgIdLepGrMotherEFT",2*pdg_bins,-pdg_bins+1,pdg_bins);
     h_pdgIdLepGrMotherSM = newfs->make<TH1D>("h_pdgIdLepGrMotherSM","h_pdgIdLepGrMotherSM",2*pdg_bins,-pdg_bins+1,pdg_bins);
-    th1d_hists.push_back(h_pdgIdLepGrMotherEFT);
-    th1d_hists.push_back(h_pdgIdLepGrMotherSM);
 
     // misc. observables
     h_deltaREFT = newfs->make<TH1EFT>("h_deltaREFT","h_deltaREFT",100,0,5);
     h_deltaRSM = newfs->make<TH1D>("h_deltaRSM","h_deltaRSM",100,0,5);
-    th1d_hists.push_back(h_deltaREFT);
-    th1d_hists.push_back(h_deltaRSM);
     
     h_prompt_leptonsEFT = newfs->make<TH1EFT>("h_prompt_leptonsEFT","h_prompt_leptonsEFT",30,0,11);
     h_prompt_leptonsSM = newfs->make<TH1D>("h_prompt_leptonsSM","h_prompt_leptonsSM",30,0,11);
-    th1d_hists.push_back(h_prompt_leptonsEFT);
-    th1d_hists.push_back(h_prompt_leptonsSM);
     
     // Don't normalize these plots
     h_SMwgt_norm = newfs->make<TH1D>("h_SMwgt_norm","h_SMwgt_norm",350,-0.1,2.0);
@@ -287,6 +246,17 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
 
     WCFit eft_fit(wc_pts,"");
 
+    if (debug) {
+        for (uint i=0; i < wc_pts.size(); i++){
+            WCPoint wc_pt = wc_pts.at(i);
+            double pt_wgt = wc_pt.wgt;
+            double fit_val = eft_fit.evalPoint(&wc_pt);
+            std::cout << std::setw(3) << i << ": " << std::setw(12) << pt_wgt << " | " << std::setw(12) << fit_val << " | " << std::setw(12) << (pt_wgt-fit_val) << std::endl;
+        }
+    }
+
+    h_eventsumEFT->Fill(0.5,1,eft_fit);
+
     //if (eventcount % 25 == 1) {
     //    std::cout << "EVENTNUMBER: " << eventcount << std::endl;
     //    std::cout << "\tsm_wgt:   " << sm_wgt << " (" << norm_sm_wgt << ")" << std::endl;
@@ -341,7 +311,7 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
         h_lep_ptEFT->Fill(pt,1.0,eft_fit);                h_lep_ptSM->Fill(pt,sm_wgt);
         h_lep_etaEFT->Fill(eta,1.0,eft_fit);              h_lep_etaSM->Fill(eta,sm_wgt);
         h_pdgIdLepMotherEFT->Fill(mom_id,1.0,eft_fit);    h_pdgIdLepMotherSM->Fill(mom_id,sm_wgt);
-        h_pdgIdLepGrMotherEFT->Fill(gmom_id,1.0,eft_fit); h_pdgIdLepGrMotherSM->Fill(gmom_id,sm_wgt);
+        //h_pdgIdLepGrMotherEFT->Fill(gmom_id,1.0,eft_fit); h_pdgIdLepGrMotherSM->Fill(gmom_id,sm_wgt);
 
         // mom_id and direct_id should be the same thing for the gen leptons selected by GetGenLeptons()
         if (mom_id == 21) {

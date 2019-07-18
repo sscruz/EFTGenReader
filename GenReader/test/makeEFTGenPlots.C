@@ -130,6 +130,10 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
         sub_str = sub_str(idx_begin,idx_end-idx_begin);
 
         TDirectory* td = f->GetDirectory("EFTGenReader");
+
+        TH1EFT* h_eventsumEFT = (TH1EFT*)td->Get("h_eventsumEFT");
+        double eventsum_SM = h_eventsumEFT->GetBinFit(1).evalPoint(sm_pt);
+
         TIter next(td->GetListOfKeys());
         TKey* key; TCanvas* c; TLegend* leg;
         while ((key = (TKey*)next())) {
@@ -177,23 +181,33 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
 
             //WCPoint smpt("SMpt");
             if (s.Index("EFT") != -1) {
+                //std::cout << h->GetName() << std::endl;
                 for (Int_t bin_idx = 0; bin_idx <= h->GetNbinsX()+1; bin_idx++) {
                     //double wcfit_bin_val = h->GetBinContent(bin_idx,smpt);
                     //double wcfit_bin_val = h->GetBinFit(bin_idx).evalPoint(smpt);
                     //double wcfit_bin_err = h->GetBinFit(bin_idx).evalPointError(smpt);
                     double wcfit_bin_val = h->GetBinFit(bin_idx).evalPoint(wc_pt);
                     double wcfit_bin_err = h->GetBinFit(bin_idx).evalPointError(wc_pt);
+                    //std::cout << wcfit_bin_val << std::endl;
+                    //std::cout << eventsum_SM << std::endl;
+                    //std::cout << std::endl;
                     h->SetBinContent(bin_idx,wcfit_bin_val);
                     h->SetBinError(bin_idx,wcfit_bin_err);
+                    //h->SetBinContent(bin_idx,wcfit_bin_val/eventsum_SM);
+                    //h->SetBinError(bin_idx,wcfit_bin_err/eventsum_SM);
                     //h->SetBinError(bin_idx,sqrt(wcfit_bin_val));
                 }
+            //} else {
+                //h->Scale(1.0/eventsum_SM);
             }
+            h->Scale(1.0/eventsum_SM);
 
-            Int_t nbins = h->GetNbinsX();
-            Double_t intg = h->Integral(0,nbins+1);
-            if (intg > 1.0) {
-               h->Scale(1./intg);
-            }
+
+            //Int_t nbins = h->GetNbinsX();
+            //Double_t intg = h->Integral(0,nbins+1);
+            //if (intg > 1.0) {
+            //   h->Scale(1./intg);
+            //}
 
             if (is_new) {
                 h->Draw("E PLC PMC");
@@ -219,7 +233,7 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
         c->Print(s,"png");
     }
 
-    //delete smpt;
+    delete sm_pt;
     delete wc_pt;
     for (auto f: files) {
         f->Close();
