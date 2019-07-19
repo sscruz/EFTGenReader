@@ -16,7 +16,7 @@ arg_parser.add_argument('--minptj',metavar='VAL',type=float,help='min pt cut for
 arg_parser.add_argument('--minptl',metavar='VAL',type=float,help='min pt cut for genleptons')
 arg_parser.add_argument('--maxetaj',metavar='VAL',type=float,help='max eta cut for genjets')
 arg_parser.add_argument('--maxetal',metavar='VAL',type=float,help='max eta cut for genleptons')
-arg_parser.add_argument('datasets',metavar='NAME',nargs='+',help='specify multiple datasets to run over, one after the other')
+arg_parser.add_argument('datasets',metavar='NAME',nargs='*',help='specify multiple datasets to run over, one after the other')
 args = arg_parser.parse_args()
 
 GIT_REPO_DIR = subprocess.check_output(['git','rev-parse','--show-toplevel']).strip()
@@ -42,11 +42,15 @@ GIT_REPO_DIR = subprocess.check_output(['git','rev-parse','--show-toplevel']).st
 def main():
     if args.list:
         ds_helper = DatasetHelper()
-        json_fpath = os.path.join(GIT_REPO_DIR,'GenReader/data/JSON/dataset.json')
+        json_fpath = os.path.join(GIT_REPO_DIR,'GenReader/data/JSON/datasets.json')
         ds_helper.load(json_fpath)
         print "---Available Samples---"
         for sample_name in sorted(ds_helper.list()):
             print "{name}".format(name=sample_name)
+        return
+
+    if len(arg.datasets) == 0:
+        print "No samples specified, exiting..."
         return
 
     lst = args.datasets
