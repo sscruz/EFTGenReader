@@ -1,4 +1,5 @@
 import re
+import subprocess
 
 # Match strings using one or more regular expressions
 def regex_match(lst,regex_lst,verbose=0):
@@ -15,3 +16,18 @@ def regex_match(lst,regex_lst,verbose=0):
                 matches.append(s)
                 break
     return matches
+
+# Pipes subprocess messages to STDOUT
+def run_process(inputs,verbose=True,indent=0):
+    # Note: This will hold the main thread and wait for the subprocess to complete
+    indent_str = "\t"*indent
+    p = subprocess.Popen(inputs,stdout=subprocess.PIPE)
+    stdout = []
+    while True:
+        l = p.stdout.readline()
+        if l == '' and p.poll() is not None:
+            break
+        if l:
+            stdout.append(l.strip())
+            if verbose: print indent_str+l.strip()
+    return stdout
