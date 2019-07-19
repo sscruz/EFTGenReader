@@ -49,7 +49,7 @@ def main():
             print "{name}".format(name=sample_name)
         return
 
-    if len(arg.datasets) == 0:
+    if len(args.datasets) == 0:
         print "No samples specified, exiting..."
         return
 
