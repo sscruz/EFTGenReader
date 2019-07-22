@@ -26,6 +26,7 @@
 
 #include "EFTGenReader/GenReader/interface/TH1EFT.h"
 #include "EFTGenReader/GenReader/interface/WCPoint.h"
+//#include <map>
 
 TCanvas* findCanvas(TString search,std::vector<TCanvas*> canvs) {
     //TCanvas* canv = nullptr;
@@ -112,6 +113,49 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
     WCPoint* wc_pt = new WCPoint(wc_string.Data());
     WCPoint* sm_pt = new WCPoint("smpt");
     int filecounter = 0;
+
+
+    // Loop over files and histograms to  find largest y values:
+    std::vector<TFile*> files1;
+    for (auto s: input_fnames) {
+        TFile* f1 = TFile::Open(s);
+        if (f1) {
+            files1.push_back(f1);
+        }
+    }
+    std::map<string,float> maxYvals_dict;
+    for (auto f1: files1) {
+        TDirectory* td1 = f1->GetDirectory("EFTGenReader");
+        TKey* key1;
+        TIter next(td1->GetListOfKeys());
+        while ((key1 = (TKey*)next())) {
+            TString s1 = key1->GetName();
+            TH1EFT* h_eventsumEFT1 = (TH1EFT*)td1->Get("h_eventsumEFT");
+            double eventsum_SM1 = h_eventsumEFT1->GetBinFit(1).evalPoint(sm_pt);
+            TH1EFT* h1 = (TH1EFT*)td1->Get(key1->GetName());
+            if (s1.Index("EFT") != -1) {
+                for (Int_t bin_idx = 0; bin_idx <= h1->GetNbinsX()+1; bin_idx++) {
+                    double wcfit_bin_val = h1->GetBinFit(bin_idx).evalPoint(wc_pt);
+                    h1->SetBinContent(bin_idx,wcfit_bin_val);
+                }
+            }
+            h1->Scale(1.0/eventsum_SM1);
+            // Fill the dictionary:
+            if (maxYvals_dict.count(string(s1)) == 0) {
+                maxYvals_dict[string(s1)] = h1->GetMaximum();
+            } else if (maxYvals_dict[string(s1)] < h1->GetMaximum()){
+                //std::cout << "New largest value for " << s1 << ": " << h1->GetMaximum() << " (Old largest val: " << maxYvals_dict[string(s1)] << ")" << std::endl;
+                maxYvals_dict[string(s1)] = h1->GetMaximum();
+              }
+        }
+    }
+    for (auto f1: files1) {
+        f1->Close();
+    }
+
+
+
+
     for (auto f: files) {
         f->Print();
 
@@ -201,7 +245,7 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
                 //h->Scale(1.0/eventsum_SM);
             }
             h->Scale(1.0/eventsum_SM);
-
+            h->GetYaxis()->SetRangeUser(0.0,1.2*maxYvals_dict[string(s)]);
 
             //Int_t nbins = h->GetNbinsX();
             //Double_t intg = h->Integral(0,nbins+1);
@@ -216,6 +260,7 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
             }
             leg->AddEntry(h,sub_str,"l");
             c->Update();
+
         }
 
         filecounter++;
@@ -232,6 +277,15 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
         TString s = (TString)c->GetTitle() + ".png";
         c->Print(s,"png");
     }
+
+    //// Print maxYvals dictionary:
+    //for (auto it = maxYvals_dict.begin(); it != maxYvals_dict.end(); it++ ) {
+    //    std::cout << it->first  // string (key)
+    //              << ": "
+    //              << it->second   // string's value
+    //              << std::endl ;
+    //}
+
 
     delete sm_pt;
     delete wc_pt;
