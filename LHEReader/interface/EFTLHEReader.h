@@ -93,6 +93,9 @@ class EFTLHEReader: public edm::EDAnalyzer
         int eventnum_intree;
         int lumiBlock_intree;
         int runNumber_intree;
+
+        WCFit wcFit_intree;
+
 };
 
 void EFTLHEReader::tree_add_branches()
@@ -103,12 +106,16 @@ void EFTLHEReader::tree_add_branches()
     summaryTree->Branch("eventnum",&eventnum_intree);
     summaryTree->Branch("lumiBlock",&lumiBlock_intree);
     summaryTree->Branch("runNumber",&runNumber_intree);
+
+    summaryTree->Branch("wcFit",&wcFit_intree);
 }
 
 void EFTLHEReader::initialize_variables()
 {
     eftwgts_intree.clear();
     originalXWGTUP_intree = -99;
+
+    wcFit_intree.clear();
 }
 
 // Currently not setting any special parameters in config files

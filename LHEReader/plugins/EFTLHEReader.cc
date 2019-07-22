@@ -15,6 +15,7 @@ void EFTLHEReader::beginJob()
 {
     edm::Service<TFileService> newfs;
     summaryTree = newfs->make<TTree>("summaryTree","Summary Event Values");
+
     tree_add_branches();
 }
 
@@ -33,18 +34,24 @@ void EFTLHEReader::analyze(const edm::Event& event, const edm::EventSetup& evset
     originalXWGTUP_intree = LHEInfo->originalXWGTUP();  // original cross-section
 
     // Add EFT weights
+    std::vector<WCPoint> wc_pts;
     for (auto wgt_info: LHEInfo->weights())
     {
         auto LHEwgtstr = std::string(wgt_info.id);
         std::size_t foundstr = LHEwgtstr.find("EFTrwgt"); // only save our EFT weights
         if (foundstr!=std::string::npos) {
             eftwgts_intree[wgt_info.id] = wgt_info.wgt;
+            WCPoint wc_pt(wgt_info.id,wgt_info.wgt);
+            wc_pts.push_back(wc_pt);
         }
     }
+
+    WCFit event_fit(wc_pts,"");
 
     eventnum_intree = event.id().event();
     lumiBlock_intree = event.id().luminosityBlock();
     runNumber_intree = event.id().run();
+    wcFit_intree = event_fit;
 
     summaryTree->Fill();
 }
