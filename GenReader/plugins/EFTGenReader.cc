@@ -242,6 +242,8 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
     } else {
         //norm_sm_wgt = 1.0;
         sm_wgt = originalXWGTUP_intree;
+        WCPoint wc_pt("smpt",sm_wgt);
+        wc_pts.push_back(wc_pt);
     }
 
     WCFit eft_fit(wc_pts,"");

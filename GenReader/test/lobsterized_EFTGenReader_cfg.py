@@ -16,6 +16,9 @@ options.register("test",False,
 options.register("debug",False,
     VarParsing.VarParsing.multiplicity.singleton,
     VarParsing.VarParsing.varType.bool, "run in debug mode")
+options.register("iseft",True,
+    VarParsing.VarParsing.multiplicity.singleton,
+    VarParsing.VarParsing.varType.bool, "the sample has EFT reweighting")
 options.register("normType",1,
     VarParsing.VarParsing.multiplicity.singleton,
     VarParsing.VarParsing.varType.int,"how to normalize the histograms; 0 - no norm, 1 - unit norm (default), 2 - xsec norm")
@@ -79,7 +82,7 @@ process.EFTGenReader.min_pt_lep = options.minPtLep
 process.EFTGenReader.max_eta_jet = options.maxEtaJet
 process.EFTGenReader.max_eta_lep = options.maxEtaLep
 
-process.EFTGenReader.iseft = True
+process.EFTGenReader.iseft = options.iseft
 
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string("output_tree.root")
