@@ -42,7 +42,10 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
     int run_idx = 0;
 
     std::vector<WCFit> target_fits;
+    std::vector<WCFit> ref_fits;
     std::vector<WCPoint> ref_pts;
+
+    WCPoint sm_pt("smpt");
 
     std::string curr_process;
 
@@ -85,10 +88,6 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
             curr_process = words.at(1);
         }
 
-        std::string process   = words.at(1);
-        std::string grp_tag   = words.at(2);
-        std::string run_label = words.at(3);
-
         // Chain together all root files in the run directory
         TChain chain("EFTLHEReader/summaryTree");
         auto dir_files = getFiles(fdir);
@@ -97,6 +96,12 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
             TString fname = fdir + "/" + fn;
             chain.Add(fname);
         }
+
+        std::string process   = words.at(1);
+        std::string grp_tag   = words.at(2);
+        std::string run_label = words.at(3);
+
+        /* This is all related to reading the scanpoints files, which is highly dependent on the naming scheme used for the samples
 
         std::string scanpoints_dir = getScanPointsDirectory(fdir.Data());
         std::string scanpoints_fpath = scanpoints_dir + process + "_" + grp_tag + "_" + run_label + "_scanpoints.txt";
@@ -118,109 +123,47 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
             std::cout << "[ERROR] Unable to find starting point in scanpoints file!" << std::endl;
             continue;
         }
+        */
 
         int chain_entries = chain.GetEntries();
         int last_entry  = chain_entries;
         int first_entry = 0;
 
-        std::unordered_map<std::string,double> *eftwgts_intree = 0;
+        WCFit* wcfit_intree = 0;
         double originalXWGTUP_intree = -1.;
-        int lumiBlock_intree = -1;
 
-        chain.SetBranchAddress("eftwgts",&eftwgts_intree);
         chain.SetBranchAddress("originalXWGTUP",&originalXWGTUP_intree);
-        chain.SetBranchAddress("lumiBlock",&lumiBlock_intree);
+        chain.SetBranchAddress("wcFit",&wcFit_intree);
 
         bool skip_progress = false;
 
         chain.GetEntry(first_entry);
-        if (eftwgts_intree->size() < 20) {
+        if (is_ref) {
             skip_progress = true;
         }
 
-        std::set<int> unique_runs;
-        std::unordered_map<std::string,WCPoint> inclusive_xsec_wgts;    // Keys are the rwgt string ids
-        inclusive_xsec_wgts[kOrig] = start_pt;
+        WCFit inclusive_fit;
         for (int i = first_entry; i < last_entry; i++) {
             if (is_tar && !skip_progress) {
                 printProgress(i - first_entry,last_entry - first_entry);
             }
             chain.GetEntry(i);
-            unique_runs.insert(lumiBlock_intree);
-            inclusive_xsec_wgts[kOrig].wgt += originalXWGTUP_intree;
-            // Note: Commenting this out can make generating plots with reference points really slow
-            //       will need to be commented out if we want to normalize reference points to SM
-            if (!is_tar) {
-                // This gridpack run is not being validated (i.e. We don't care about its rwgt points)
-                continue;
-            }
-            for (auto& kv: *eftwgts_intree) {
-                if (inclusive_xsec_wgts.find(kv.first) == inclusive_xsec_wgts.end()) {
-                    inclusive_xsec_wgts[kv.first] = WCPoint(kv.first,0.0);
-                }
-                inclusive_xsec_wgts[kv.first].wgt += kv.second;
-            }
+            inclusive_fit.addFit(*wcFit_intree);
         }
 
-        // For now skip normalizing to SM
-        double SM_xsec = -1.0;
-        //for (auto& kv: inclusive_xsec_wgts) {
-        //    if (inclusive_xsec_wgts[kv.first].isSMPoint()) {
-        //        // Need to normalize, otherwise we will
-        //        SM_xsec = inclusive_xsec_wgts[kv.first].wgt;
-        //        break;
-        //    }
-        //}
-
-        double gridpack_scale = 1.0 / unique_runs.size();
-        double xsec_norm = 1.0 / SM_xsec;
-        std::vector<WCPoint> fit_pts;
-        for (auto& kv: inclusive_xsec_wgts) {
-            if (SM_xsec < 0.0) {
-                inclusive_xsec_wgts[kv.first].scale(gridpack_scale);
-            } else {
-                inclusive_xsec_wgts[kv.first].scale(xsec_norm);
-            }
-            fit_pts.push_back(inclusive_xsec_wgts[kv.first]);
-        }
-
-        std::cout << "\tDist: " << start_pt.getEuclideanDistance() << std::endl;
-        std::cout << "\tkOrig wgt: " << inclusive_xsec_wgts[kOrig].wgt << std::endl;
-        if (SM_xsec < 0.0) {
-            std::cout << "\tSM Xsec: " << SM_xsec << std::endl;
-        } else {
-            std::cout << "\tSM Xsec: " << SM_xsec / unique_runs.size() << std::endl;
-        }
-        //for (auto& kv: inclusive_xsec_wgts) {
-        //    if (kv.first == kOrig) {
-        //        continue;
-        //    }
-        //    std::cout << "\t" << kv.first << ": " << kv.second.wgt << std::endl;
-        //}
+        // Normalize to SM
+        double SM_xsec = inclusive_fit.evalPoint(&sm_pt);
+        inclusive_fit.scale(1.0/SM_xsec);
 
         if (is_ref) {
-            // Only include specific runs to use as reference
-            ref_pts.push_back(inclusive_xsec_wgts[kOrig]);
+            ref_fits.push_back(inclusive_fit);
         }
 
         if (is_tar) {
-            std::string fit_tag;    // The plots will have the process name in the title
-            if (grp_name.Length() > 0) {
-                // Overwrite the group tag with a custom one
-                fit_tag = grp_name.Data();
-                fit_tag += "_" + run_label;
-                //fit_tag = process + "_" + grp_name.Data() + "_" + run_label;
-            } else {
-                // Default behaviour
-                fit_tag = grp_tag + "_" + run_label;
-            }
+            std::string fit_tag;
+            fit_tag = grp_tag;
+            inclusive_fit.setTag(fit_tag);
 
-            if (fit_pts.size() <= 1) {
-                std::cout << "Error: Not enough fit points for " << fit_tag << std::endl;
-                continue;
-            }
-            WCFit inclusive_fit(fit_pts,fit_tag);
-            inclusive_fit.setStart(inclusive_xsec_wgts[kOrig]);
             target_fits.push_back(inclusive_fit);
         }
 
@@ -228,7 +171,7 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
         run_idx++;
     }
 
-    // Dynamically figure out which WC are present    
+    // Dynamically figure out which WC are present across all WCFits
     std::vector<std::string> wc_names;
     if (wc_names.size() == 0) {
         std::set<std::string> wc_set;
@@ -249,31 +192,19 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
     for (auto& wc_name: wc_names) {
         std::vector<WCFit> subset_fits; // These are the fits we are actually going to plot
         for (uint i = 0; i < target_fits.size(); i++) {
-            std::vector<std::string> words;
-            split_string(target_fits.at(i).getTag(),words,"_");
-            //if (target_fits.at(i).hasCoefficient(wc_name) && target_fits.at(i).getDim() > 1) {
-            //    // We only want to plot the multi-dim fits, 1-D fits are assumed to be for reference points
-            //    subset_fits.push_back(target_fits.at(i));
-            //}
             if (target_fits.at(i).hasCoefficient(wc_name)) {
                 // For comparing 1D fits to each other
                 subset_fits.push_back(target_fits.at(i));
             }
         }
         if (subset_fits.size() == 0) {
+            // No fit has the specified WC (shouldn't really be possible)
             continue;
         }
 
-        //for (uint j = 0; j < subset_fits.size(); j++) {
-        //    std::string save_name = kOutputDir + "/" + "fitparams_" + curr_process + "_" + wc_name + ".txt";
-        //    subset_fits.at(j).save(save_name,j);
-        //}
-
         xsec_plt_ops_1d.tag = output_name.Data();   // This becomes the save name for the plot
         xsec_plt_ops_1d.tag += "_" + wc_name;
-        //xsec_plt_ops_1d.title = xsec_plt_ops_1d.tag;
-        //xsec_plt_ops_1d.title = curr_process + " " + wc_name + " Scan";
-        // Strip the 'i' from certain WC names (e.g. ctei --> cte)
+        // Strip the 'i' from certain WC names (e.g. ctei --> cte) in the plot titles
         if (wc_name.back() == 'i') {
             int len = wc_name.size();
             xsec_plt_ops_1d.title = curr_process + " " + wc_name.substr(0,len-1);
@@ -281,8 +212,11 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
             xsec_plt_ops_1d.title = curr_process + " " + wc_name;
         }
         
-        std::string fitparams_fpath = kOutputDir + "/" + "fitparams_" + curr_process + "_" + wc_name + ".txt";
-        //make_fitparams_file(fitparams_fpath,subset_fits);
+        bool save_fits = false; // Don't save the fits for now
+        if (save_fits) {
+            std::string fitparams_fpath = kOutputDir + "/" + "fitparams_" + curr_process + "_" + wc_name + ".txt";
+            make_fitparams_file(fitparams_fpath,subset_fits);
+        }
 
         make_1d_xsec_plot(
             xsec_plt_ops_1d,
