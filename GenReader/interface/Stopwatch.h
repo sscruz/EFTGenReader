@@ -35,8 +35,6 @@ public:
     void erase(std::string timer_name);
     bool exists(std::string timer_name);
 
-    void updateTimer(std::string timer_name);
-    void resetTimer(std::string timer_name);
     void clearAll();
 
     void readLap(std::string timer_name);
@@ -117,13 +115,6 @@ void Stopwatch::erase(std::string timer_name) {
 
 bool Stopwatch::exists(std::string timer_name) {
     return (tracked_timers.find(timer_name) != tracked_timers.end());
-}
-
-void Stopwatch::resetTimer(std::string timer_name)
-{
-    if (tracked_timers.find(timer_name) != tracked_timers.end()) {
-        tracked_timers.erase(timer_name);
-    }
 }
 
 void Stopwatch::clearAll()
