@@ -21,6 +21,7 @@
 #include "EFTGenReader/GenReader/interface/WCPoint.h"
 #include "EFTGenReader/GenReader/interface/WCFit.h"
 #include "EFTGenReader/GenReader/interface/TH1EFT.h"
+#include "EFTGenReader/GenReader/interface/Stopwatch.h"
 #include "EFTGenReader/GenReader/interface/split_string.h"
 #include "makeEFTPlots.h"
 
@@ -40,6 +41,8 @@ const std::string kOutputDir = "read_lhe_outputs";
 
 void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_spec,TString grp_name="") {
     int run_idx = 0;
+
+    Stopwatch sw;
 
     std::vector<WCFit> target_fits;
     std::vector<WCFit> ref_fits;
@@ -129,7 +132,7 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
         int last_entry  = chain_entries;
         int first_entry = 0;
 
-        WCFit* wcfit_intree = 0;
+        WCFit* wcFit_intree = 0;
         double originalXWGTUP_intree = -1.;
 
         chain.SetBranchAddress("originalXWGTUP",&originalXWGTUP_intree);
@@ -143,13 +146,23 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
         }
 
         WCFit inclusive_fit;
+
+        sw.start("Full Loop");
         for (int i = first_entry; i < last_entry; i++) {
+            sw.start("Event Loop");
             if (is_tar && !skip_progress) {
                 printProgress(i - first_entry,last_entry - first_entry);
             }
+            sw.start("Get Entry");
             chain.GetEntry(i);
+            sw.lap("Get Entry");
+
+            sw.start("Add Fit");
             inclusive_fit.addFit(*wcFit_intree);
+            sw.lap("Add Fit");
+            sw.lap("Event Loop");
         }
+        sw.stop("Full Loop");
 
         // Normalize to SM
         double SM_xsec = inclusive_fit.evalPoint(&sm_pt);
@@ -169,6 +182,16 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
 
         std::cout << std::endl;
         run_idx++;
+    }
+
+
+    bool print_stopwatch = 0;
+    if (print_stopwatch) {    
+        bool use_avg; std::string norm_name;
+        use_avg = 1; norm_name = "";
+        sw.readAllTimers(use_avg,norm_name);
+        use_avg = 0; norm_name = "";
+        sw.readAllTimers(use_avg,norm_name);
     }
 
     // Dynamically figure out which WC are present across all WCFits
