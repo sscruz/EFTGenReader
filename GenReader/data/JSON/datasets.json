@@ -135,6 +135,14 @@
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttll-tllq-ProcessCardStudies/v1/mAOD_step_tllq4fNoHiggs_NoDim6_run0/", 
     "on_das": false
   }, 
+  "tllq4fNoSchanW_NoMatching-SM": {
+    "central_xsec": 0.07358, 
+    "dataset": "", 
+    "datatier": "MINIAODSIM", 
+    "is_eft": false, 
+    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/tllq4f-NoDim6Diagrams-NoMatching/v1/mAOD_step_tllq4f_NoDim6NoSchanW_run0", 
+    "on_das": false
+  }, 
   "tllq4f_HanModelEFTfixed": {
     "central_xsec": 0.07358, 
     "dataset": "", 
