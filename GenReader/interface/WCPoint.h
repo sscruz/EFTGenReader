@@ -24,7 +24,6 @@ public:
     WCPoint(std::string _str,double _wgt=0.0) {
         this->parseRwgtId(_str);
         this->wgt = _wgt;
-        this->tag = _str;
     }
 
     ~WCPoint() {
