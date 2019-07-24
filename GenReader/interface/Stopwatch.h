@@ -30,6 +30,7 @@ public:
     ~Stopwatch();
 
     void start(std::string timer_name);
+    void stop(std::string timer_name);
     void lap(std::string timer_name);
     void reset(std::string timer_name);
     void erase(std::string timer_name);
@@ -78,23 +79,30 @@ std::string Stopwatch::padRight(std::string str,const char pad_char, int pad_num
 
 /////////////// Public ///////////////
 
-// Start a timer with a specific name (resets an existing timer)
+// Start a timer with a specific name
 void Stopwatch::start(std::string timer_name)
 {
     if (!this->exists(timer_name)) {
         TimerInfo new_timer;
+        new_timer.total = 0;
+        new_timer.counter = 0;
         tracked_timers[timer_name] = new_timer;
     }
-    tracked_timers[timer_name].total = 0;
-    tracked_timers[timer_name].counter = 0;
-    tracker_timers[timer_name].t_start = std::chrono::high_resolution_clock::now();
+    tracked_timers[timer_name].t_start = std::chrono::high_resolution_clock::now();
+}
+
+// We just use lap as it accomplishes the same thing effectively
+void Stopwatch::stop(std::string timer_name)
+{
+    this->lap(timer_name);
 }
 
 void Stopwatch::lap(std::string timer_name)
 {
     if (this->exists(timer_name)) {
-        tracked_timers[timer_name].total += std::chrono::duration<double,std::milli>(std::chrono::high_resolution_clock::now() - tracked_timers[timer_name].t_start).count();
         tracked_timers[timer_name].counter += 1;
+        tracked_timers[timer_name].total += std::chrono::duration<double,std::milli>(std::chrono::high_resolution_clock::now() - tracked_timers[timer_name].t_start).count();
+        tracked_timers[timer_name].t_start = std::chrono::high_resolution_clock::now();
     }
 }
 
@@ -103,7 +111,7 @@ void Stopwatch::reset(std::string timer_name)
     if (this->exists(timer_name)) {
         tracked_timers[timer_name].total = 0;
         tracked_timers[timer_name].counter = 0;
-        tracker_timers[timer_name].t_start = std::chrono::high_resolution_clock::now();
+        tracked_timers[timer_name].t_start = std::chrono::high_resolution_clock::now();
     }
 }
 
@@ -165,8 +173,10 @@ void Stopwatch::readAvgTimer(std::string timer_name,double norm)
         std::string t_elapsed = strs.str();
         t_elapsed = padRight(t_elapsed,' ',9);
 
+        std::string str_counts = "(" + padRight(std::to_string(tracked_timers[timer_name].counter),' ',3) + ')';
+
         std::cout << "Wall clock time " << format_str
-            << t_elapsed
+            << t_elapsed << " " << str_counts << " "
             << " ms/counts\n";
     }
 }
@@ -175,12 +185,18 @@ void Stopwatch::readAvgTimer(std::string timer_name,double norm)
 void Stopwatch::readAllTimers(bool use_avg,std::string norm_name)
 {
     double norm = 1.0;
-    if (tracked_timers.find(norm_name) != tracked_timers.end()) {
+    if (this->exists(norm_name)) {
         if (use_avg) {
             norm = tracked_timers[norm_name].total/tracked_timers[norm_name].counter;
         } else {
             norm = tracked_timers[norm_name].total;
         }
+    }
+
+    if (use_avg) {
+        std::cout << "Avg. Clock Time" << std::endl;
+    } else {
+        std::cout << "Total Clock Time" << std::endl;
     }
 
     for (auto it = tracked_timers.begin(); it != tracked_timers.end(); ++it) {
