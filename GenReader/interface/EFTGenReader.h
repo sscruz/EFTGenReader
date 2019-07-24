@@ -155,7 +155,14 @@ class EFTGenReader: public edm::EDAnalyzer
         TH1EFT* h_jet_ptEFT;  TH1D* h_jet_ptSM;
         TH1EFT* h_jet1_ptEFT; TH1D* h_jet1_ptSM;
         TH1EFT* h_jet2_ptEFT; TH1D* h_jet2_ptSM;
-        TH1EFT* h_jet_etaEFT; TH1D* h_jet_etaSM;
+        TH1EFT* h_jet3_ptEFT; TH1D* h_jet3_ptSM;
+        TH1EFT* h_jet4_ptEFT; TH1D* h_jet4_ptSM;
+
+        TH1EFT* h_jet_etaEFT;  TH1D* h_jet_etaSM;
+        TH1EFT* h_jet1_etaEFT; TH1D* h_jet1_etaSM;
+        TH1EFT* h_jet2_etaEFT; TH1D* h_jet2_etaSM;
+        TH1EFT* h_jet3_etaEFT; TH1D* h_jet3_etaSM;
+        TH1EFT* h_jet4_etaEFT; TH1D* h_jet4_etaSM;
 
         edm::ParameterSet entire_pset;
 

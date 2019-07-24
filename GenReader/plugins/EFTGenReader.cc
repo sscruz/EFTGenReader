@@ -85,8 +85,28 @@ void EFTGenReader::beginJob()
     h_jet2_ptEFT = newfs->make<TH1EFT>("h_jet2_ptEFT","h_jet2_ptEFT",pt_bins,0,300);
     h_jet2_ptSM = newfs->make<TH1D>("h_jet2_ptSM","h_jet2_ptSM",pt_bins,0,300);
 
+    h_jet3_ptEFT = newfs->make<TH1EFT>("h_jet3_ptEFT","h_jet2_ptEFT",pt_bins,0,300);
+    h_jet3_ptSM = newfs->make<TH1D>("h_jet3_ptSM","h_jet2_ptSM",pt_bins,0,300);
+
+    h_jet4_ptEFT = newfs->make<TH1EFT>("h_jet4_ptEFT","h_jet2_ptEFT",pt_bins,0,300);
+    h_jet4_ptSM = newfs->make<TH1D>("h_jet4_ptSM","h_jet2_ptSM",pt_bins,0,300);
+
+
+    // Jet Eta histograms
     h_jet_etaEFT = newfs->make<TH1EFT>("h_jet_etaEFT","h_jet_etaEFT",eta_bins,-5.0,5.0);
     h_jet_etaSM = newfs->make<TH1D>("h_jet_etaSM","h_jet_etaSM",eta_bins,-5.0,5.0);
+
+    h_jet1_etaEFT = newfs->make<TH1EFT>("h_jet1_etaEFT","h_jet1_etaEFT",eta_bins,-5.0,5.0);
+    h_jet1_etaSM = newfs->make<TH1D>("h_jet1_etaSM","h_jet1_etaSM",eta_bins,-5.0,5.0);
+
+    h_jet2_etaEFT = newfs->make<TH1EFT>("h_jet2_etaEFT","h_jet2_etaEFT",eta_bins,-5.0,5.0);
+    h_jet2_etaSM = newfs->make<TH1D>("h_jet2_etaSM","h_jet2_etaSM",eta_bins,-5.0,5.0);
+
+    h_jet3_etaEFT = newfs->make<TH1EFT>("h_jet3_etaEFT","h_jet3_etaEFT",eta_bins,-5.0,5.0);
+    h_jet3_etaSM = newfs->make<TH1D>("h_jet3_etaSM","h_jet3_etaSM",eta_bins,-5.0,5.0);
+
+    h_jet4_etaEFT = newfs->make<TH1EFT>("h_jet4_etaEFT","h_jet4_etaEFT",eta_bins,-5.0,5.0);
+    h_jet4_etaSM = newfs->make<TH1D>("h_jet4_etaSM","h_jet4_etaSM",eta_bins,-5.0,5.0);
 
     // pdgId histograms
     h_pdgIdEFT = newfs->make<TH1EFT>("h_pdgIdEFT","h_pdgIdEFT",2*pdg_bins,-pdg_bins+1,pdg_bins);
@@ -380,9 +400,23 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
         if (i == 0) {
             h_jet1_ptEFT->Fill(pt,1.0,eft_fit);
             h_jet1_ptSM->Fill(pt,sm_wgt);
+            h_jet1_etaEFT->Fill(eta,1.0,eft_fit);
+            h_jet1_etaSM->Fill(eta,sm_wgt);
         } else if (i == 1) {
             h_jet2_ptEFT->Fill(pt,1.0,eft_fit);
             h_jet2_ptSM->Fill(pt,sm_wgt);
+            h_jet2_etaEFT->Fill(eta,1.0,eft_fit);
+            h_jet2_etaSM->Fill(eta,sm_wgt);
+        } else if (i == 2) {
+            h_jet3_ptEFT->Fill(pt,1.0,eft_fit);
+            h_jet3_ptSM->Fill(pt,sm_wgt);
+            h_jet3_etaEFT->Fill(eta,1.0,eft_fit);
+            h_jet3_etaSM->Fill(eta,sm_wgt);
+        } else if (i == 3) {
+            h_jet4_ptEFT->Fill(pt,1.0,eft_fit);
+            h_jet4_ptSM->Fill(pt,sm_wgt);
+            h_jet4_etaEFT->Fill(eta,1.0,eft_fit);
+            h_jet4_etaSM->Fill(eta,sm_wgt);
         }
     }
 
