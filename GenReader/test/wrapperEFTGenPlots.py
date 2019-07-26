@@ -3,7 +3,7 @@ import os
 import subprocess
 import argparse
 import datetime
-from EFTGenReader.GenReader.utils import regex_match,run_process
+from EFTGenReader.GenReader.utils import regex_match,run_process,get_files,move_files,clean_dir,
 from EFTGenReader.GenReader.make_html import make_html
 
 USER_DIR = os.path.expanduser('~')
@@ -22,28 +22,6 @@ args = arg_parser.parse_args()
 
 GIT_REPO_DIR = subprocess.check_output(['git','rev-parse','--show-toplevel']).strip()
 TEST_DIR = os.path.join(GIT_REPO_DIR,'GenReader/test')
-
-def get_files(tdir):
-    if not os.path.exists(tdir): return []
-    return [x for x in os.listdir(tdir) if os.path.isfile(x)]
-
-def move_files(files,target):
-    width = len(max(files,key=len))
-    for src in files:
-        dst = os.path.join(target,src)
-        #print "[{0:0>{w1}}] {1:<{w2}} --> {2}".format(len(src),src,dst,w1=2,w2=width)
-        os.rename(src,dst)
-
-# Removes files from tdir which match any of the regex in targets list
-def clean_dir(tdir,targets):
-    fnames = regex_match(get_files(tdir),targets)
-    if len(fnames) == 0: return
-    print "Removing files from: {}".format(tdir)
-    print "\tTargets: {}".format(targets)
-    for fn in fnames:
-        fpath = os.path.join(tdir,fn)
-        print "\tRemoving {}".format(fn)
-        #os.remove(fpath)
 
 # Returns the mode we are in based on the first input
 def get_input_mode(inputs):
@@ -143,7 +121,7 @@ def main():
     if args.force:
         clean_dir(output_dir,["^.*\.png$","^index.html$"])
 
-    imgs = regex_match(get_files('.'),["^h_.*\.png$"])
+    imgs = get_files('.',targets=["^h_.*\.png$"])
     move_files(files=imgs,target=output_dir)
     make_html(output_dir)
 
