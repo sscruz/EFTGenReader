@@ -44,6 +44,7 @@
 // Physics
 #include "Math/LorentzVector.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 #include "EFTGenReader/GenReader/interface/WCPoint.h"
 #include "EFTGenReader/GenReader/interface/WCFit.h"
@@ -83,6 +84,7 @@ class EFTLHEReader: public edm::EDAnalyzer
         edm::ParameterSet entire_pset;
 
         edm::EDGetTokenT<LHEEventProduct> lheInfo_token_;
+        edm::EDGetTokenT<GenEventInfoProduct> genInfo_token_; //GenEventInfoProduct name of the class (the token is of this type) (define token)
 
         // declare the tree
         TTree * summaryTree;
@@ -93,6 +95,11 @@ class EFTLHEReader: public edm::EDAnalyzer
         int eventnum_intree;
         int lumiBlock_intree;
         int runNumber_intree;
+
+        int nMEpartons_intree;
+        int nMEpartonsFiltered_intree;
+        double genWgt_intree;
+        std::vector<double> djrvalues_intree; // Variabel to store the info we are getting from the module 
 
         WCFit wcFit_intree;
 
@@ -106,6 +113,11 @@ void EFTLHEReader::tree_add_branches()
     summaryTree->Branch("eventnum",&eventnum_intree);
     summaryTree->Branch("lumiBlock",&lumiBlock_intree);
     summaryTree->Branch("runNumber",&runNumber_intree);
+
+    summaryTree->Branch("nMEpartons",&nMEpartons_intree);
+    summaryTree->Branch("nMEpartonsFiltered",&nMEpartonsFiltered_intree);
+    summaryTree->Branch("genWgt",&genWgt_intree);
+    summaryTree->Branch("DJRValues",&djrvalues_intree); // Add branch 
 
     summaryTree->Branch("wcFit",&wcFit_intree);
 }
