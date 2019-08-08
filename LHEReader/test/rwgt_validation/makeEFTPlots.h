@@ -18,6 +18,8 @@
 #include "TGraph.h"
 #include "TLatex.h"
 
+#include "TGraphErrors.h"
+
 std::unordered_map<std::string,double> kXsecNorm {
     // Old PDFs
     //{"ttH",   0.385841},
@@ -447,6 +449,32 @@ void make_1d_xsec_plot(
         fit->GetYaxis()->SetTitle(y_axis_name);
         fit->SetTitle(plot_name);
 
+
+        // Error bands: 
+        const int npts = 100;
+        Float_t x_vals[npts];
+        Float_t y_vals[npts];
+        Float_t xerr_vals[npts];
+        Float_t yerr_vals[npts];
+
+        float x_min = plt_ops.x_min;
+        float x_max = plt_ops.x_max;
+        float x_range = x_max - x_min;
+        float step_size = x_range/(npts-1);
+
+        WCPoint wc_pt;
+        float x_coord;
+        for (int idx = 0; idx < npts; idx++){
+            x_coord = x_min + idx*step_size;
+            wc_pt.setStrength(wc_name,x_coord);
+            x_vals[idx] = x_coord;
+            y_vals[idx] = wc_fit.evalPoint(&wc_pt);
+            xerr_vals[idx] = 0;
+            yerr_vals[idx] = wc_fit.evalPointError(&wc_pt);
+        }
+
+        TGraphErrors *err_graph = new TGraphErrors(npts, x_vals, y_vals, xerr_vals, yerr_vals);
+
         //fit->SetLineStyle(9);
         fit->SetLineWidth(2);
 
@@ -461,48 +489,54 @@ void make_1d_xsec_plot(
             legend->AddEntry(fit,leg_str,"l");
         }
 
-        std::string fit_x,fit_y;
-        for (auto& fit_pt: sortByStrength(wc_fit.getFitPoints(),wc_name)) {
-            if (!fit_pt.isSMPoint() && fit_pt.getDim() != 1) {
-                continue;
-            } else if (!fit_pt.isSMPoint() && fit_pt.getStrength(wc_name) == 0.0) {
-                continue;
-            }
+        err_graph->SetFillColor(plt_ops.getColor(i));
+        //err_graph->SetFillStyle(3003);
+        err_graph->SetFillStyle(3002);
+        err_graph->Draw("3");
+        //err_graph->Draw("SAME");
 
-            int marker_clr   = plt_ops.getColor(i);
-            double marker_sz = origpts_marker_size;
+        //std::string fit_x,fit_y;
+        //for (auto& fit_pt: sortByStrength(wc_fit.getFitPoints(),wc_name)) {
+        //    if (!fit_pt.isSMPoint() && fit_pt.getDim() != 1) {
+        //        continue;
+        //    } else if (!fit_pt.isSMPoint() && fit_pt.getStrength(wc_name) == 0.0) {
+        //        continue;
+        //    }
 
-            fit_x = std::to_string(fit_pt.getStrength(wc_name));
-            fit_y = std::to_string(fit_pt.wgt);
+        //    int marker_clr   = plt_ops.getColor(i);
+        //    double marker_sz = origpts_marker_size;
 
-            if (fit_pt.getStrength(wc_name) >= 0) {
-                fit_x = " " + fit_x;
-            }
+        //    fit_x = std::to_string(fit_pt.getStrength(wc_name));
+        //    fit_y = std::to_string(fit_pt.wgt);
 
-            int dec_sp = 2;
-            if (abs(fit_pt.getStrength(wc_name)) > 0) {
-                dec_sp = dec_sp - log10(abs(fit_pt.getStrength(wc_name)));
-            } else {
-                dec_sp = 1;
-            }
+        //    if (fit_pt.getStrength(wc_name) >= 0) {
+        //        fit_x = " " + fit_x;
+        //    }
 
-            if (dec_sp > 0) {
-                std::string tmp_str(dec_sp,' ');
-                fit_x = tmp_str + fit_x;
-            }
+        //    int dec_sp = 2;
+        //    if (abs(fit_pt.getStrength(wc_name)) > 0) {
+        //        dec_sp = dec_sp - log10(abs(fit_pt.getStrength(wc_name)));
+        //    } else {
+        //        dec_sp = 1;
+        //    }
 
-            padR(fit_x,10);
+        //    if (dec_sp > 0) {
+        //        std::string tmp_str(dec_sp,' ');
+        //        fit_x = tmp_str + fit_x;
+        //    }
 
-            TGraph* fit_pt_gr = new TGraph(1);
-            fit_pt_gr->SetPoint(0,fit_pt.getStrength(wc_name),fit_pt.wgt);
-            fit_pt_gr->SetMarkerStyle(origpts_marker_style);
-            fit_pt_gr->SetMarkerSize(marker_sz);
-            fit_pt_gr->SetMarkerColor(marker_clr);
+        //    padR(fit_x,10);
 
-            if (include_fitpts) {
-                fit_pt_gr->Draw("P");
-            }
-        }
+        //    TGraph* fit_pt_gr = new TGraph(1);
+        //    fit_pt_gr->SetPoint(0,fit_pt.getStrength(wc_name),fit_pt.wgt);
+        //    fit_pt_gr->SetMarkerStyle(origpts_marker_style);
+        //    fit_pt_gr->SetMarkerSize(marker_sz);
+        //    fit_pt_gr->SetMarkerColor(marker_clr);
+
+        //    if (include_fitpts) {
+        //        fit_pt_gr->Draw("P");
+        //    }
+        //}
     }
 
     // Draw MadGraph reference points (if they happen to land on this particular 1-D axis scan)
