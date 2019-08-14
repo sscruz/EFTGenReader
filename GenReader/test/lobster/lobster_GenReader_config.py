@@ -76,14 +76,16 @@ for idx,sample_name in enumerate(samples):
     full_path = sample_loc.split("/hadoop")[1]
     rel_path = os.path.relpath(full_path,input_path)
 
+    cms_cmd = ['cmsRun','lobsterized_EFTGenReader_cfg.py']
+    if not ds_helper.getData(sample_name,'is_eft'):
+        cms_cmd.extend(['iseft=False'])
+    cms_cmd.extend(['minPtJet=30.0'])
+
     print "[{0:0>{w}}/{1:0>{w}}] Sample: {sample}".format(idx+1,len(samples),sample=sample_name,w=width)
     print "\tFullPath:  {path}".format(path=full_path)
     print "\tInputPath: {path}".format(path=input_path)
     print "\tRelPath:   {path}".format(path=rel_path)
-
-    cms_cmd = ['cmsRun','lobsterized_EFTGenReader_cfg.py']
-    if not ds_helper.getData(sample_name,'is_eft'):
-        cms_cmd.extend(['iseft=False'])
+    print "\tCommand:   {cmd}".format(cmd=' '.join(cms_cmd))
 
     # The workflow label can't have any dashes (-) in it, so remove them
     safe_label_name = sample_name.replace('-','')
