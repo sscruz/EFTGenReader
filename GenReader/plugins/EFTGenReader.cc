@@ -38,10 +38,17 @@ void EFTGenReader::beginJob()
 
     edm::Service<TFileService> newfs;
 
+    //int pdg_bins = 100;
+    //int pt_bins = 20;//200;
+    //int eta_bins = 100;
+    //int invmass_bins = 100;
+
     int pdg_bins = 100;
-    int pt_bins = 20;//200;
-    int eta_bins = 100;
-    int invmass_bins = 100;
+    int njet_bins = 16;
+    int pt_bins = 5;
+    int eta_bins = 10;
+    int invmass_bins = 10;
+    int deltaR_bins = 10;
 
     // Book the histograms that we will fill in the event loop
 
@@ -140,8 +147,10 @@ void EFTGenReader::beginJob()
     h_pdgIdLepGrMotherSM = newfs->make<TH1D>("h_pdgIdLepGrMotherSM","h_pdgIdLepGrMotherSM",2*pdg_bins,-pdg_bins+1,pdg_bins);
 
     // misc. observables
-    h_deltaREFT = newfs->make<TH1EFT>("h_deltaREFT","h_deltaREFT",100,0,5);
-    h_deltaRSM = newfs->make<TH1D>("h_deltaRSM","h_deltaRSM",100,0,5);
+    //h_deltaREFT = newfs->make<TH1EFT>("h_deltaREFT","h_deltaREFT",100,0,5);
+    //h_deltaRSM = newfs->make<TH1D>("h_deltaRSM","h_deltaRSM",100,0,5);
+    h_deltaREFT = newfs->make<TH1EFT>("h_deltaREFT","h_deltaREFT",deltaR_bins,0,5);
+    h_deltaRSM = newfs->make<TH1D>("h_deltaRSM","h_deltaRSM",deltaR_bins,0,5);
     
     h_prompt_leptonsEFT = newfs->make<TH1EFT>("h_prompt_leptonsEFT","h_prompt_leptonsEFT",30,0,11);
     h_prompt_leptonsSM = newfs->make<TH1D>("h_prompt_leptonsSM","h_prompt_leptonsSM",30,0,11);

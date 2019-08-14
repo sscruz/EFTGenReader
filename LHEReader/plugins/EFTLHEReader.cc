@@ -7,6 +7,7 @@ EFTLHEReader::EFTLHEReader(const edm::ParameterSet& constructparams)
     entire_pset = constructparams;
     parse_params(); // Currently doesn't do anything
     lheInfo_token_ = consumes<LHEEventProduct>(edm::InputTag("externalLHEProducer"));
+    genInfo_token_ = consumes<GenEventInfoProduct>(edm::InputTag("generator")); // Associating the token with a moduel form the edm file
 }
 
 EFTLHEReader::~EFTLHEReader(){}
@@ -31,6 +32,9 @@ void EFTLHEReader::analyze(const edm::Event& event, const edm::EventSetup& evset
     edm::Handle<LHEEventProduct> LHEInfo;
     event.getByToken(lheInfo_token_,LHEInfo);
 
+    edm::Handle<GenEventInfoProduct> GENInfo;
+    event.getByToken(genInfo_token_,GENInfo); // GENInfo will store the DJR values
+
     originalXWGTUP_intree = LHEInfo->originalXWGTUP();  // original cross-section
 
     // Add EFT weights
@@ -52,6 +56,15 @@ void EFTLHEReader::analyze(const edm::Event& event, const edm::EventSetup& evset
     lumiBlock_intree = event.id().luminosityBlock();
     runNumber_intree = event.id().run();
     wcFit_intree = event_fit;
+
+    nMEpartons_intree         = GENInfo->nMEPartons();
+    nMEpartonsFiltered_intree = GENInfo->nMEPartonsFiltered();
+    genWgt_intree             = GENInfo->weight();
+
+    djrvalues_intree.clear();
+    for (auto djr_val: GENInfo->DJRValues()) {
+        djrvalues_intree.push_back(djr_val); // Change to a double
+    }
 
     summaryTree->Fill();
 }
