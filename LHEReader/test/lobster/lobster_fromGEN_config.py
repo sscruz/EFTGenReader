@@ -10,15 +10,17 @@ from lobster.core import AdvancedOptions, Category, Config, Dataset, StorageConf
 
 timestamp_tag = datetime.datetime.now().strftime('%Y%m%d_%H%M')
 
-username = "awightma"
+#username = "awightma"
+username = "kmohrman"
 
-RUN_SETUP = 'local'
-RUN_SETUP = 'full_production'
+#RUN_SETUP = 'local'
+#RUN_SETUP = 'full_production'
 RUN_SETUP = 'mg_studies'
 
 input_version  = "v1"
 output_version = "v1"
-grp_tag  = "2019_04_19/ValidationHanModelPlusJet"
+grp_tag  = "2019_04_19/ttHJet-xqcutStudies-xqcut10qCutTests"
+out_tag  = "2019_08_14_addPtBranches/ttHJet-xqcutStudies-xqcut10qCutTests_analysisEtaCut"
 test_tag = "lobster_20180505_1440"      # If the input LHE files were also produced in 'local' running
 prod_tag = "Round1/Batch1"
 
@@ -39,9 +41,9 @@ if RUN_SETUP == 'local':
 elif RUN_SETUP == 'mg_studies':
     # For MadGraph test studies
     input_path   = "/store/user/%s/genOnly_step/%s/%s/" % (username,grp_tag,input_version)
-    output_path  = "/store/user/$USER/summaryTree_LHE/%s-GEN/%s" % (grp_tag,output_version)
-    workdir_path = "/tmpscratch/users/$USER/summaryTree_LHE/%s-GEN/%s" % (grp_tag,output_version)
-    plotdir_path = "~/www/lobster/summaryTree_LHE/%s-GEN/%s" % (grp_tag,output_version)
+    output_path  = "/store/user/$USER/summaryTree_LHE/%s-GEN/%s" % (out_tag,output_version)
+    workdir_path = "/tmpscratch/users/$USER/summaryTree_LHE/%s-GEN/%s" % (out_tag,output_version)
+    plotdir_path = "~/www/lobster/summaryTree_LHE/%s-GEN/%s" % (out_tag,output_version)
 elif RUN_SETUP == 'full_production':
     input_path   = "/store/user/%s/FullProduction/%s/genOnly_step/%s/" % (username,prod_tag,input_version)
     output_path  = "/store/user/$USER/summaryTree_LHE/FP/%s-GEN/%s" % (prod_tag,output_version)
