@@ -6,6 +6,10 @@ import os
 options = VarParsing.VarParsing('analysis')
 #options.maxEvents = -1
 options.maxEvents = 500
+options.register("datatier","GEN",
+    VarParsing.VarParsing.multiplicity.singleton,
+    VarParsing.VarParsing.varType.string,"EDM datatier format of the input root files")
+options.parseArguments()
 
 from Configuration.StandardSequences.Eras import eras
 process = cms.Process("Demo", eras.Run2_2017)
@@ -35,6 +39,16 @@ process.EFTLHEReader.min_pt_jet  = cms.double(-1)
 process.EFTLHEReader.min_pt_lep  = cms.double(-1)
 process.EFTLHEReader.max_eta_jet = cms.double(2.5)
 process.EFTLHEReader.max_eta_lep = cms.double(2.5)
+
+if options.datatier == "GEN":
+    process.EFTLHEReader.GenParticles = cms.InputTag("genParticles")
+    process.EFTLHEReader.GenJets      = cms.InputTag("ak4GenJets")
+elif options.datatier == "MINIAODSIM":
+    process.EFTLHEReader.GenParticles = cms.InputTag("prunedGenParticles")
+    process.EFTLHEReader.GenJets      = cms.InputTag("slimmedGenJets")
+else:
+    print "[ERROR] Unknown datatier: {}".format(options.datatier)
+    raise RuntimeError
 
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string("output_tree.root")

@@ -19,6 +19,7 @@ RUN_SETUP = 'mg_studies'
 input_version  = "v1"
 output_version = "v1"
 grp_tag  = "2019_04_19/ValidationHanModelPlusJet"
+out_tag  = "2019_04_19/ValidationHanModelPlusJet"
 test_tag = "lobster_20180505_1440"      # If the input LHE files were also produced in 'local' running
 prod_tag = "Round1/Batch1"
 
@@ -39,14 +40,14 @@ if RUN_SETUP == 'local':
 elif RUN_SETUP == 'mg_studies':
     # For MadGraph test studies
     input_path   = "/store/user/%s/postLHE_step/%s/%s/" % (username,grp_tag,input_version)
-    output_path  = "/store/user/$USER/summaryTree_LHE/%s-mAOD/%s" % (grp_tag,output_version)
-    workdir_path = "/tmpscratch/users/$USER/summaryTree_LHE/%s-mAOD/%s" % (grp_tag,output_version)
-    plotdir_path = "~/www/lobster/summaryTree_LHE/%s-mAOD/%s" % (grp_tag,output_version)
+    output_path  = "/store/user/$USER/summaryTree_LHE/%s-mAOD/%s" % (out_tag,output_version)
+    workdir_path = "/tmpscratch/users/$USER/summaryTree_LHE/%s-mAOD/%s" % (out_tag,output_version)
+    plotdir_path = "~/www/lobster/summaryTree_LHE/%s-mAOD/%s" % (out_tag,output_version)
 elif RUN_SETUP == 'full_production':
-    input_path   = "/store/user/%s/FullProduction/%s/postLHE_step/%s/" % (username,prod_tag,input_version)
-    output_path  = "/store/user/$USER/summaryTree_LHE/FP/%s-mAOD/%s" % (prod_tag,output_version)
-    workdir_path = "/tmpscratch/users/$USER/summaryTree_LHE/FP/%s-mAOD/%s" % (prod_tag,output_version)
-    plotdir_path = "~/www/lobster/summaryTree_LHE/FP/%s-mAOD/%s" % (prod_tag,output_version)
+    input_path   = "/store/user/{user}/FullProduction/{prod}/postLHE_step/{ver}/".format(user=username,prod=prod_tag,ver=input_version)
+    output_path  = "/store/user/$USER/summaryTree_LHE/FP/{prod}/{tag}-mAOD/{ver}".format(tag=out_tag,prod=prod_tag,ver=output_version)
+    workdir_path = "/tmpscratch/users/$USER/summaryTree_LHE/FP/{prod}/{tag}-mAOD/{ver}".format(tag=out_tag,prod=prod_tag,ver=output_version)
+    plotdir_path = "~/www/lobster/summaryTree_LHE/FP/{prod}/{tag}-mAOD/{ver}".format(tag=out_tag,prod=prod_tag,ver=output_version)
 else:
     print "Unknown run setup, %s" % (RUN_SETUP)
     raise ValueError
@@ -104,10 +105,16 @@ print "Generating workflows:"
 for idx,maod_dir in enumerate(maod_dirs):
     arr = maod_dir.split('_')
     p,c,r = arr[2],arr[3],arr[4]
+
+    cms_cmd = ['cmsRun','EFTLHEReader_cfg.py']
+    cms_cmd.extend(['datatier=MINIAODSIM'])
+    
     print "\t[{n}/{tot}] mAOD Input: {dir}".format(n=idx+1,tot=len(maod_dirs),dir=maod_dir)
+    print "\tCommand: {cmd}".format(cmd=' '.join(cms_cmd))
+
     output = Workflow(
         label='output_{p}_{c}_{r}'.format(p=p,c=c,r=r),
-        command='cmsRun EFTLHEReader_cfg.py',
+        command=' '.join(cms_cmd),
         merge_size='1.0G',
         cleanup_input=False,
         dataset=Dataset(

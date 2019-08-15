@@ -2,19 +2,24 @@
 
 #include "EFTGenReader/LHEReader/interface/EFTLHEReader.h"
 
-EFTLHEReader::EFTLHEReader(const edm::ParameterSet& constructparams)
+EFTLHEReader::EFTLHEReader(const edm::ParameterSet& iConfig)
 {
-    min_pt_jet = constructparams.getParameter<double> ("min_pt_jet");
-    min_pt_lep = constructparams.getParameter<double> ("min_pt_lep");
-    max_eta_jet = constructparams.getParameter<double> ("max_eta_jet");
-    max_eta_lep = constructparams.getParameter<double> ("max_eta_lep");
+    min_pt_jet = iConfig.getParameter<double> ("min_pt_jet");
+    min_pt_lep = iConfig.getParameter<double> ("min_pt_lep");
+    max_eta_jet = iConfig.getParameter<double> ("max_eta_jet");
+    max_eta_lep = iConfig.getParameter<double> ("max_eta_lep");
 
-    entire_pset = constructparams;
+    //entire_pset = iConfig;
+    
     parse_params(); // Currently doesn't do anything
-    lheInfo_token_      = consumes<LHEEventProduct>(edm::InputTag("externalLHEProducer"));
-    genInfo_token_      = consumes<GenEventInfoProduct>(edm::InputTag("generator")); // Associating the token with a moduel form the edm file
-    genParticles_token_ = consumes<std::vector<reco::GenParticle> >(edm::InputTag("genParticles"));
-    genJets_token_      = consumes<std::vector<reco::GenJet> >(edm::InputTag("ak4GenJets")); // or ak8GenJets?
+    //lheInfo_token_      = consumes<LHEEventProduct>(edm::InputTag("externalLHEProducer"));
+    //genInfo_token_      = consumes<GenEventInfoProduct>(edm::InputTag("generator")); // Associating the token with a moduel form the edm file
+    //genParticles_token_ = consumes<std::vector<reco::GenParticle> >(edm::InputTag("genParticles"));
+    //genJets_token_      = consumes<std::vector<reco::GenJet> >(edm::InputTag("ak4GenJets")); // or ak8GenJets?
+    lheInfo_token_      = consumes<LHEEventProduct>(iConfig.getParameter<edm::InputTag>("LHEInfo"));
+    genInfo_token_      = consumes<GenEventInfoProduct>(iConfig.getParameter<edm::InputTag>("GENInfo"));
+    genParticles_token_ = consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("GenParticles"));
+    genJets_token_      = consumes<std::vector<reco::GenJet> >(iConfig.getParameter<edm::InputTag>("GenJets"));
 }
 
 EFTLHEReader::~EFTLHEReader(){}

@@ -87,7 +87,7 @@ class EFTLHEReader: public edm::EDAnalyzer
         int sampleNumber;
         int eventcount;
 
-        edm::ParameterSet entire_pset;
+        //edm::ParameterSet entire_pset;
 
         edm::EDGetTokenT<LHEEventProduct> lheInfo_token_;
         edm::EDGetTokenT<GenEventInfoProduct> genInfo_token_; //GenEventInfoProduct name of the class (the token is of this type) (define token)
