@@ -53,10 +53,11 @@ def getImages(tar_dir,file_type='png'):
         fpath = os.path.join(tar_dir,out)
         if (os.path.isdir(fpath)):
             continue
-        f,ftype = out.split(".")
+        f,ftype = out.rsplit(".",1)
         if ftype != file_type:
             continue
         fnames.append(out)
+
     return fnames
 
 # Creates an index.html file at the specified location for displaying .png files in a web-browser
@@ -86,7 +87,7 @@ def make_html(tar_dir):
 
     image_files = getImages(tar_dir)
     for fname in image_files:
-        image_name,ftype = fname.split(".")
+        image_name,ftype = fname.rsplit(".",1)
 
         div_tag   = DivisionTag(); my_html.addBodyTag(div_tag)
         image_tag = ImgTag()
