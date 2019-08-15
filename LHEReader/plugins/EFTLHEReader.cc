@@ -4,10 +4,17 @@
 
 EFTLHEReader::EFTLHEReader(const edm::ParameterSet& constructparams)
 {
+    min_pt_jet = constructparams.getParameter<double> ("min_pt_jet");
+    min_pt_lep = constructparams.getParameter<double> ("min_pt_lep");
+    max_eta_jet = constructparams.getParameter<double> ("max_eta_jet");
+    max_eta_lep = constructparams.getParameter<double> ("max_eta_lep");
+
     entire_pset = constructparams;
     parse_params(); // Currently doesn't do anything
-    lheInfo_token_ = consumes<LHEEventProduct>(edm::InputTag("externalLHEProducer"));
-    genInfo_token_ = consumes<GenEventInfoProduct>(edm::InputTag("generator")); // Associating the token with a moduel form the edm file
+    lheInfo_token_      = consumes<LHEEventProduct>(edm::InputTag("externalLHEProducer"));
+    genInfo_token_      = consumes<GenEventInfoProduct>(edm::InputTag("generator")); // Associating the token with a moduel form the edm file
+    genParticles_token_ = consumes<std::vector<reco::GenParticle> >(edm::InputTag("genParticles"));
+    genJets_token_      = consumes<std::vector<reco::GenJet> >(edm::InputTag("ak4GenJets")); // or ak8GenJets?
 }
 
 EFTLHEReader::~EFTLHEReader(){}
@@ -35,6 +42,12 @@ void EFTLHEReader::analyze(const edm::Event& event, const edm::EventSetup& evset
     edm::Handle<GenEventInfoProduct> GENInfo;
     event.getByToken(genInfo_token_,GENInfo); // GENInfo will store the DJR values
 
+    edm::Handle<std::vector<reco::GenParticle> > genParticles;
+    event.getByToken(genParticles_token_, genParticles);
+
+    edm::Handle<std::vector<reco::GenJet> > genJets;
+    event.getByToken(genJets_token_, genJets);
+
     originalXWGTUP_intree = LHEInfo->originalXWGTUP();  // original cross-section
 
     // Add EFT weights
@@ -51,6 +64,36 @@ void EFTLHEReader::analyze(const edm::Event& event, const edm::EventSetup& evset
     }
 
     WCFit event_fit(wc_pts,"");
+
+    std::vector<reco::GenParticle> gen_leptons = GetGenLeptons(*genParticles); // Note GetGenLeptons sorts by pt
+    for (size_t i = 0; i < gen_leptons.size(); i++) {
+        const reco::GenParticle& p = gen_leptons.at(i);
+        double pt = p.p4().Pt();
+
+        if (i==0) {
+           genLep_pt1_intree = pt;
+        } else if (i==1) {
+            genLep_pt2_intree = pt;
+        } else if (i==2) {
+            genLep_pt3_intree = pt;
+        }
+    }
+
+    std::vector<reco::GenJet> gen_jets = GetGenJets(*genJets); //
+    for (size_t i = 0; i < gen_jets.size(); i++) {
+        const reco::GenJet& p = gen_jets.at(i);
+        double pt = p.p4().Pt();
+
+        if (i==0) {
+           genJet_pt1_intree = pt;
+        } else if (i==1) {
+            genJet_pt2_intree = pt;
+        } else if (i==2) {
+            genJet_pt3_intree = pt;
+        } else if (i==3) {
+            genJet_pt4_intree = pt;
+        }
+    }
 
     eventnum_intree = event.id().event();
     lumiBlock_intree = event.id().luminosityBlock();
