@@ -231,6 +231,46 @@
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelPlusJet/v1/mAOD_step_ttHJet_HanModel16DttllScanpoints_run1", 
     "on_das": false
   }, 
+  "ttHJet_HanModel16DttllScanpointsxqcut10-qCut10": {
+    "central_xsec": 0.5638, 
+    "dataset": "", 
+    "datatier": "GEN", 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/ttHJet-xqcutStudies-xqcut10qCutTests/v1/gen_step_ttHJet_HanModel16DttllScanpointsqCut10_run1", 
+    "on_das": false
+  }, 
+  "ttHJet_HanModel16DttllScanpointsxqcut10-qCut15": {
+    "central_xsec": 0.5638, 
+    "dataset": "", 
+    "datatier": "GEN", 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/ttHJet-xqcutStudies-xqcut10qCutTests/v1/gen_step_ttHJet_HanModel16DttllScanpointsqCut15_run1", 
+    "on_das": false
+  }, 
+  "ttHJet_HanModel16DttllScanpointsxqcut10-qCut19": {
+    "central_xsec": 0.5638, 
+    "dataset": "", 
+    "datatier": "GEN", 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/ttHJet-xqcutStudies-xqcut10qCutTests/v1/gen_step_ttHJet_HanModel16DttllScanpointsqCut19_run1", 
+    "on_das": false
+  }, 
+  "ttHJet_HanModel16DttllScanpointsxqcut10-qCut25": {
+    "central_xsec": 0.5638, 
+    "dataset": "", 
+    "datatier": "GEN", 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/ttHJet-xqcutStudies-xqcut10qCutTests/v1/gen_step_ttHJet_HanModel16DttllScanpointsqCut25_run1", 
+    "on_das": false
+  }, 
+  "ttHJet_HanModel16DttllScanpointsxqcut10-qCut35": {
+    "central_xsec": 0.5638, 
+    "dataset": "", 
+    "datatier": "GEN", 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/ttHJet-xqcutStudies-xqcut10qCutTests/v1/gen_step_ttHJet_HanModel16DttllScanpointsqCut35_run1", 
+    "on_das": false
+  }, 
   "ttHJet_HanModelxqcut10-qCut19": {
     "central_xsec": 0.5638, 
     "dataset": "", 
