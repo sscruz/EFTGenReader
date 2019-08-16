@@ -2,29 +2,21 @@
 
 #include "EFTGenReader/GenReader/interface/EFTGenReader.h"
 
-EFTGenReader::EFTGenReader(const edm::ParameterSet& constructparams)
+EFTGenReader::EFTGenReader(const edm::ParameterSet& iConfig)
 {
-    debug = constructparams.getParameter<bool> ("debug");
-    iseft = constructparams.getParameter<bool> ("iseft");
-    gp_events = constructparams.getParameter<int> ("gp_events");
-    norm_type = constructparams.getParameter<int> ("norm_type");
-    xsec_norm = constructparams.getParameter<double> ("xsec_norm");
-    intg_lumi = constructparams.getParameter<double> ("intg_lumi");
+    debug = iConfig.getParameter<bool> ("debug");
+    iseft = iConfig.getParameter<bool> ("iseft");
 
-    min_pt_jet = constructparams.getParameter<double> ("min_pt_jet");
-    min_pt_lep = constructparams.getParameter<double> ("min_pt_lep");
-    max_eta_jet = constructparams.getParameter<double> ("max_eta_jet");
-    max_eta_lep = constructparams.getParameter<double> ("max_eta_lep");
-
-    entire_pset = constructparams;
+    min_pt_jet  = iConfig.getParameter<double> ("min_pt_jet");
+    min_pt_lep  = iConfig.getParameter<double> ("min_pt_lep");
+    max_eta_jet = iConfig.getParameter<double> ("max_eta_jet");
+    max_eta_lep = iConfig.getParameter<double> ("max_eta_lep");
+    
     parse_params(); // Currently doesn't do anything
-    lheInfo_token_ = consumes<LHEEventProduct>(edm::InputTag("externalLHEProducer"));
-    genInfo_token_ = consumes<GenEventInfoProduct>(edm::InputTag("generator"));
-    genParticles_token_ = consumes<reco::GenParticleCollection>(edm::InputTag("prunedGenParticles"));
-    slimmed_genJets_token_ = consumes<std::vector<reco::GenJet> >(edm::InputTag("slimmedGenJets"));
-    slimmed_genJetsAK8_token_ = consumes<std::vector<reco::GenJet> >(edm::InputTag("slimmedGenJetsAK8"));
-    slimmed_genJetsAK8SoftDropSubJets_token_ = consumes<std::vector<reco::GenJet> >(edm::InputTag("slimmedGenJetsAK8SoftDropSubJets"));
-    //genPackedParticles_token_ = consumes<std::vector<pat::PackedGenParticleCollection> >(edm::InputTag("packedGenParticles"));
+    lheInfo_token_      = consumes<LHEEventProduct>(iConfig.getParameter<edm::InputTag>("LHEInfo"));
+    genInfo_token_      = consumes<GenEventInfoProduct>(iConfig.getParameter<edm::InputTag>("GENInfo"));
+    genParticles_token_ = consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("GenParticles"));
+    genJets_token_      = consumes<std::vector<reco::GenJet> >(iConfig.getParameter<edm::InputTag>("GenJets"));
 }
 
 EFTGenReader::~EFTGenReader(){}
@@ -212,35 +204,21 @@ void EFTGenReader::endJob()
 
 void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evsetup)
 {
-    //std::string sm_wgt_str1 = "EFTrwgt183_ctW_0.0_ctp_0.0_cpQM_0.0_ctli_0.0_cQei_0.0_ctZ_0.0_cQlMi_0.0_cQl3i_0.0_ctG_0.0_ctlTi_0.0_cbW_0.0_cpQ3_0.0_ctei_0.0_cpt_0.0_ctlSi_0.0_cptb_0.0";
-    //std::string sm_wgt_str2 = "EFTrwgt183_ctW_0.0_ctp_0.0_cpQM_0.0_cpt_0.0_cQei_0.0_ctZ_0.0_cQlMi_0.0_cQl3i_0.0_ctG_0.0_ctlTi_0.0_cbW_0.0_cpQ3_0.0_ctei_0.0_ctli_0.0_ctlSi_0.0_cptb_0.0";
     eventcount++;
-
-    //std::cout << "EVENTNUMBER: " << eventcount << std::endl;
 
     // set tree vars to default values
     initialize_variables();
 
     edm::Handle<LHEEventProduct> LHEInfo;
     edm::Handle<reco::GenParticleCollection> prunedParticles;
-    //edm::Handle<pat::PackedGenParticle> packedParticles;
-
-    edm::Handle<std::vector<reco::GenJet> > slimGenJets;
-    edm::Handle<std::vector<reco::GenJet> > slimGenJetsAK8;
-    edm::Handle<std::vector<reco::GenJet> > slimGenJetsAK8SoftDropSubJets;
+    edm::Handle<std::vector<reco::GenJet> > genJets;
 
     event.getByToken(lheInfo_token_,LHEInfo);
     event.getByToken(genParticles_token_,prunedParticles);
-    //event.getByToken(genPackedParticles_token_,packedParticles);
-
-    event.getByToken(slimmed_genJets_token_,slimGenJets);
-    event.getByToken(slimmed_genJetsAK8_token_,slimGenJetsAK8);
-    event.getByToken(slimmed_genJetsAK8SoftDropSubJets_token_,slimGenJetsAK8SoftDropSubJets);
-
+    event.getByToken(genJets_token_,genJets);
 
     if (debug){    
-        //if (eventcount == 3) dumpParticles(*prunedParticles);
-        if (eventcount == 3) dumpJets(*slimGenJets);
+        if (eventcount == 3) dumpJets(*genJets);
     }
 
     originalXWGTUP_intree = LHEInfo->originalXWGTUP();  // original cross-section
@@ -252,14 +230,6 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
             auto LHEwgtstr = std::string(wgt_info.id);
             std::size_t foundstr = LHEwgtstr.find("EFTrwgt"); // only save our EFT weights
             if (foundstr!=std::string::npos) {
-                //eftwgts_intree[wgt_info.id] = wgt_info.wgt;
-                //if (eventcount == 1) {
-                //    std::cout << wgt_info.id << std::endl;
-                //}
-                //if (LHEwgtstr == sm_wgt_str1 || LHEwgtstr == sm_wgt_str2) {
-                //    norm_sm_wgt = wgt_info.wgt / originalXWGTUP_intree;
-                //    sm_wgt = wgt_info.wgt;
-                //}
                 WCPoint wc_pt(wgt_info.id,wgt_info.wgt);
                 wc_pts.push_back(wc_pt);
                 if (wc_pt.isSMPoint()) {
@@ -288,12 +258,6 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
 
     h_eventsumEFT->Fill(0.5,1,eft_fit);
 
-    //if (eventcount % 25 == 1) {
-    //    std::cout << "EVENTNUMBER: " << eventcount << std::endl;
-    //    std::cout << "\tsm_wgt:   " << sm_wgt << " (" << norm_sm_wgt << ")" << std::endl;
-    //    std::cout << "\torig_wgt: " << originalXWGTUP_intree << std::endl;
-    //}
-
     total_sm_xsec += sm_wgt;
     total_orig_xsec += originalXWGTUP_intree;
 
@@ -306,12 +270,6 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
     h_SMwgt_norm->Fill(sm_wgt);
 
     reco::GenParticleCollection gen_leptons = GetGenLeptons(*prunedParticles);
-
-    //if (gen_leptons.size() != 2) {
-    //    std::cout << "EVENTNUMBER: " << eventcount << std::endl;
-    //    dumpParticles(*prunedParticles);
-    //}
-    //dumpParticles(gen_leptons);
 
     h_prompt_leptonsEFT->Fill(gen_leptons.size(),1.0,eft_fit);
     h_prompt_leptonsSM->Fill(gen_leptons.size(),sm_wgt);
@@ -329,20 +287,10 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
         int mom_id = p_mom->pdgId();
         int gmom_id = p_gmom->pdgId();
 
-        //std::cout << "pdgId: " << id
-        //          << "\n\tPt: " << pt << "\tEta: " << eta
-        //          << "\n\tStatus: " << st
-        //          << "\n\tDirect pdgId:  " << direct_id
-        //          << "\n\tMother pdgId:  " << mom_id
-        //          << "\n\tGMother pdgId: " << gmom_id << std::endl;
-
-        //h_lep_ptEFT->Fill(pt,1.0,eft_fit);
-
         h_pdgIdLepGrMotherEFT->Fill(gmom_id,1.0,eft_fit); h_pdgIdLepGrMotherSM->Fill(gmom_id,sm_wgt);
         h_lep_ptEFT->Fill(pt,1.0,eft_fit);                h_lep_ptSM->Fill(pt,sm_wgt);
         h_lep_etaEFT->Fill(eta,1.0,eft_fit);              h_lep_etaSM->Fill(eta,sm_wgt);
         h_pdgIdLepMotherEFT->Fill(mom_id,1.0,eft_fit);    h_pdgIdLepMotherSM->Fill(mom_id,sm_wgt);
-        //h_pdgIdLepGrMotherEFT->Fill(gmom_id,1.0,eft_fit); h_pdgIdLepGrMotherSM->Fill(gmom_id,sm_wgt);
 
         // mom_id and direct_id should be the same thing for the gen leptons selected by GetGenLeptons()
         if (mom_id == 21) {
@@ -377,7 +325,6 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
         }
         for (size_t j = 0; j < gen_leptons.size(); j++) {
             if (i >= j) continue;
-            //std::cout << "\t(i,j): " << "(" << i << "," << j << ")" << std::endl;
 
             const reco::GenParticle& p2 = gen_leptons.at(j);
             double dR = getdR(p1,p2);
@@ -385,16 +332,13 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
             auto p4vec = p1.p4() + p2.p4();
             double sum_pt = p4vec.Pt();
 
-            //std::cout << "\t\tdR: " << dR
-            //          << "\n\t\tMll: " << mll << std::endl;
-
             h_mllEFT->Fill(mll,1.0,eft_fit);          h_mllSM->Fill(mll,sm_wgt);
             h_deltaREFT->Fill(dR,1.0,eft_fit);        h_deltaRSM->Fill(dR,sm_wgt);
             h_lepSum_ptEFT->Fill(sum_pt,1.0,eft_fit); h_lepSum_ptSM->Fill(sum_pt,sm_wgt);
         }
     }
 
-    std::vector<reco::GenJet> gen_jets = GetGenJets(*slimGenJets);
+    std::vector<reco::GenJet> gen_jets = GetGenJets(*genJets);
 
     h_nJetsEFT->Fill(gen_jets.size(),1.0,eft_fit);
     h_nJetsSM->Fill(gen_jets.size(),sm_wgt);
@@ -433,16 +377,7 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
     lumiBlock_intree = event.id().luminosityBlock();
     runNumber_intree = event.id().run();
 
-    pruned_genParticles_intree = *prunedParticles;
-
-    slimmed_genJets_intree = *slimGenJets;
-    slimmed_genJetsAK8_intree = *slimGenJetsAK8;
-    slimmed_genJetsAK8SoftDropSubJets_intree = *slimGenJetsAK8SoftDropSubJets;
-
-    //if (eventcount < 10) {
-    //    summaryTree->Fill();
-    //}
-
+    //summaryTree->Fill();
 }
 
 void EFTGenReader::beginRun(edm::Run const& run, edm::EventSetup const& evsetup)

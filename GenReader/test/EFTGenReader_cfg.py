@@ -101,6 +101,7 @@ ds_name   = options.dataset
 files     = ds_helper.getFiles(ds_name)
 is_eft    = ds_helper.getData(ds_name,'is_eft')
 xsec_norm = ds_helper.getData(ds_name,'central_xsec')
+datatier  = ds_helper.getData(ds_name,'datatier')
 
 #out_fname = "%s_NoTopLeptons_output_tree.root" % (ds_name)
 out_fname = "%s%s.root" % (ds_name,options.fnSuffix)
@@ -132,6 +133,16 @@ process.EFTGenReader.max_eta_lep = options.maxEtaLep
 
 process.EFTGenReader.iseft = is_eft
 process.EFTGenReader.xsec_norm = xsec_norm
+
+if datatier == "GEN":
+    process.EFTGenReader.GenParticles = cms.InputTag("genParticles")
+    process.EFTGenReader.GenJets      = cms.InputTag("ak4GenJets")
+elif datatier == "MINIAODSIM":
+    process.EFTGenReader.GenParticles = cms.InputTag("prunedGenParticles")
+    process.EFTGenReader.GenJets      = cms.InputTag("slimmedGenJets")
+else:
+    print "[ERROR] Unknown datatier: {}".format(datatier)
+    raise RuntimeError
 
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string(out_path)

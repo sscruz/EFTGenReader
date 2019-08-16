@@ -10,6 +10,9 @@ options.maxEvents = 100
 options.register("dataset","central_ttH",
     VarParsing.VarParsing.multiplicity.singleton,
     VarParsing.VarParsing.varType.string,"name of the dataset as it appears in the JSON file")
+options.register("datatier","GEN",
+    VarParsing.VarParsing.multiplicity.singleton,
+    VarParsing.VarParsing.varType.string,"EDM datatier format of the input root files")
 options.register("test",False,
     VarParsing.VarParsing.multiplicity.singleton,
     VarParsing.VarParsing.varType.bool, "changes the output name to a dummy value")
@@ -83,6 +86,16 @@ process.EFTGenReader.max_eta_jet = options.maxEtaJet
 process.EFTGenReader.max_eta_lep = options.maxEtaLep
 
 process.EFTGenReader.iseft = options.iseft
+
+if options.datatier == "GEN":
+    process.EFTLHEReader.GenParticles = cms.InputTag("genParticles")
+    process.EFTLHEReader.GenJets      = cms.InputTag("ak4GenJets")
+elif options.datatier == "MINIAODSIM":
+    process.EFTLHEReader.GenParticles = cms.InputTag("prunedGenParticles")
+    process.EFTLHEReader.GenJets      = cms.InputTag("slimmedGenJets")
+else:
+    print "[ERROR] Unknown datatier: {}".format(options.datatier)
+    raise RuntimeError
 
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string("output_tree.root")

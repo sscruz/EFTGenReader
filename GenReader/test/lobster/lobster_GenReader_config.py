@@ -77,9 +77,12 @@ for idx,sample_name in enumerate(samples):
     rel_path = os.path.relpath(full_path,input_path)
 
     cms_cmd = ['cmsRun','lobsterized_EFTGenReader_cfg.py']
+    cms_cmd.extend([
+        'datatier={tier}'.format(tier=ds_helper.getData(sample_name,'datatier')),
+        'minPtJet=30.0',
+    ])
     if not ds_helper.getData(sample_name,'is_eft'):
         cms_cmd.extend(['iseft=False'])
-    cms_cmd.extend(['minPtJet=30.0'])
 
     print "[{0:0>{w}}/{1:0>{w}}] Sample: {sample}".format(idx+1,len(samples),sample=sample_name,w=width)
     print "\tFullPath:  {path}".format(path=full_path)

@@ -107,23 +107,20 @@ class EFTGenReader: public edm::EDAnalyzer
         int sampleNumber;
         int eventcount;
 
-        // cfi params
+        // runtime configurable parameters
         bool iseft;
         bool debug;
-        int gp_events;
-        int norm_type;
-        double xsec_norm;
-        double intg_lumi;
-
-        // configurable kinematic cut params
         double min_pt_jet;
         double min_pt_lep;
-        
         double max_eta_jet;
         double max_eta_lep;
 
-        //TH1EFT* h_lep_ptEFT;
+        edm::EDGetTokenT<LHEEventProduct> lheInfo_token_;
+        edm::EDGetTokenT<GenEventInfoProduct> genInfo_token_;
+        edm::EDGetTokenT<reco::GenParticleCollection> genParticles_token_;  // reco::GenParticlesCollection is an alias for std::vector<reco::GenParticle>>
+        edm::EDGetTokenT<std::vector<reco::GenJet> > genJets_token_;
 
+        // Histograms
         TH1D* h_SMwgt_norm;
 
         TH1EFT* h_eventsumEFT;
@@ -164,63 +161,36 @@ class EFTGenReader: public edm::EDAnalyzer
         TH1EFT* h_jet3_etaEFT; TH1D* h_jet3_etaSM;
         TH1EFT* h_jet4_etaEFT; TH1D* h_jet4_etaSM;
 
-        edm::ParameterSet entire_pset;
-
-        // Note: reco::GenParticlesCollection is an alias for std::vector<reco::GenParticle>>
-        edm::EDGetTokenT<LHEEventProduct> lheInfo_token_;
-        edm::EDGetTokenT<GenEventInfoProduct> genInfo_token_;
-        edm::EDGetTokenT<reco::GenParticleCollection> genParticles_token_;
-        //edm::EDGetTokenT<std::vector<pat::PackedGenParticleCollection> > genPackedParticles_token_;
-        edm::EDGetTokenT<std::vector<reco::GenJet> > slimmed_genJets_token_;
-        edm::EDGetTokenT<std::vector<reco::GenJet> > slimmed_genJetsAK8_token_;
-        edm::EDGetTokenT<std::vector<reco::GenJet> > slimmed_genJetsAK8SoftDropSubJets_token_;
-
         // declare the tree
         TTree * summaryTree;
 
         // tree branches
-        //std::unordered_map<std::string,double> eftwgts_intree;
         double originalXWGTUP_intree;
         int eventnum_intree;
         int lumiBlock_intree;
         int runNumber_intree;
 
+        // Misc. counters
         int total_ls;
         int total_events;
         double total_orig_xsec;
         double total_sm_xsec;
-
-        //std::vector<ttH::GenParticle> pruned_genParticles_intree;
-        reco::GenParticleCollection pruned_genParticles_intree;
-        std::vector<reco::GenJet> slimmed_genJets_intree;
-        std::vector<reco::GenJet> slimmed_genJetsAK8_intree;
-        std::vector<reco::GenJet> slimmed_genJetsAK8SoftDropSubJets_intree;
 };
 
 void EFTGenReader::tree_add_branches()
 {
-    //summaryTree->Branch("eftwgts",&eftwgts_intree);
     summaryTree->Branch("originalXWGTUP",&originalXWGTUP_intree);
-
     summaryTree->Branch("eventnum",&eventnum_intree);
     summaryTree->Branch("lumiBlock",&lumiBlock_intree);
     summaryTree->Branch("runNumber",&runNumber_intree);
-    summaryTree->Branch("pruned_genParticles",&pruned_genParticles_intree);
-    summaryTree->Branch("genJets",&slimmed_genJets_intree);
-    summaryTree->Branch("genJets_AK8",&slimmed_genJetsAK8_intree);
-    summaryTree->Branch("genJets_AK8SoftDrop",&slimmed_genJetsAK8SoftDropSubJets_intree);
 }
 
 void EFTGenReader::initialize_variables()
 {
-    //eftwgts_intree.clear();
     originalXWGTUP_intree = -99;
     eventnum_intree = -1;
     lumiBlock_intree = -1;
     runNumber_intree = -1;
-
-    pruned_genParticles_intree.clear();
-    slimmed_genJets_intree.clear();
 }
 
 // Currently not setting any special parameters in config files
