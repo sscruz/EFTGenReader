@@ -88,11 +88,11 @@ process.EFTGenReader.max_eta_lep = options.maxEtaLep
 process.EFTGenReader.iseft = options.iseft
 
 if options.datatier == "GEN":
-    process.EFTLHEReader.GenParticles = cms.InputTag("genParticles")
-    process.EFTLHEReader.GenJets      = cms.InputTag("ak4GenJets")
+    process.EFTGenReader.GenParticles = cms.InputTag("genParticles")
+    process.EFTGenReader.GenJets      = cms.InputTag("ak4GenJets")
 elif options.datatier == "MINIAODSIM":
-    process.EFTLHEReader.GenParticles = cms.InputTag("prunedGenParticles")
-    process.EFTLHEReader.GenJets      = cms.InputTag("slimmedGenJets")
+    process.EFTGenReader.GenParticles = cms.InputTag("prunedGenParticles")
+    process.EFTGenReader.GenJets      = cms.InputTag("slimmedGenJets")
 else:
     print "[ERROR] Unknown datatier: {}".format(options.datatier)
     raise RuntimeError
