@@ -62,12 +62,12 @@ class DatasetHelper(object):
             if self.exists(name):
                 print "ERROR: Skipping {name} since it already exists!".format(name=name)
                 return
-            self.__datasets[name] = DSContainer(**kwargs)
+            self.__datasets[name] = DSContainer(name,**kwargs)
 
     # Modify a dataset (creates one if none exists)
     def updateDataset(self,name,**kwargs):
         if not self.exists(name):
-            self.__datasets[name] = DSContainer()
+            self.__datasets[name] = DSContainer(name)
         self.__datasets[name].setData(**kwargs)
 
     # Remove a specific dataset
@@ -140,14 +140,17 @@ class DatasetHelper(object):
         return d
 
 class DSContainer(object):
-    def __init__(self,**kwargs):
+    def __init__(self,name,**kwargs):
+        self.__name = name
         self.__data = {
             'datatier': '',
             'dataset': '',
+            'description': '',
             'loc': None,
             'on_das': False,
             'is_eft': False,
-            'central_xsec': 0.0
+            'central_xsec': 0.0,
+            'files_per_task': 1
         }
         self.setData(**kwargs)
 
@@ -155,7 +158,7 @@ class DSContainer(object):
     def setData(self,**kwargs):
         for k,v in kwargs.iteritems():
             if not self.__data.has_key(k):
-                print "Unknown key: {key}".format(key=k)
+                print "Unknown key in {name}: '{key}'".format(name=self.__name,key=k)
                 continue
             self.__data[k] = v
 
