@@ -3,7 +3,7 @@ import os
 import subprocess
 import argparse
 import datetime
-from EFTGenReader.GenReader.utils import regex_match,run_process,get_files,move_files,clean_dir,
+from EFTGenReader.GenReader.utils import regex_match,run_process,get_files,move_files,clean_dir
 from EFTGenReader.GenReader.make_html import make_html
 
 USER_DIR = os.path.expanduser('~')
@@ -96,6 +96,7 @@ def main():
             if args.no_timestamp:
                 merge_name = "merged_{name}.root".format(name=tmp_str)
             merged_output = os.path.join(TEST_DIR,'output',merge_name)
+            merged_output = os.path.relpath(merged_output,cur_dir)
             if os.path.exists(merged_output):
                 print "Skipping {name}, since it already exists in {dir}!".format(name=merge_name,dir='output')
                 continue

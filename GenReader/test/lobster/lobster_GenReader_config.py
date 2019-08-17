@@ -14,12 +14,13 @@ GIT_REPO_DIR = subprocess.check_output(['git','rev-parse','--show-toplevel']).st
 timestamp_tag = datetime.datetime.now().strftime('%Y%m%d_%H%M')
 
 # NOTE: All samples must be located somewhere under the directory specified by input_path
-input_path = "/store/user/awightma/"
+input_path = "/store/user/"
 
 out_ver = "v1"
 tag = 'NoTopLeptons-NoCuts'
 
-master_label = 'EFT_LHE_{tstamp}'.format(tstamp=timestamp_tag)
+#master_label = 'EFT_LHE_{tstamp}'.format(tstamp=timestamp_tag)
+master_label = 'EFT_T3_{tstamp}'.format(tstamp=timestamp_tag)
 
 RUN_MODE = 'testing'
 
@@ -52,10 +53,10 @@ storage = StorageConfiguration(
 
 processing = Category(
     name='processing',
+    mode='fixed',
     cores=1,
     memory=1200,
     disk=1000
-    #mode='fixed'
 )
 
 wf = []
@@ -80,6 +81,7 @@ for idx,sample_name in enumerate(samples):
     cms_cmd.extend([
         'datatier={tier}'.format(tier=ds_helper.getData(sample_name,'datatier')),
         'minPtJet=30.0',
+        'maxEtaJet=2.5'
     ])
     if not ds_helper.getData(sample_name,'is_eft'):
         cms_cmd.extend(['iseft=False'])
@@ -94,14 +96,13 @@ for idx,sample_name in enumerate(samples):
     safe_label_name = sample_name.replace('-','')
     output = Workflow(
         label='output_{label}'.format(label=safe_label_name),
-        #command='cmsRun lobsterized_EFTGenReader_cfg.py',
         command=' '.join(cms_cmd),
         cleanup_input=False,
         outputs=['output_tree.root'],
-        merge_size='100.0G',  # This is set to a large value to make sure the final output is merged into a single file
+        merge_size='0.25G',  # Note: Lobster takes a very long time trying to merge large numbers of small files for some reason
         dataset=Dataset(
             files=rel_path,
-            files_per_task=1,
+            files_per_task=5,
             patterns=["*.root"]
         ),
         merge_command='hadd @outputfiles @inputfiles',
