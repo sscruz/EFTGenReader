@@ -30,16 +30,11 @@ void EFTGenReader::beginJob()
 
     edm::Service<TFileService> newfs;
 
-    //int pdg_bins = 100;
-    //int pt_bins = 20;//200;
-    //int eta_bins = 100;
-    //int invmass_bins = 100;
-
     int pdg_bins = 100;
     int njet_bins = 16;
     int pt_bins = 5;
     int eta_bins = 10;
-    int invmass_bins = 10;
+    int invmass_bins = 30;
     int deltaR_bins = 10;
 
     // Book the histograms that we will fill in the event loop
@@ -175,31 +170,6 @@ void EFTGenReader::endJob()
         << std::setw(11) << total_orig_xsec / double(total_events) << delim
         << std::setw(11) << total_orig_xsec / 500.
         << std::endl;
-
-    int nbins; double value; double norm;
-    //for (uint i = 0; i < th1d_hists.size(); i++) {
-    //    nbins = th1d_hists.at(i)->
-    //}
-
-    // Normalize all the plots to unit area
-    //for (TH1D* h: th1d_hists) {
-    //    nbins = h->GetNbinsX();
-    //    value = h->Integral(0,nbins+1);
-    //    if (value == 0) value = 1.;
-    //    if (norm_type == 1) {// Unit normalize        
-    //        h->Scale(1./value);
-    //    } else if (norm_type == 2) {
-    //        // xsec_norm should be the NLO SM xsec for the sample
-    //        if (iseft) {
-    //            norm = intg_lumi*xsec_norm*total_sm_xsec / total_sm_xsec;
-    //        } else {
-    //            //norm = intg_lumi*xsec_norm / total_events;
-    //            norm = intg_lumi*total_sm_xsec / total_events;
-    //        }
-    //        //norm = norm / value;
-    //        h->Scale(norm);
-    //    }
-    //}
 }
 
 void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evsetup)
@@ -221,9 +191,11 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
         if (eventcount == 3) dumpJets(*genJets);
     }
 
+    reco::GenParticleCollection gen_leptons = GetGenLeptons(*prunedParticles);
+    std::vector<reco::GenJet> gen_jets = GetGenJets(*genJets);
+
     originalXWGTUP_intree = LHEInfo->originalXWGTUP();  // original cross-section
     double sm_wgt = 0.;
-    //double norm_sm_wgt = -1.;
     std::vector<WCPoint> wc_pts;
     if (iseft) {// Add EFT weights 
         for (auto wgt_info: LHEInfo->weights()) {
@@ -233,13 +205,11 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
                 WCPoint wc_pt(wgt_info.id,wgt_info.wgt);
                 wc_pts.push_back(wc_pt);
                 if (wc_pt.isSMPoint()) {
-                    //norm_sm_wgt = wgt_info.wgt / originalXWGTUP_intree;
                     sm_wgt = wgt_info.wgt;
                 }
             }
         }
     } else {
-        //norm_sm_wgt = 1.0;
         sm_wgt = originalXWGTUP_intree;
         WCPoint wc_pt("smpt",sm_wgt);
         wc_pts.push_back(wc_pt);
@@ -261,15 +231,8 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
     total_sm_xsec += sm_wgt;
     total_orig_xsec += originalXWGTUP_intree;
 
-    //std::cout << "SM Wgt: " << sm_wgt << std::endl;
-    //std::cout << "Orig Wgt: " << originalXWGTUP_intree << std::endl;
-    //std::cout << "Norm Wgt: " << norm_sm_wgt << std::endl;
-    //std::cout << std::endl;
-
     //h_SMwgt_norm->Fill(norm_sm_wgt);
     h_SMwgt_norm->Fill(sm_wgt);
-
-    reco::GenParticleCollection gen_leptons = GetGenLeptons(*prunedParticles);
 
     h_prompt_leptonsEFT->Fill(gen_leptons.size(),1.0,eft_fit);
     h_prompt_leptonsSM->Fill(gen_leptons.size(),sm_wgt);
@@ -337,8 +300,6 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
             h_lepSum_ptEFT->Fill(sum_pt,1.0,eft_fit); h_lepSum_ptSM->Fill(sum_pt,sm_wgt);
         }
     }
-
-    std::vector<reco::GenJet> gen_jets = GetGenJets(*genJets);
 
     h_nJetsEFT->Fill(gen_jets.size(),1.0,eft_fit);
     h_nJetsSM->Fill(gen_jets.size(),sm_wgt);
