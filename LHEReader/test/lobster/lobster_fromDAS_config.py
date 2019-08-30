@@ -48,7 +48,7 @@ processing = Category(
     name='processing',
     cores=1,
     memory=1200,
-    disk=1000
+    disk=1000,
     mode='fixed'
 )
 
@@ -67,7 +67,7 @@ for idx,sample_name in enumerate(samples):
     if not ds_helper.exists(sample_name):
         print "[{0:0>{w}}/{1:0>{w}}] Skipping unknown sample: {sample}".format(idx+1,len(samples),sample=sample_name,w=width)
         continue
-    if not ds_helper.getData('on_das'):
+    if not ds_helper.getData(sample_name,'on_das'):
         print "[{0:0>{w}}/{1:0>{w}}] Skipping non-DAS sample: {sample}".format(idx+1,len(samples),sample=sample_name,w=width)
         continue
     sample_loc = ds_helper.getData(sample_name,'loc')
