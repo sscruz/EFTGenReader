@@ -23,6 +23,7 @@ tag = 'NoTopLeptons-NoCuts'
 master_label = 'EFT_T3_{tstamp}'.format(tstamp=timestamp_tag)
 
 RUN_MODE = 'testing'
+# RUN_MODE = 'mg_studies'
 
 #output_path = "/store/user/$USER/KinematicGenHists/{tag}/{ver}".format(tag=tag,ver=out_ver)
 if RUN_MODE == 'testing':
@@ -66,7 +67,7 @@ samples = [
 das_mode = False
 hadoop_mode = False
 
-for sample_name in enumerate(samples):
+for idx,sample_name in enumerate(samples):
     if not ds_helper.exists(sample_name):
         continue
     if ds_helper.getData(sample_name,'on_das'):
@@ -106,16 +107,16 @@ for idx,sample_name in enumerate(samples):
             files_per_task=5,
             patterns=["*.root"]
         )
-        merge_size = '0.25G'
+        merge_size = '256M'    # EFT samples with many reweight points are O(25M)
         print "\tFullPath:  {path}".format(path=full_path)
         print "\tInputPath: {path}".format(path=input_path)
         print "\tRelPath:   {path}".format(path=rel_path)
     elif das_mode:
         ds = cmssw.Dataset(
             dataset=sample_loc,
-            events_per_task=30000
+            events_per_task=100000
         )
-        merge_size = -1
+        merge_size = '512K'     # non-EFT sample sizes are O(40K)
 
     cms_cmd = ['cmsRun','lobsterized_EFTGenReader_cfg.py']
     cms_cmd.extend([
@@ -152,5 +153,8 @@ config = Config(
     advanced=AdvancedOptions(
         bad_exit_codes=[127, 160],
         log_level=1,
+        xrootd_servers=['ndcms.crc.nd.edu',
+                       'cmsxrootd.fnal.gov',
+                       'deepthought.crc.nd.edu']
     )
 )
