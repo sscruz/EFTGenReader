@@ -35,12 +35,6 @@ elif RUN_MODE == 'mg_studies':
     plotdir_path = "~/www/lobster/KinematicGenHists/{tag}/{ver}".format(tag=tag,ver=out_ver)
 
 storage = StorageConfiguration(
-    input=[
-        "hdfs://eddie.crc.nd.edu:19000"  + input_path,
-        "root://deepthought.crc.nd.edu/" + input_path,  # Note the extra slash after the hostname!
-        "gsiftp://T3_US_NotreDame"       + input_path,
-        "srm://T3_US_NotreDame"          + input_path,
-    ],
     output=[
         "hdfs://eddie.crc.nd.edu:19000"  + output_path,
         "file:///hadoop"                 + output_path,
@@ -69,13 +63,59 @@ samples = [
     'tllq4f_SMNoSchanW'
 ]
 
+das_mode = False
+hadoop_mode = False
+
+for sample_name in enumerate(samples):
+    if not ds_helper.exists(sample_name):
+        continue
+    if ds_helper.getData(sample_name,'on_das'):
+        das_mode = True
+    else:
+        hadoop_mode = True
+
+if das_mode and hadoop_mode:
+    print "[ERROR] The list of samples contains some that are on /hadoop and others that are on DAS!"
+    raise RuntimeError
+elif das_mode:
+    print "Mode: DAS"
+elif hadoop_mode:
+    print "Mode: Hadoop"
+    storage.input = [
+        "hdfs://eddie.crc.nd.edu:19000"  + input_path,
+        "root://deepthought.crc.nd.edu/" + input_path,  # Note the extra slash after the hostname!
+        "gsiftp://T3_US_NotreDame"       + input_path,
+        "srm://T3_US_NotreDame"          + input_path,
+    ]
+else:
+    print "[ERROR] Unknown mode. Did you include at least one valid sample?"
+    raise RuntimeError
+
 for idx,sample_name in enumerate(samples):
     if not ds_helper.exists(sample_name):
         print "[{0:0>{w}}/{1:0>{w}}] Skipping unknown sample: {sample}".format(idx+1,len(samples),sample=sample_name,w=width)
         continue
+    print "[{0:0>{w}}/{1:0>{w}}] Sample: {sample}".format(idx+1,len(samples),sample=sample_name,w=width)
+
     sample_loc = ds_helper.getData(sample_name,'loc')
-    full_path = sample_loc.split("/hadoop")[1]
-    rel_path = os.path.relpath(full_path,input_path)
+    if hadoop_mode:
+        full_path = sample_loc.split("/hadoop")[1]
+        rel_path = os.path.relpath(full_path,input_path)
+        ds = Dataset(
+            files=rel_path,
+            files_per_task=5,
+            patterns=["*.root"]
+        )
+        merge_size = '0.25G'
+        print "\tFullPath:  {path}".format(path=full_path)
+        print "\tInputPath: {path}".format(path=input_path)
+        print "\tRelPath:   {path}".format(path=rel_path)
+    elif das_mode:
+        ds = cmssw.Dataset(
+            dataset=sample_loc,
+            events_per_task=30000
+        )
+        merge_size = -1
 
     cms_cmd = ['cmsRun','lobsterized_EFTGenReader_cfg.py']
     cms_cmd.extend([
@@ -86,10 +126,6 @@ for idx,sample_name in enumerate(samples):
     if not ds_helper.getData(sample_name,'is_eft'):
         cms_cmd.extend(['iseft=False'])
 
-    print "[{0:0>{w}}/{1:0>{w}}] Sample: {sample}".format(idx+1,len(samples),sample=sample_name,w=width)
-    print "\tFullPath:  {path}".format(path=full_path)
-    print "\tInputPath: {path}".format(path=input_path)
-    print "\tRelPath:   {path}".format(path=rel_path)
     print "\tCommand:   {cmd}".format(cmd=' '.join(cms_cmd))
 
     # The workflow label can't have any dashes (-) in it, so remove them
@@ -99,12 +135,8 @@ for idx,sample_name in enumerate(samples):
         command=' '.join(cms_cmd),
         cleanup_input=False,
         outputs=['output_tree.root'],
-        merge_size='0.25G',  # Note: Lobster takes a very long time trying to merge large numbers of small files for some reason
-        dataset=Dataset(
-            files=rel_path,
-            files_per_task=5,
-            patterns=["*.root"]
-        ),
+        merge_size=merge_size,  # Note: Lobster takes a very long time trying to merge large numbers of small files for some reason
+        dataset=ds,
         merge_command='hadd @outputfiles @inputfiles',
         category=processing
     )
