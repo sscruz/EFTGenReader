@@ -46,8 +46,10 @@
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
-#include "EFTGenReader/GenReader/interface/WCPoint.h"
-#include "EFTGenReader/GenReader/interface/WCFit.h"
+//#include "EFTGenReader/GenReader/interface/WCPoint.h"
+//#include "EFTGenReader/GenReader/interface/WCFit.h"
+#include "EFTGenReader/EFTHelperUtilities/interface/WCPoint.h"
+#include "EFTGenReader/EFTHelperUtilities/interface/WCFit.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"

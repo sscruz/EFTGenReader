@@ -1,6 +1,7 @@
 // Created by Andrew Wightman
 
-#include "EFTGenReader/LHEReader/interface/EFTLHEReader.h"
+//#include "EFTGenReader/LHEReader/interface/EFTLHEReader.h"
+#include "EFTLHEReader.h"
 
 EFTLHEReader::EFTLHEReader(const edm::ParameterSet& iConfig)
 {

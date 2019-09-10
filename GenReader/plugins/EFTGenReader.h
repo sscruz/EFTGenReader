@@ -60,9 +60,12 @@
 //#include "ttH-13TeVMultiLeptons/TemplateMakers/interface/objectClasses.h"
 
 //#include "ttH-13TeVMultiLeptons/TemplateMakers/interface/WCPoint.h"
-#include "EFTGenReader/GenReader/interface/WCPoint.h"
-#include "EFTGenReader/GenReader/interface/WCFit.h"
-#include "EFTGenReader/GenReader/interface/TH1EFT.h"
+//#include "EFTGenReader/GenReader/interface/WCPoint.h"
+//#include "EFTGenReader/GenReader/interface/WCFit.h"
+//#include "EFTGenReader/GenReader/interface/TH1EFT.h"
+#include "EFTGenReader/EFTHelperUtilities/interface/WCPoint.h"
+#include "EFTGenReader/EFTHelperUtilities/interface/WCFit.h"
+#include "EFTGenReader/EFTHelperUtilities/interface/TH1EFT.h"
 
 // end includes
 // -----------------------------------------------

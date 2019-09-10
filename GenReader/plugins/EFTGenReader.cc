@@ -1,6 +1,7 @@
 // Created by Andrew Wightman
 
-#include "EFTGenReader/GenReader/interface/EFTGenReader.h"
+//#include "EFTGenReader/GenReader/interface/EFTGenReader.h"
+#include "EFTGenReader.h"
 
 EFTGenReader::EFTGenReader(const edm::ParameterSet& iConfig)
 {
