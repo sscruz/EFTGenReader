@@ -46,25 +46,61 @@ void EFTGenReader::beginJob()
     // lep pt
     h_lep_ptEFT = newfs->make<TH1EFT>("h_lep_ptEFT","h_lep_ptEFT",pt_bins,0,300);
     h_lep_ptSM = newfs->make<TH1D>("h_lep_ptSM","h_lep_ptSM",pt_bins,0,300);
+    h_e_ptEFT = newfs->make<TH1EFT>("h_e_ptEFT","h_e_ptEFT",pt_bins,0,300);
+    h_e_ptSM = newfs->make<TH1D>("h_e_ptSM","h_e_ptSM",pt_bins,0,300);
+    h_mu_ptEFT = newfs->make<TH1EFT>("h_mu_ptEFT","h_mu_ptEFT",pt_bins,0,300);
+    h_mu_ptSM = newfs->make<TH1D>("h_mu_ptSM","h_mu_ptSM",pt_bins,0,300);
+    h_tau_ptEFT = newfs->make<TH1EFT>("h_tau_ptEFT","h_tau_ptEFT",pt_bins,0,300);
+    h_tau_ptSM = newfs->make<TH1D>("h_tau_ptSM","h_tau_ptSM",pt_bins,0,300);
     
     h_lep1_ptEFT = newfs->make<TH1EFT>("h_lep1_ptEFT","h_lep1_ptEFT",pt_bins,0,300);
     h_lep1_ptSM = newfs->make<TH1D>("h_lep1_ptSM","h_lep1_ptSM",pt_bins,0,300);
+    h_e1_ptEFT = newfs->make<TH1EFT>("h_e1_ptEFT","h_e1_ptEFT",pt_bins,0,300);
+    h_e1_ptSM = newfs->make<TH1D>("h_e1_ptSM","h_e1_ptSM",pt_bins,0,300);
+    h_mu1_ptEFT = newfs->make<TH1EFT>("h_mu1_ptEFT","h_mu1_ptEFT",pt_bins,0,300);
+    h_mu1_ptSM = newfs->make<TH1D>("h_mu1_ptSM","h_mu1_ptSM",pt_bins,0,300);
+    h_tau1_ptEFT = newfs->make<TH1EFT>("h_tau1_ptEFT","h_tau1_ptEFT",pt_bins,0,300);
+    h_tau1_ptSM = newfs->make<TH1D>("h_tau1_ptSM","h_tau1_ptSM",pt_bins,0,300);
     
     h_lep2_ptEFT = newfs->make<TH1EFT>("h_lep2_ptEFT","h_lep2_ptEFT",pt_bins,0,300);
     h_lep2_ptSM = newfs->make<TH1D>("h_lep2_ptSM","h_lep2_ptSM",pt_bins,0,300);
+    h_e2_ptEFT = newfs->make<TH1EFT>("h_e2_ptEFT","h_e2_ptEFT",pt_bins,0,300);
+    h_e2_ptSM = newfs->make<TH1D>("h_e2_ptSM","h_e2_ptSM",pt_bins,0,300);
+    h_mu2_ptEFT = newfs->make<TH1EFT>("h_mu2_ptEFT","h_mu2_ptEFT",pt_bins,0,300);
+    h_mu2_ptSM = newfs->make<TH1D>("h_mu2_ptSM","h_mu2_ptSM",pt_bins,0,300);
+    h_tau2_ptEFT = newfs->make<TH1EFT>("h_tau2_ptEFT","h_tau2_ptEFT",pt_bins,0,300);
+    h_tau2_ptSM = newfs->make<TH1D>("h_tau2_ptSM","h_tau2_ptSM",pt_bins,0,300);
     
     h_lepSum_ptEFT = newfs->make<TH1EFT>("h_lepSum_ptEFT","h_lepSum_ptEFT",pt_bins,0,300);
     h_lepSum_ptSM = newfs->make<TH1D>("h_lepSum_ptSM","h_lepSum_ptSM",pt_bins,0,300);
+    h_eSum_ptEFT = newfs->make<TH1EFT>("h_eSum_ptEFT","h_eSum_ptEFT",pt_bins,0,300);
+    h_eSum_ptSM = newfs->make<TH1D>("h_eSum_ptSM","h_eSum_ptSM",pt_bins,0,300);
+    h_muSum_ptEFT = newfs->make<TH1EFT>("h_muSum_ptEFT","h_muSum_ptEFT",pt_bins,0,300);
+    h_muSum_ptSM = newfs->make<TH1D>("h_muSum_ptSM","h_muSum_ptSM",pt_bins,0,300);
+    h_tauSum_ptEFT = newfs->make<TH1EFT>("h_tauSum_ptEFT","h_tauSum_ptEFT",pt_bins,0,300);
+    h_tauSum_ptSM = newfs->make<TH1D>("h_tauSum_ptSM","h_tauSum_ptSM",pt_bins,0,300);
 
     // lep eta
     h_lep_etaEFT = newfs->make<TH1EFT>("h_lep_etaEFT","h_lep_etaEFT",eta_bins,-5.0,5.0);
     h_lep_etaSM = newfs->make<TH1D>("h_lep_etaSM","h_lep_etaSM",eta_bins,-5.0,5.0);
+    h_e_etaEFT = newfs->make<TH1EFT>("h_e_etaEFT","h_e_etaEFT",eta_bins,-5.0,5.0);
+    h_e_etaSM = newfs->make<TH1D>("h_e_etaSM","h_e_etaSM",eta_bins,-5.0,5.0);
+    h_mu_etaEFT = newfs->make<TH1EFT>("h_mu_etaEFT","h_mu_etaEFT",eta_bins,-5.0,5.0);
+    h_mu_etaSM = newfs->make<TH1D>("h_mu_etaSM","h_mu_etaSM",eta_bins,-5.0,5.0);
+    h_tau_etaEFT = newfs->make<TH1EFT>("h_tau_etaEFT","h_tau_etaEFT",eta_bins,-5.0,5.0);
+    h_tau_etaSM = newfs->make<TH1D>("h_tau_etaSM","h_tau_etaSM",eta_bins,-5.0,5.0);
 
     // dilep inv mass
     //h_mllEFT = newfs->make<TH1EFT>("h_mllEFT","h_mllEFT",pt_bins,0,300);
     //h_mllSM = newfs->make<TH1D>("h_mllSM","h_mllSM",pt_bins,0,300);
     h_mllEFT = newfs->make<TH1EFT>("h_mllEFT","h_mllEFT",invmass_bins,0,300);
     h_mllSM = newfs->make<TH1D>("h_mllSM","h_mllSM",invmass_bins,0,300);
+    h_meeEFT = newfs->make<TH1EFT>("h_meeEFT","h_meeEFT",invmass_bins,0,300);
+    h_meeSM = newfs->make<TH1D>("h_meeSM","h_meeSM",invmass_bins,0,300);
+    h_mmumuEFT = newfs->make<TH1EFT>("h_mmumuEFT","h_mmumuEFT",invmass_bins,0,300);
+    h_mmumuSM = newfs->make<TH1D>("h_mmumuSM","h_mmumuSM",invmass_bins,0,300);
+    h_mtautauEFT = newfs->make<TH1EFT>("h_mtautauEFT","h_mtautauEFT",invmass_bins,0,300);
+    h_mtautauSM = newfs->make<TH1D>("h_mtautauSM","h_mtautauSM",invmass_bins,0,300);
 
     // Jet histograms
     h_nJetsEFT = newfs->make<TH1EFT>("h_njetsEFT","h_njetsEFT",16,0,15);
@@ -129,19 +165,41 @@ void EFTGenReader::beginJob()
 
     h_pdgIdLepMotherEFT = newfs->make<TH1EFT>("h_pdgIdLepMotherEFT","h_pdgIdLepMotherEFT",2*pdg_bins,-pdg_bins+1,pdg_bins);
     h_pdgIdLepMotherSM = newfs->make<TH1D>("h_pdgIdLepMotherSM","h_pdgIdLepMotherSM",2*pdg_bins,-pdg_bins+1,pdg_bins);
+    h_pdgIdElectronMotherEFT = newfs->make<TH1EFT>("h_pdgIdElectronMotherEFT","h_pdgIdElectronMotherEFT",2*pdg_bins,-pdg_bins+1,pdg_bins);
+    h_pdgIdElectronMotherSM = newfs->make<TH1D>("h_pdgIdElectronMotherSM","h_pdgIdElectronMotherSM",2*pdg_bins,-pdg_bins+1,pdg_bins);
+    h_pdgIdMuonMotherEFT = newfs->make<TH1EFT>("h_pdgIdMuonMotherEFT","h_pdgIdMuonMotherEFT",2*pdg_bins,-pdg_bins+1,pdg_bins);
+    h_pdgIdMuonMotherSM = newfs->make<TH1D>("h_pdgIdMuonMotherSM","h_pdgIdMuonMotherSM",2*pdg_bins,-pdg_bins+1,pdg_bins);
+    h_pdgIdTauMotherEFT = newfs->make<TH1EFT>("h_pdgIdTauMotherEFT","h_pdgIdTauMotherEFT",2*pdg_bins,-pdg_bins+1,pdg_bins);
+    h_pdgIdTauMotherSM = newfs->make<TH1D>("h_pdgIdTauMotherSM","h_pdgIdTauMotherSM",2*pdg_bins,-pdg_bins+1,pdg_bins);
 
     h_pdgIdLepGrMotherEFT = newfs->make<TH1EFT>("h_pdgIdLepGrMotherEFT","h_pdgIdLepGrMotherEFT",2*pdg_bins,-pdg_bins+1,pdg_bins);
     h_pdgIdLepGrMotherSM = newfs->make<TH1D>("h_pdgIdLepGrMotherSM","h_pdgIdLepGrMotherSM",2*pdg_bins,-pdg_bins+1,pdg_bins);
+    h_pdgIdElectronGrMotherEFT = newfs->make<TH1EFT>("h_pdgIdElectronGrMotherEFT","h_pdgIdElectronGrMotherEFT",2*pdg_bins,-pdg_bins+1,pdg_bins);
+    h_pdgIdElectronGrMotherSM = newfs->make<TH1D>("h_pdgIdElectronGrMotherSM","h_pdgIdElectronGrMotherSM",2*pdg_bins,-pdg_bins+1,pdg_bins);
+    h_pdgIdMuonGrMotherEFT = newfs->make<TH1EFT>("h_pdgIdMuonGrMotherEFT","h_pdgIdMuonGrMotherEFT",2*pdg_bins,-pdg_bins+1,pdg_bins);
+    h_pdgIdMuonGrMotherSM = newfs->make<TH1D>("h_pdgIdMuonGrMotherSM","h_pdgIdMuonGrMotherSM",2*pdg_bins,-pdg_bins+1,pdg_bins);
+    h_pdgIdTauGrMotherEFT = newfs->make<TH1EFT>("h_pdgIdTauGrMotherEFT","h_pdgIdTauGrMotherEFT",2*pdg_bins,-pdg_bins+1,pdg_bins);
+    h_pdgIdTauGrMotherSM = newfs->make<TH1D>("h_pdgIdTauGrMotherSM","h_pdgIdTauGrMotherSM",2*pdg_bins,-pdg_bins+1,pdg_bins);
 
     // misc. observables
-    //h_deltaREFT = newfs->make<TH1EFT>("h_deltaREFT","h_deltaREFT",100,0,5);
-    //h_deltaRSM = newfs->make<TH1D>("h_deltaRSM","h_deltaRSM",100,0,5);
-    h_deltaREFT = newfs->make<TH1EFT>("h_deltaREFT","h_deltaREFT",deltaR_bins,0,5);
-    h_deltaRSM = newfs->make<TH1D>("h_deltaRSM","h_deltaRSM",deltaR_bins,0,5);
+    h_deltaREFT    = newfs->make<TH1EFT>("h_deltaREFT","h_deltaREFT",deltaR_bins,0,5);
+    h_deltaRSM     = newfs->make<TH1D>("h_deltaRSM","h_deltaRSM",deltaR_bins,0,5);
+    h_e_deltaREFT  = newfs->make<TH1EFT>("h_e_deltaREFT","h_e_deltaREFT",deltaR_bins,0,5);
+    h_e_deltaRSM   = newfs->make<TH1D>("h_e_deltaRSM","h_e_deltaRSM",deltaR_bins,0,5);
+    h_mu_deltaREFT = newfs->make<TH1EFT>("h_mu_deltaREFT","h_mu_deltaREFT",deltaR_bins,0,5);
+    h_mu_deltaRSM  = newfs->make<TH1D>("h_mu_deltaRSM","h_mu_deltaRSM",deltaR_bins,0,5);
+    h_tau_deltaREFT = newfs->make<TH1EFT>("h_tau_deltaREFT","h_tau_deltaREFT",deltaR_bins,0,5);
+    h_tau_deltaRSM  = newfs->make<TH1D>("h_tau_deltaRSM","h_tau_deltaRSM",deltaR_bins,0,5);
     
-    h_prompt_leptonsEFT = newfs->make<TH1EFT>("h_prompt_leptonsEFT","h_prompt_leptonsEFT",30,0,11);
-    h_prompt_leptonsSM = newfs->make<TH1D>("h_prompt_leptonsSM","h_prompt_leptonsSM",30,0,11);
-    
+    h_prompt_leptonsEFT   = newfs->make<TH1EFT>("h_prompt_leptonsEFT","h_prompt_leptonsEFT",30,0,11);
+    h_prompt_leptonsSM    = newfs->make<TH1D>("h_prompt_leptonsSM","h_prompt_leptonsSM",30,0,11);
+    h_prompt_electronsEFT = newfs->make<TH1EFT>("h_prompt_electronsEFT","h_prompt_electronsEFT",30,0,11);
+    h_prompt_electronsSM  = newfs->make<TH1D>("h_prompt_electronsSM","h_prompt_electronsSM",30,0,11);
+    h_prompt_muonsEFT     = newfs->make<TH1EFT>("h_prompt_muonsEFT","h_prompt_muonsEFT",30,0,11);
+    h_prompt_muonsSM      = newfs->make<TH1D>("h_prompt_muonsSM","h_prompt_muonsSM",30,0,11);
+    h_prompt_tausEFT      = newfs->make<TH1EFT>("h_prompt_tausEFT","h_prompt_tausEFT",30,0,11);
+    h_prompt_tausSM       = newfs->make<TH1D>("h_prompt_tausSM","h_prompt_tausSM",30,0,11);
+
     // Don't normalize these plots
     h_SMwgt_norm = newfs->make<TH1D>("h_SMwgt_norm","h_SMwgt_norm",350,-0.1,2.0);
 
@@ -234,9 +292,11 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
     //h_SMwgt_norm->Fill(norm_sm_wgt);
     h_SMwgt_norm->Fill(sm_wgt);
 
-    h_prompt_leptonsEFT->Fill(gen_leptons.size(),1.0,eft_fit);
-    h_prompt_leptonsSM->Fill(gen_leptons.size(),sm_wgt);
+    h_prompt_leptonsEFT->Fill(gen_leptons.size(),1.0,eft_fit);   h_prompt_leptonsSM->Fill(gen_leptons.size(),sm_wgt);
 
+    int n_prompt_electrons = 0;
+    int n_prompt_muons = 0;
+    int n_prompt_taus = 0;
     for (size_t i = 0; i < gen_leptons.size(); i++) {
         const reco::GenParticle& p1 = gen_leptons.at(i);
         int id = p1.pdgId();
@@ -251,9 +311,28 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
         int gmom_id = p_gmom->pdgId();
 
         h_pdgIdLepGrMotherEFT->Fill(gmom_id,1.0,eft_fit); h_pdgIdLepGrMotherSM->Fill(gmom_id,sm_wgt);
+        h_pdgIdLepMotherEFT->Fill(mom_id,1.0,eft_fit);    h_pdgIdLepMotherSM->Fill(mom_id,sm_wgt);
         h_lep_ptEFT->Fill(pt,1.0,eft_fit);                h_lep_ptSM->Fill(pt,sm_wgt);
         h_lep_etaEFT->Fill(eta,1.0,eft_fit);              h_lep_etaSM->Fill(eta,sm_wgt);
-        h_pdgIdLepMotherEFT->Fill(mom_id,1.0,eft_fit);    h_pdgIdLepMotherSM->Fill(mom_id,sm_wgt);
+        if (abs(id) == 11) { // electron
+            n_prompt_electrons += 1;
+            h_pdgIdElectronGrMotherEFT->Fill(gmom_id,1.0,eft_fit); h_pdgIdElectronGrMotherSM->Fill(gmom_id,sm_wgt);
+            h_pdgIdElectronMotherEFT->Fill(mom_id,1.0,eft_fit);    h_pdgIdElectronMotherSM->Fill(mom_id,sm_wgt);
+            h_e_ptEFT->Fill(pt,1.0,eft_fit);                       h_e_ptSM->Fill(pt,sm_wgt);
+            h_e_etaEFT->Fill(eta,1.0,eft_fit);                     h_e_etaSM->Fill(eta,sm_wgt);
+        } else if (abs(id) == 13) { // muon
+            n_prompt_muons += 1;
+            h_pdgIdMuonGrMotherEFT->Fill(gmom_id,1.0,eft_fit);     h_pdgIdMuonGrMotherSM->Fill(gmom_id,sm_wgt);
+            h_pdgIdMuonMotherEFT->Fill(mom_id,1.0,eft_fit);        h_pdgIdMuonMotherSM->Fill(mom_id,sm_wgt);
+            h_mu_ptEFT->Fill(pt,1.0,eft_fit);                      h_mu_ptSM->Fill(pt,sm_wgt);
+            h_mu_etaEFT->Fill(eta,1.0,eft_fit);                    h_mu_etaSM->Fill(eta,sm_wgt);
+        } else if (abs(id) == 13) { // tau
+            n_prompt_taus += 1;
+            h_pdgIdTauGrMotherEFT->Fill(gmom_id,1.0,eft_fit);      h_pdgIdTauGrMotherSM->Fill(gmom_id,sm_wgt);
+            h_pdgIdTauMotherEFT->Fill(mom_id,1.0,eft_fit);         h_pdgIdTauMotherSM->Fill(mom_id,sm_wgt);
+            h_tau_ptEFT->Fill(pt,1.0,eft_fit);                     h_tau_ptSM->Fill(pt,sm_wgt);
+            h_tau_etaEFT->Fill(eta,1.0,eft_fit);                   h_tau_etaSM->Fill(eta,sm_wgt);
+        }
 
         // mom_id and direct_id should be the same thing for the gen leptons selected by GetGenLeptons()
         if (mom_id == 21) {
@@ -282,9 +361,29 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
         if (i == 0) {
             h_lep1_ptEFT->Fill(pt,1.0,eft_fit);
             h_lep1_ptSM->Fill(pt,sm_wgt);
+            if (abs(id) == 11) { // electron
+                h_e1_ptEFT->Fill(pt,1.0,eft_fit);
+                h_e1_ptSM->Fill(pt,sm_wgt);
+            } else if (abs(id) == 13) {// muon
+                h_mu1_ptEFT->Fill(pt,1.0,eft_fit);
+                h_mu1_ptSM->Fill(pt,sm_wgt);
+            } else if (abs(id) == 15) {// tau
+                h_tau1_ptEFT->Fill(pt,1.0,eft_fit);
+                h_tau1_ptSM->Fill(pt,sm_wgt);
+            }
         } else if (i == 1) {
             h_lep2_ptEFT->Fill(pt,1.0,eft_fit);
             h_lep2_ptSM->Fill(pt,sm_wgt);
+            if (abs(id) == 11) { // electron
+                h_e2_ptEFT->Fill(pt,1.0,eft_fit);
+                h_e2_ptSM->Fill(pt,sm_wgt);
+            } else if (abs(id) == 13) { // muon
+                h_mu2_ptEFT->Fill(pt,1.0,eft_fit);
+                h_mu2_ptSM->Fill(pt,sm_wgt);
+            } else if (abs(id) == 15) { // tau
+                h_tau2_ptEFT->Fill(pt,1.0,eft_fit);
+                h_tau2_ptSM->Fill(pt,sm_wgt);
+            }
         }
         for (size_t j = 0; j < gen_leptons.size(); j++) {
             if (i >= j) continue;
@@ -295,11 +394,31 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
             auto p4vec = p1.p4() + p2.p4();
             double sum_pt = p4vec.Pt();
 
-            h_mllEFT->Fill(mll,1.0,eft_fit);          h_mllSM->Fill(mll,sm_wgt);
-            h_deltaREFT->Fill(dR,1.0,eft_fit);        h_deltaRSM->Fill(dR,sm_wgt);
-            h_lepSum_ptEFT->Fill(sum_pt,1.0,eft_fit); h_lepSum_ptSM->Fill(sum_pt,sm_wgt);
+            int id1 = p1.pdgId();
+            int id2 = p2.pdgId();
+
+            h_mllEFT->Fill(mll,1.0,eft_fit);              h_mllSM->Fill(mll,sm_wgt);
+            h_deltaREFT->Fill(dR,1.0,eft_fit);            h_deltaRSM->Fill(dR,sm_wgt);
+            h_lepSum_ptEFT->Fill(sum_pt,1.0,eft_fit);     h_lepSum_ptSM->Fill(sum_pt,sm_wgt);
+            if (abs(id1) == 11 and abs(id2) == 11){ // both are electrons
+                h_meeEFT->Fill(mll,1.0,eft_fit);          h_meeSM->Fill(mll,sm_wgt);
+                h_e_deltaREFT->Fill(dR,1.0,eft_fit);      h_e_deltaRSM->Fill(dR,sm_wgt);
+                h_eSum_ptEFT->Fill(sum_pt,1.0,eft_fit);   h_eSum_ptSM->Fill(sum_pt,sm_wgt);
+            } else if (abs(id1) == 13 and abs(id2) == 13){ // both are muons
+                h_mmumuEFT->Fill(mll,1.0,eft_fit);        h_mmumuSM->Fill(mll,sm_wgt);
+                h_mu_deltaREFT->Fill(dR,1.0,eft_fit);     h_mu_deltaRSM->Fill(dR,sm_wgt);
+                h_muSum_ptEFT->Fill(sum_pt,1.0,eft_fit);  h_muSum_ptSM->Fill(sum_pt,sm_wgt);
+            } else if (abs(id1) == 15 and abs(id2) == 15){ // both are taus )
+                h_mtautauEFT->Fill(mll,1.0,eft_fit);      h_mtautauSM->Fill(mll,sm_wgt);
+                h_tau_deltaREFT->Fill(dR,1.0,eft_fit);    h_tau_deltaRSM->Fill(dR,sm_wgt);
+                h_tauSum_ptEFT->Fill(sum_pt,1.0,eft_fit); h_tauSum_ptSM->Fill(sum_pt,sm_wgt);
+            }
         }
     }
+
+    h_prompt_electronsEFT->Fill(n_prompt_electrons,1.0,eft_fit); h_prompt_electronsSM->Fill(n_prompt_electrons,sm_wgt);
+    h_prompt_muonsEFT->Fill(n_prompt_muons,1.0,eft_fit);         h_prompt_muonsSM->Fill(n_prompt_muons,sm_wgt);
+    h_prompt_tausEFT->Fill(n_prompt_taus,1.0,eft_fit);           h_prompt_tausSM->Fill(n_prompt_taus,sm_wgt);
 
     h_nJetsEFT->Fill(gen_jets.size(),1.0,eft_fit);
     h_nJetsSM->Fill(gen_jets.size(),sm_wgt);

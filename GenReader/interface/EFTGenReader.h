@@ -136,16 +136,54 @@ class EFTGenReader: public edm::EDAnalyzer
         TH1EFT* h_pdgIdFromOtherEFT;   TH1D* h_pdgIdFromOtherSM;
         TH1EFT* h_pdgIdLepMotherEFT;   TH1D* h_pdgIdLepMotherSM;
         TH1EFT* h_pdgIdLepGrMotherEFT; TH1D* h_pdgIdLepGrMotherSM;
+
+        TH1EFT* h_pdgIdElectronMotherEFT;   TH1D* h_pdgIdElectronMotherSM;
+        TH1EFT* h_pdgIdElectronGrMotherEFT; TH1D* h_pdgIdElectronGrMotherSM;
+        TH1EFT* h_pdgIdMuonMotherEFT;       TH1D* h_pdgIdMuonMotherSM;
+        TH1EFT* h_pdgIdMuonGrMotherEFT;     TH1D* h_pdgIdMuonGrMotherSM;
+        TH1EFT* h_pdgIdTauMotherEFT;        TH1D* h_pdgIdTauMotherSM;
+        TH1EFT* h_pdgIdTauGrMotherEFT;      TH1D* h_pdgIdTauGrMotherSM;
+
         
         // Lepton Histograms
-        TH1EFT* h_prompt_leptonsEFT; TH1D* h_prompt_leptonsSM;
-        TH1EFT* h_lep_ptEFT;         TH1D* h_lep_ptSM;
-        TH1EFT* h_lep_etaEFT;        TH1D* h_lep_etaSM;
-        TH1EFT* h_lep1_ptEFT;        TH1D* h_lep1_ptSM;
-        TH1EFT* h_lep2_ptEFT;        TH1D* h_lep2_ptSM;
-        TH1EFT* h_mllEFT;            TH1D* h_mllSM;
-        TH1EFT* h_deltaREFT;         TH1D* h_deltaRSM;
-        TH1EFT* h_lepSum_ptEFT;      TH1D* h_lepSum_ptSM;
+        TH1EFT* h_prompt_leptonsEFT;   TH1D* h_prompt_leptonsSM;
+        TH1EFT* h_lep_ptEFT;           TH1D* h_lep_ptSM;
+        TH1EFT* h_lep_etaEFT;          TH1D* h_lep_etaSM;
+        TH1EFT* h_lep1_ptEFT;          TH1D* h_lep1_ptSM;
+        TH1EFT* h_lep2_ptEFT;          TH1D* h_lep2_ptSM;
+        TH1EFT* h_mllEFT;              TH1D* h_mllSM;
+        TH1EFT* h_deltaREFT;           TH1D* h_deltaRSM;
+        TH1EFT* h_lepSum_ptEFT;        TH1D* h_lepSum_ptSM;
+
+        // Lepton Histograms: electrons
+        TH1EFT* h_prompt_electronsEFT; TH1D* h_prompt_electronsSM;
+        TH1EFT* h_e_ptEFT;             TH1D* h_e_ptSM;
+        TH1EFT* h_e_etaEFT;            TH1D* h_e_etaSM;
+        TH1EFT* h_e1_ptEFT;            TH1D* h_e1_ptSM;
+        TH1EFT* h_e2_ptEFT;            TH1D* h_e2_ptSM;
+        TH1EFT* h_meeEFT;              TH1D* h_meeSM;
+        TH1EFT* h_e_deltaREFT;         TH1D* h_e_deltaRSM;
+        TH1EFT* h_eSum_ptEFT;          TH1D* h_eSum_ptSM;
+
+        // Lepton Histograms: muons
+        TH1EFT* h_prompt_muonsEFT;     TH1D* h_prompt_muonsSM;
+        TH1EFT* h_mu_ptEFT;            TH1D* h_mu_ptSM;
+        TH1EFT* h_mu_etaEFT;           TH1D* h_mu_etaSM;
+        TH1EFT* h_mu1_ptEFT;           TH1D* h_mu1_ptSM;
+        TH1EFT* h_mu2_ptEFT;           TH1D* h_mu2_ptSM;
+        TH1EFT* h_mmumuEFT;            TH1D* h_mmumuSM;
+        TH1EFT* h_mu_deltaREFT;        TH1D* h_mu_deltaRSM;
+        TH1EFT* h_muSum_ptEFT;         TH1D* h_muSum_ptSM;
+
+        // Lepton Histograms: Taus
+        TH1EFT* h_prompt_tausEFT;      TH1D* h_prompt_tausSM;
+        TH1EFT* h_tau_ptEFT;           TH1D* h_tau_ptSM;
+        TH1EFT* h_tau_etaEFT;          TH1D* h_tau_etaSM;
+        TH1EFT* h_tau1_ptEFT;          TH1D* h_tau1_ptSM;
+        TH1EFT* h_tau2_ptEFT;          TH1D* h_tau2_ptSM;
+        TH1EFT* h_mtautauEFT;          TH1D* h_mtautauSM;
+        TH1EFT* h_tau_deltaREFT;       TH1D* h_tau_deltaRSM;
+        TH1EFT* h_tauSum_ptEFT;        TH1D* h_tauSum_ptSM;
 
         // Jet Histograms
         TH1EFT* h_nJetsEFT;   TH1D* h_nJetsSM;
