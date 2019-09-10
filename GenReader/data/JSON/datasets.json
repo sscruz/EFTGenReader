@@ -129,6 +129,66 @@
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelPlusJet/v1/mAOD_step_tllq4fMatchedNoHiggs_HanModelNoDim6_run0", 
     "on_das": false
   }, 
+  "tllq4fMatchedNoHiggs_fromMAOD": {
+    "central_xsec": 0, 
+    "dataset": "", 
+    "datatier": "MINIAODSIM", 
+    "description": "", 
+    "files_per_task": 3, 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/awightma/FullProduction/Round5/Batch1/postLHE_step/v1/mAOD_step_tllq4fMatchedNoHiggs_HanModel16DttllScanpoints_run1", 
+    "on_das": false
+  }, 
+  "tllq4fMatchedNoSchanW_fromGEN_nJetMax1": {
+    "central_xsec": 0, 
+    "dataset": "", 
+    "datatier": "GEN", 
+    "description": "", 
+    "files_per_task": 5, 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/tllq4f_t-channelMatched_b2_nJetMaxTests_xqcut10/v1/gen_step_tllq4fMatchedNoSchanW_HanModel16DttllScanpointsXQCUT10qCut19nJetMax1_run1", 
+    "on_das": false
+  }, 
+  "tllq4fMatchedNoSchanW_fromGEN_nJetMax2": {
+    "central_xsec": 0, 
+    "dataset": "", 
+    "datatier": "GEN", 
+    "description": "", 
+    "files_per_task": 5, 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/tllq4f_t-channelMatched_b2_nJetMaxTests_xqcut10/v1/gen_step_tllq4fMatchedNoSchanW_HanModel16DttllScanpointsXQCUT10qCut19nJetMax2_run1", 
+    "on_das": false
+  }, 
+  "tllq4fMatchedNoSchanW_fromGEN_nJetMax2doublecheck": {
+    "central_xsec": 0, 
+    "dataset": "", 
+    "datatier": "GEN", 
+    "description": "", 
+    "files_per_task": 5, 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/tllq4f_t-channelMatched_b2_xqcut10/v1/gen_step_tllq4fMatchedNoSchanW_HanModel16DttllScanpointsXQCUT10qCut19nJetMax2_run1", 
+    "on_das": false
+  }, 
+  "tllq4fMatchedNoSchanW_fromMAOD_nJetMax1": {
+    "central_xsec": 0, 
+    "dataset": "", 
+    "datatier": "MINIAODSIM", 
+    "description": "", 
+    "files_per_task": 1, 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/tllq4f_t-channelMatched_pythia-JetMax1_b2/v1/mAOD_step_tllq4fMatchedNoSchanW_HanModel16DttllScanpointsXQCUT10_run1", 
+    "on_das": false
+  }, 
+  "tllq4fMatchedNoSchanW_fromMAOD_nJetMax2": {
+    "central_xsec": 0, 
+    "dataset": "", 
+    "datatier": "MINIAODSIM", 
+    "description": "", 
+    "files_per_task": 1, 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/kmohrman/postLHE_step/2019_04_19/tllq4f_t-channelMatched_b2_qCut19nJetMax2/v1/mAOD_step_tllq4fMatchedNoSchanW_HanModel16DttllScanpointsXQCUT10_run1", 
+    "on_das": false
+  }, 
   "tllq4fMatched_EFT": {
     "central_xsec": 0.07358, 
     "dataset": "", 
@@ -457,6 +517,36 @@
     "files_per_task": 1, 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttHJet-xqcutStudies/v3/mAOD_step_ttHJet_HanModelxqcut45_run0", 
+    "on_das": false
+  }, 
+  "ttHJet_HanV2Model-xqcut10qcut15": {
+    "central_xsec": 0, 
+    "dataset": "", 
+    "datatier": "GEN", 
+    "description": "", 
+    "files_per_task": 5, 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/ttHJet-HanV2Model-xqcut10qCutTests/v1/gen_step_ttHJet_HanV2Model16DttllScanpointsqCut15_run1", 
+    "on_das": false
+  }, 
+  "ttHJet_HanV2Model-xqcut10qcut19": {
+    "central_xsec": 0, 
+    "dataset": "", 
+    "datatier": "GEN", 
+    "description": "", 
+    "files_per_task": 5, 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/ttHJet-HanV2Model-xqcut10qCutTests/v1/gen_step_ttHJet_HanV2Model16DttllScanpointsqCut19_run1", 
+    "on_das": false
+  }, 
+  "ttHJet_HanV2Model-xqcut10qcut25": {
+    "central_xsec": 0, 
+    "dataset": "", 
+    "datatier": "GEN", 
+    "description": "", 
+    "files_per_task": 5, 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/ttHJet-HanV2Model-xqcut10qCutTests/v1/gen_step_ttHJet_HanV2Model16DttllScanpointsqCut25_run1", 
     "on_das": false
   }, 
   "ttHJet_SM": {
