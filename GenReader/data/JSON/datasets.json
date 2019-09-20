@@ -549,6 +549,36 @@
     "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/ttHJet-HanV2Model-xqcut10qCutTests/v1/gen_step_ttHJet_HanV2Model16DttllScanpointsqCut25_run1", 
     "on_das": false
   }, 
+  "ttHJet_HanV4Model-xqcut10qcut15": {
+    "central_xsec": 0, 
+    "dataset": "", 
+    "datatier": "GEN", 
+    "description": "", 
+    "files_per_task": 5, 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/ttXJet-HanV4Model-xqcut10qCutTests/v1/gen_step_ttHJet_HanV4lModel16DttllScanpointsqCut15_run1", 
+    "on_das": false
+  }, 
+  "ttHJet_HanV4Model-xqcut10qcut19": {
+    "central_xsec": 0, 
+    "dataset": "", 
+    "datatier": "GEN", 
+    "description": "", 
+    "files_per_task": 5, 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/ttXJet-HanV4Model-xqcut10qCutTests/v1/gen_step_ttHJet_HanV4lModel16DttllScanpointsqCut19_run1", 
+    "on_das": false
+  }, 
+  "ttHJet_HanV4Model-xqcut10qcut25": {
+    "central_xsec": 0, 
+    "dataset": "", 
+    "datatier": "GEN", 
+    "description": "", 
+    "files_per_task": 5, 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/ttXJet-HanV4Model-xqcut10qCutTests/v1/gen_step_ttHJet_HanV4lModel16DttllScanpointsqCut25_run1", 
+    "on_das": false
+  }, 
   "ttHJet_SM": {
     "central_xsec": 0.5638, 
     "dataset": "", 
@@ -669,6 +699,36 @@
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelPlusJet/v2/mAOD_step_ttllNuNuJetNoHiggs_HanModel16DttllScanpoints_run1", 
     "on_das": false
   }, 
+  "ttllNuNuJetNoHiggs_HanV4Model-xqcut10qcut15": {
+    "central_xsec": 0, 
+    "dataset": "", 
+    "datatier": "GEN", 
+    "description": "", 
+    "files_per_task": 5, 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/ttXJet-HanV4Model-xqcut10qCutTests/v1/gen_step_ttllNuNuJetNoHiggs_HanV4lModel16DttllScanpointsqCut15_run1", 
+    "on_das": false
+  }, 
+  "ttllNuNuJetNoHiggs_HanV4Model-xqcut10qcut19": {
+    "central_xsec": 0, 
+    "dataset": "", 
+    "datatier": "GEN", 
+    "description": "", 
+    "files_per_task": 5, 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/ttXJet-HanV4Model-xqcut10qCutTests/v1/gen_step_ttllNuNuJetNoHiggs_HanV4lModel16DttllScanpointsqCut19_run1", 
+    "on_das": false
+  }, 
+  "ttllNuNuJetNoHiggs_HanV4Model-xqcut10qcut25": {
+    "central_xsec": 0, 
+    "dataset": "", 
+    "datatier": "GEN", 
+    "description": "", 
+    "files_per_task": 5, 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/ttXJet-HanV4Model-xqcut10qCutTests/v1/gen_step_ttllNuNuJetNoHiggs_HanV4lModel16DttllScanpointsqCut25_run1", 
+    "on_das": false
+  }, 
   "ttllNuNuJetNoHiggs_SM": {
     "central_xsec": 0.244109, 
     "dataset": "", 
@@ -767,6 +827,36 @@
     "files_per_task": 1, 
     "is_eft": true, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelPlusJet/v1/mAOD_step_ttlnuJet_HanModel16DttllScanpoints_run1", 
+    "on_das": false
+  }, 
+  "ttlnuJet_HanV4Model-xqcut10qcut15": {
+    "central_xsec": 0, 
+    "dataset": "", 
+    "datatier": "GEN", 
+    "description": "", 
+    "files_per_task": 5, 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/ttXJet-HanV4Model-xqcut10qCutTests/v1/gen_step_ttlnuJet_HanV4lModel16DttllScanpointsqCut15_run1", 
+    "on_das": false
+  }, 
+  "ttlnuJet_HanV4Model-xqcut10qcut19": {
+    "central_xsec": 0, 
+    "dataset": "", 
+    "datatier": "GEN", 
+    "description": "", 
+    "files_per_task": 5, 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/ttXJet-HanV4Model-xqcut10qCutTests/v1/gen_step_ttlnuJet_HanV4lModel16DttllScanpointsqCut19_run1", 
+    "on_das": false
+  }, 
+  "ttlnuJet_HanV4Model-xqcut10qcut25": {
+    "central_xsec": 0, 
+    "dataset": "", 
+    "datatier": "GEN", 
+    "description": "", 
+    "files_per_task": 5, 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/ttXJet-HanV4Model-xqcut10qCutTests/v1/gen_step_ttlnuJet_HanV4lModel16DttllScanpointsqCut25_run1", 
     "on_das": false
   }, 
   "ttlnuJet_SM": {
