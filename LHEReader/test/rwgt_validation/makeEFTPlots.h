@@ -5,8 +5,10 @@
 #include <vector>
 #include <algorithm>
 
-#include "EFTGenReader/GenReader/interface/WCPoint.h"
-#include "EFTGenReader/GenReader/interface/WCFit.h"
+//#include "EFTGenReader/GenReader/interface/WCPoint.h"
+//#include "EFTGenReader/GenReader/interface/WCFit.h"
+#include "EFTGenReader/EFTHelperUtilities/interface/WCPoint.h"
+#include "EFTGenReader/EFTHelperUtilities/interface/WCFit.h"
 
 #include "TString.h"
 #include "TCanvas.h"
@@ -384,6 +386,14 @@ void make_1d_xsec_plot(
         }
     }
 
+    // Fill dict with x axis ranges from AN
+    std::map<string,double> xlims_dict;
+    std::vector<string> wc_names_vect{ "ctW", "ctp", "cpQM", "ctei", "ctli", "cQei", "ctZ", "cQlMi", "cQl3i", "ctG", "ctlTi", "cbW", "cpQ3", "cptb", "cpt", "ctlSi"};
+    std::vector<double> an_lims_vals_vect{-4.0 , 41.0 , 29.0 , 7.0 , 8.0 , 7.0 , -4.0 , 7.0 , -8.0 , -2.0 , -2.0 , -5.0 , -10.0 , -18.0 , -25.0 , -9.0};
+    for (int i = 0; i < wc_names_vect.size(); i++) {
+        xlims_dict[wc_names_vect.at(i)] = abs(an_lims_vals_vect.at(i));
+    }
+
     // Re-try setting axis ranges w/o using reference pts
     if (plt_ops.x_min == plt_ops.x_max) {
         for (auto& wc_fit: wc_fits) {
@@ -396,6 +406,16 @@ void make_1d_xsec_plot(
 
             x_low = std::max(x_low,-25.0);
             x_high = std::min(x_high,25.0);
+
+            // Set ctG lims to -1.5 to 1.5
+            //if (wc_name == "ctG") {
+            //    x_low = -1.5;
+            //    x_high = 1.5;
+            //}
+
+            // Set x axis range to range AN range
+            //x_low = -xlims_dict[wc_name];
+            //x_high = xlims_dict[wc_name];
 
             plt_ops.updateXLimits(x_low,x_high);
 

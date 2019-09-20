@@ -18,11 +18,16 @@
 
 #include "TRandom3.h"
 
-#include "EFTGenReader/GenReader/interface/WCPoint.h"
-#include "EFTGenReader/GenReader/interface/WCFit.h"
-#include "EFTGenReader/GenReader/interface/TH1EFT.h"
-#include "EFTGenReader/GenReader/interface/Stopwatch.h"
-#include "EFTGenReader/GenReader/interface/split_string.h"
+//#include "EFTGenReader/GenReader/interface/WCPoint.h"
+//#include "EFTGenReader/GenReader/interface/WCFit.h"
+//#include "EFTGenReader/GenReader/interface/TH1EFT.h"
+//#include "EFTGenReader/GenReader/interface/Stopwatch.h"
+//#include "EFTGenReader/GenReader/interface/split_string.h"
+#include "EFTGenReader/EFTHelperUtilities/interface/WCPoint.h"
+#include "EFTGenReader/EFTHelperUtilities/interface/WCFit.h"
+#include "EFTGenReader/EFTHelperUtilities/interface/TH1EFT.h"
+#include "EFTGenReader/EFTHelperUtilities/interface/Stopwatch.h"
+#include "EFTGenReader/EFTHelperUtilities/interface/split_string.h"
 #include "makeEFTPlots.h"
 
 /*
@@ -129,7 +134,12 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
         */
 
         int chain_entries = chain.GetEntries();
-        int last_entry  = chain_entries;
+        int last_entry = chain_entries;
+        //if (chain_entries > 100000) {
+        //    std::cout << "Chain_entries: " << chain_entries << std::endl;
+        //    last_entry = 100000;
+        //}
+        //std::cout << "Last_entry: " << last_entry << std::endl;
         int first_entry = 0;
 
         WCFit* wcFit_intree = 0;
@@ -175,7 +185,15 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
         if (is_tar) {
             std::string fit_tag;
             fit_tag = grp_tag;
+
             inclusive_fit.setTag(fit_tag);
+
+            //fit_tag.erase(0,25);
+            //if (fit_tag[0] != 'x') {
+            //    fit_tag = "xqcut10" + fit_tag;
+            //}
+            //fit_tag = "ttHJet_" + fit_tag;
+            //inclusive_fit.setTag(fit_tag);
 
             target_fits.push_back(inclusive_fit);
         }
