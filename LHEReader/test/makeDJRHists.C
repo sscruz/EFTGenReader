@@ -11,11 +11,14 @@
 #include <fstream>
 #include <vector>
 
-#include "EFTGenReader/GenReader/interface/Stopwatch.h"
-#include "EFTGenReader/GenReader/interface/WCFit.h"
-#include "EFTGenReader/GenReader/interface/WCPoint.h"
-
-#include "EFTGenReader/GenReader/interface/TH1EFT.h"
+//#include "EFTGenReader/GenReader/interface/Stopwatch.h"
+//#include "EFTGenReader/GenReader/interface/WCFit.h"
+//#include "EFTGenReader/GenReader/interface/WCPoint.h"
+//#include "EFTGenReader/GenReader/interface/TH1EFT.h"
+#include "EFTGenReader/EFTHelperUtilities/interface/Stopwatch.h"
+#include "EFTGenReader/EFTHelperUtilities/interface/WCFit.h"
+#include "EFTGenReader/EFTHelperUtilities/interface/WCPoint.h"
+#include "EFTGenReader/EFTHelperUtilities/interface/TH1EFT.h"
 
 void printProgress(int current_index, int total_entries, int interval=20) {
     if (current_index % max(int(total_entries*interval/100.),interval) == 0) {
@@ -60,14 +63,25 @@ void setlegend(TLegend *legend, TH1D *hall, TH1D *hmult0, TH1D *hmult1, TH1D *hm
 
 std::vector<TH1EFT*> makeTH1EFTs(const char *name, TChain *tree, int djr_idx, string rwgt_str, int nbins, double xlow, double xhigh) {
 
+    //std::string sample_type = "central_sample";
+    std::string sample_type = "EFT_sample";
+
+    std::string cat = "no_cuts";
     //std::string cat = "2lep";
-    std::string cat = "3lep";
+    //std::string cat = "3lep";
 
-    bool debug_mode = false;
-    //bool debug_mode = true;
+    // Set max number of events for event loop
+    //int max_events = -1; // Run over all events
+    //int max_events = 30000; // Debug
+    //int max_events = 100000; 
+    int max_events = 10000; 
+    //int max_events = 300000; // For FP files (for ttH, ttll, ttlnu)
+    //int max_events = 900000; // For FP files (for tHq, tllq)
+
     Stopwatch sw;
+    std::set<int> unique_runs;
 
-    TH1EFT *hall = new TH1EFT(TString::Format("hall_%s",name),"",nbins,xlow,xhigh);
+    TH1EFT *hall   = new TH1EFT(TString::Format("hall_%s",name),"",nbins,xlow,xhigh);
     TH1EFT *hmult0 = new TH1EFT(TString::Format("hmult0_%s",name),"",nbins,xlow,xhigh);
     TH1EFT *hmult1 = new TH1EFT(TString::Format("hmult1_%s",name),"",nbins,xlow,xhigh);
     TH1EFT *hmult2 = new TH1EFT(TString::Format("hmult2_%s",name),"",nbins,xlow,xhigh);
@@ -79,6 +93,7 @@ std::vector<TH1EFT*> makeTH1EFTs(const char *name, TChain *tree, int djr_idx, st
     std::vector<double> *djrvalues_intree = 0;
     WCFit* wcFit_intree = 0;
     double origxsec_intree;
+    int lumiBlock_intree;
 
     double genLep_pt1_intree;
     double genLep_pt2_intree;
@@ -94,6 +109,7 @@ std::vector<TH1EFT*> makeTH1EFTs(const char *name, TChain *tree, int djr_idx, st
     tree->SetBranchAddress("DJRValues",&djrvalues_intree);
     tree->SetBranchAddress("wcFit",&wcFit_intree);
     tree->SetBranchAddress("originalXWGTUP",&origxsec_intree);
+    tree->SetBranchAddress("lumiBlock",&lumiBlock_intree);
 
     tree->SetBranchAddress("genLep_pt1",&genLep_pt1_intree);
     tree->SetBranchAddress("genLep_pt2",&genLep_pt2_intree);
@@ -109,75 +125,116 @@ std::vector<TH1EFT*> makeTH1EFTs(const char *name, TChain *tree, int djr_idx, st
     // Event loop:
     int tot_events = tree->GetEntries();
     sw.start("Full loop");
+    int n_tot = 0;
+    int n_count = 0;
     for (int i = 0; i < tot_events; i++) {
-        if (i == 300 and debug_mode){
+        n_tot = i;
+        if (i == max_events){
             break;
         }
         sw.start("Event loop");
         tree->GetEntry(i);
-        if (djr_idx >= djrvalues_intree->size()) {
-            continue;
-        }
-
-        // Cut on pt (this applies to both catagories)
-        if (genLep_pt1_intree < 25.0) {
-            continue; // All events need at least 1 lepton with pt greater than 25
-        } else if (genLep_pt2_intree < 15.0) {
-            continue; // All events need at least 2 leptons (wiht pt greater than 15)
-        }
-
-        if (cat == "2lep") {
-            // 2 leptons + 4 jets
-            if (genLep_pt3_intree > 10.0) {
-                continue; // We want exactly 2 leptons with pt greater than 10 (skip if 3 leptons in event)
-            } else if (genJet_pt4_intree < 30.0) {
-                continue; // We want at least 4 jets with pt greater than 30
-            }
-        } else if (cat == "3lep") { 
-            // We won't split up 3 and 4 lep catagories
-            if (genLep_pt3_intree < 10) {
-                continue; // We want at least 3 leptons with pt greater than 10
-            } else if (genJet_pt2_intree < 30.0 ) {
-                continue; // We want at least 2 jets with pt greater than 30
-            }
-        } 
-
-
-        double djr_val = log10(djrvalues_intree->at(djr_idx));
-        inclusive_fit.addFit(*wcFit_intree);
-
-        printProgress(i,tot_events,10);
-
-        double eft_weight = wcFit_intree->evalPoint(wc_pt);
-
-        bool mult0 = (nMEpartonsFiltered_intree == 0);
-        bool mult1 = (nMEpartonsFiltered_intree == 1);
-        bool mult2 = (nMEpartonsFiltered_intree == 2);
-        bool mult3 = (nMEpartonsFiltered_intree == 3);
-
-        sw.start("Hist fill");
-        
-        wcFit_intree->scale(genWgt_intree);
-        if (genWgt_intree != 0) {
-            hall->Fill(djr_val,genWgt_intree*eft_weight,*wcFit_intree);
-            if (mult0) {
-                hmult0->Fill(djr_val,genWgt_intree*eft_weight,*wcFit_intree);
-            } else if (mult1) {
-                hmult1->Fill(djr_val,genWgt_intree*eft_weight,*wcFit_intree);
-            } else if (mult2) {
-                hmult2->Fill(djr_val,genWgt_intree*eft_weight,*wcFit_intree);
-            } else if (mult3) {
-                hmult3->Fill(djr_val,genWgt_intree*eft_weight,*wcFit_intree);
+        unique_runs.insert(lumiBlock_intree);
+        if (sample_type == "EFT_sample"){
+            if (djr_idx >= djrvalues_intree->size()) {
+                continue;
             }
         }
-        sw.lap("Hist fill");
-        sw.lap("Event loop");
+
+        if (cat != "no_cuts"){
+            // Cut on pt (this applies to both 2lep and 3lep catagories)
+            if (genLep_pt1_intree < 25.0) {
+                continue; // All events need at least 1 lepton with pt greater than 25
+            } else if (genLep_pt2_intree < 15.0) {
+                continue; // All events need at least 2 leptons (wiht pt greater than 15)
+            }
+            if (cat == "2lep") {
+                // 2 leptons + 4 jets
+                if (genLep_pt3_intree > 10.0) {
+                    continue; // We want exactly 2 leptons with pt greater than 10 (skip if 3 leptons in event)
+                } else if (genJet_pt4_intree < 30.0) {
+                    continue; // We want at least 4 jets with pt greater than 30
+                }
+            } else if (cat == "3lep") { 
+                // We won't split up 3 and 4 lep catagories
+                if (genLep_pt3_intree < 10) {
+                    continue; // We want at least 3 leptons with pt greater than 10
+                } else if (genJet_pt2_intree < 30.0 ) {
+                    continue; // We want at least 2 jets with pt greater than 30
+                }
+            } 
+        }
+
+        if (sample_type == "central_sample") { // For any sample w/o EFT rwgting
+            //std::cout << origxsec_intree << std::endl;
+            std::vector<WCPoint> tmp_pts;
+            WCPoint tmp_SM_pt("smpt",origxsec_intree);
+            tmp_pts.push_back(tmp_SM_pt);
+            WCFit tmp_fit(tmp_pts,"");
+            inclusive_fit.addFit(tmp_fit);
+        }
+
+        if (sample_type == "EFT_sample"){
+            double djr_val = log10(djrvalues_intree->at(djr_idx)); // Remember to un comment when not doing central sampel!!!
+            inclusive_fit.addFit(*wcFit_intree);
+
+            printProgress(i,tot_events,10);
+
+            double eft_weight = wcFit_intree->evalPoint(wc_pt);
+
+            bool mult0 = (nMEpartonsFiltered_intree == 0);
+            bool mult1 = (nMEpartonsFiltered_intree == 1);
+            bool mult2 = (nMEpartonsFiltered_intree == 2);
+            bool mult3 = (nMEpartonsFiltered_intree == 3);
+
+            sw.start("Hist fill");
+            
+            wcFit_intree->scale(genWgt_intree);
+            if (genWgt_intree != 0) {
+                hall->Fill(djr_val,genWgt_intree*eft_weight,*wcFit_intree);
+                if (mult0) {
+                    hmult0->Fill(djr_val,genWgt_intree*eft_weight,*wcFit_intree);
+                } else if (mult1) {
+                    hmult1->Fill(djr_val,genWgt_intree*eft_weight,*wcFit_intree);
+                } else if (mult2) {
+                    hmult2->Fill(djr_val,genWgt_intree*eft_weight,*wcFit_intree);
+                } else if (mult3) {
+                    hmult3->Fill(djr_val,genWgt_intree*eft_weight,*wcFit_intree);
+                }
+            }
+            sw.lap("Hist fill");
+            sw.lap("Event loop");
+        }
+        n_count = n_count + 1;
+
     }
     sw.stop("Full loop");
     sw.readAllTimers(true,"");
     sw.readAllTimers(false,"");
 
-    double SM_norm = inclusive_fit.evalPoint(wc_pt);   
+    double norm_factor;
+    if (sample_type == "EFT_sample"){
+        norm_factor = unique_runs.size(); // number of lumi blocks
+    } else if (sample_type == "central_sample"){
+        norm_factor = max_events; // this one is correct?
+        //norm_factor = n_count;
+    }
+    //int nlumi_blocks = unique_runs.size();
+    // Divide by number of groups of 500 events (e.g. 1000000 events / 500 = 200 blocks)
+    /*
+    double incl_xsec = inclusive_fit.evalPoint(wc_pt) / nlumi_blocks; 
+    double incl_xsec_err = inclusive_fit.evalPointError(wc_pt) / nlumi_blocks;
+    */
+    double incl_xsec = inclusive_fit.evalPoint(wc_pt) / norm_factor; 
+    double incl_xsec_err = inclusive_fit.evalPointError(wc_pt) / norm_factor;
+
+    std::cout << "\nXsec: " << incl_xsec << " +- " << incl_xsec_err 
+              //<< " pb (events: " << n_count << "/" << max_events << " -> " << (float)n_count/max_events 
+              << " pb (events: " << n_count << "/" << n_tot << " -> " << (float)n_count/n_tot 
+              << ", type: " << sample_type 
+              << ", cat: " << cat 
+              << ", rwgt_str: \"" << rwgt_str << "\")\n"
+              << std::endl;
 
     //hall->Scale(1.0/SM_norm)
     //hmult->0Scale(1.0/SM_norm);
@@ -302,20 +359,28 @@ void makeDJRHists(const TString & infile_spec, const TString & outfile, bool bas
 
     // Make the TH1EFts:
     std::vector<TH1EFT*> hist_list0 = makeTH1EFTs("djr0",tree,0,"",nbins,djrmin,djrmax);
+    //std::vector<TH1EFT*> hist_list0 = makeTH1EFTs("djr0",tree,0,"rwgt_ctG_250.0",nbins,djrmin,djrmax);
     //std::vector<TH1EFT*> hist_list1 = makeTH1EFTs("djr1",tree,1,"",nbins,djrmin,djrmax);
     //std::vector<TH1EFT*> hist_list2 = makeTH1EFTs("djr2",tree,2,"",nbins,djrmin,djrmax);
     //std::vector<TH1EFT*> hist_list3 = makeTH1EFTs("djr3",tree,3,"",nbins,djrmin,djrmax);
 
-    // Declare the dictionary (for reweighting) and always include SM and RefPt in the dictionary: 
+    // Return here when just finding xsec
+    //return;
+
+    // Declare the dictionary (for reweighting) and always include SM and RefPt in the dictionary. Also include a point from the lims in the AN: 
     std::map<string,std::pair<string,double> > rwgt_dict; 
     rwgt_dict["SM"] = std::make_pair("",0);
     rwgt_dict["RefPt"] = std::make_pair("",0);
+    rwgt_dict["ANPt"] = std::make_pair("",0);
 
     if ( ctGscan ) {
         string wc_name = "ctG";
-        double min = -3.5;
-        double max = 1.5;
-        double delta = 0.1;
+        //double min = -3.5;
+        //double max = 1.5;
+        //double delta = 0.1;
+        double min = -250.0;
+        double max = 250.0;
+        double delta = 50.0;
         double nsteps = (max-min)/delta;
         double wc_val;
         for (int i = 0; i <= nsteps; i++) {
@@ -328,7 +393,8 @@ void makeDJRHists(const TString & infile_spec, const TString & outfile, bool bas
 
     if ( WCscan ) {
         std::vector<string> wc_names_vect{ "ctW", "ctp", "cpQM", "ctei", "ctli", "cQei", "ctZ", "cQlMi", "cQl3i", "ctG", "ctlTi", "cbW", "cpQ3", "cptb", "cpt", "ctlSi"};
-        std::vector<double> ref_pt_vals_vect{ -8.303849, 64.337172, 45.883907, 24.328689, 24.43011, 23.757944, -6.093077, 23.951426, 21.540499, -3.609446, 21.809598, 49.595354, -51.106621, 136.133729, -43.552406, -20.005026};
+        //std::vector<double> ref_pt_vals_vect{ -8.303849, 64.337172, 45.883907, 24.328689, 24.43011, 23.757944, -6.093077, 23.951426, 21.540499, -3.609446, 21.809598, 49.595354, -51.106621, 136.133729, -43.552406, -20.005026}; // These are the values of the WC at the ref point
+        std::vector<double> ref_pt_vals_vect{-4.0 , 41.0 , 29.0 , 7.0 , 8.0 , 7.0 , -4.0 , 7.0 , -8.0 , -2.0 , -2.0 , -5.0 , -10.0 , -18.0 , -25.0 , -9.0}; // These numbers are from table 18 of the AN
         for (int i = 0; i < wc_names_vect.size(); i++) {
             //cout << wc_names_vect.at(i) << " " << ref_pt_vals_vect.at(i) << endl;
             if (basePtSM ) {
@@ -352,8 +418,10 @@ void makeDJRHists(const TString & infile_spec, const TString & outfile, bool bas
     // Set the WCPoint points: 
     string sm_pt_str = "";
     string ref_pt_str = "rwgt_ctW_-8.303849_ctp_64.337172_cpQM_45.883907_ctei_24.328689_ctli_24.43011_cQei_23.757944_ctZ_-6.093077_cQlMi_23.951426_cQl3i_21.540499_ctG_-3.609446_ctlTi_21.809598_cbW_49.595354_cpQ3_-51.106621_cptb_136.133729_cpt_-43.552406_ctlSi_-20.005026";
-    WCPoint* ref_pt = new WCPoint(ref_pt_str); 
+    string an_pt_str = "rwgt_ctW_-4.0_ctp_41.0_cpQM_29.0_ctei_7.0_ctli_8.0_cQei_7.0_ctZ_-4.0_cQlMi_7.0_cQl3i_-8.0_ctG_-2.0_ctlTi_-2.0_cbW_-5.0_cpQ3_-10.0_cptb_-18.0_cpt_-25.0_ctlSi_-9.0";
     WCPoint* sm_pt = new WCPoint(sm_pt_str);
+    WCPoint* ref_pt = new WCPoint(ref_pt_str); 
+    WCPoint* an_pt = new WCPoint(an_pt_str);
     WCPoint* tmp_pt;
 
     // Set the base point: This is the point our scan changes values **with respect to** (either SM point, or ref point)
@@ -396,6 +464,10 @@ void makeDJRHists(const TString & infile_spec, const TString & outfile, bool bas
             tmp_pt = ref_pt;
             std::cout << "    Ref point" << std::endl;
             //wc_val = orig_val;
+        } else if (rwgt_string_key == "ANPt") {
+            orig_val = ref_pt->getStrength(rwgt_pair.first);
+            tmp_pt = an_pt;
+            std::cout << "    AN point" << std::endl;
         }
         else {
             orig_val = base_pt->getStrength(rwgt_pair.first); 
