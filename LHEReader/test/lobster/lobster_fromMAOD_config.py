@@ -10,20 +10,26 @@ from lobster.core import AdvancedOptions, Category, Config, Dataset, StorageConf
 
 timestamp_tag = datetime.datetime.now().strftime('%Y%m%d_%H%M')
 
-username = "awightma"
+#username = "awightma"
+username = "kmohrman"
 
-RUN_SETUP = 'local'
-RUN_SETUP = 'full_production'
+#RUN_SETUP = 'local'
+#RUN_SETUP = 'full_production'
 RUN_SETUP = 'mg_studies'
 
-input_version  = "v1"
+input_version  = ""
 output_version = "v1"
-grp_tag  = "2019_04_19/ValidationHanModelPlusJet"
-out_tag  = "2019_04_19/ValidationHanModelPlusJet"
+
+#grp_tag  = "2019_04_19/tllq4f_t-channelMatched_pythia-JetMax1_b2"
+grp_tag  = ""
+#out_tag  = "tllq4f_t-channelMatched_pythia-JetMax1_b2"
+out_tag  = "2019_08_14_addPtBranches/ttXJet_R5B1-HanV2ModelNOttggh-HanV4Model-Comp_analysisEtaCut"
 test_tag = "lobster_20180505_1440"      # If the input LHE files were also produced in 'local' running
-prod_tag = "Round1/Batch1"
+prod_tag = "Round5/Batch1"
 
 # Only run over gridpacks from specific processes/coeffs/runs (i.e. MG starting points)
+#process_whitelist = ["ttlnuJet","ttllNuNuJetNoHiggs","ttHJet"]
+#process_whitelist = ["ttlnuJet","ttHJet"]
 process_whitelist = []
 coeff_whitelist   = []
 runs_whitelist    = []
@@ -52,7 +58,15 @@ else:
     print "Unknown run setup, %s" % (RUN_SETUP)
     raise ValueError
 
+input_path = "/store/user/"
 input_path_full = "/hadoop" + input_path
+
+dir_list = [
+            os.path.join(input_path_full,"awightma/FullProduction/Round5/Batch1/postLHE_step/v1"),
+            os.path.join(input_path_full,"kmohrman/postLHE_step/2019_04_19/ttXJetTests-HanV4Model-xqcut10qCut19/v3"),
+            os.path.join(input_path_full,"kmohrman/postLHE_step/2019_04_19/ttHJet-ttWJet-HanV2ModelNOttgghCheck-xqcut10qCut19/v1"),
+            os.path.join(input_path_full,"kmohrman/postLHE_step/2019_04_19/ttZJet-HanV2ModelNOttgghCheck-xqcut10qCut19/v1"),
+        ]
 
 storage = StorageConfiguration(
     input=[
@@ -80,30 +94,33 @@ processing = Category(
 )
 
 maod_dirs = []
-for f in os.listdir(input_path_full):
-    dir_path = os.path.join(input_path_full,f)
-    if not os.path.isdir(dir_path):
-        continue
-    arr = f.split('_')
-    if arr[0] != 'mAOD':
-        continue
-    elif len(os.listdir(dir_path)) == 0:
-        print "[WARNING] Skipping empty directory, %s" % (f)
-        continue
-    p,c,r = arr[2],arr[3],arr[4]
-    if len(process_whitelist) > 0 and not p in process_whitelist:
-        continue
-    elif len(coeff_whitelist) > 0 and not c in coeff_whitelist:
-        continue
-    elif len(runs_whitelist) > 0 and not r in runs_whitelist:
-        continue
-    maod_dirs.append(f)
+for path in dir_list:
+    for f in os.listdir(path):
+        if not os.path.isdir(path):
+            continue
+        arr = f.split('_')
+        if arr[0] != 'mAOD':
+            continue
+        elif len(os.listdir(path)) == 0:
+            print "[WARNING] Skipping empty directory, %s" % (f)
+            continue
+        p,c,r = arr[2],arr[3],arr[4]
+        if len(process_whitelist) > 0 and not p in process_whitelist:
+            continue
+        elif len(coeff_whitelist) > 0 and not c in coeff_whitelist:
+            continue
+        elif len(runs_whitelist) > 0 and not r in runs_whitelist:
+            continue
+        relpath = os.path.relpath(path,input_path_full)
+        maod_dirs.append(os.path.join(relpath,f))
 
 wf = []
 
 print "Generating workflows:"
 for idx,maod_dir in enumerate(maod_dirs):
-    arr = maod_dir.split('_')
+    #arr = maod_dir.split('_')
+    head,tail = os.path.split(maod_dir)
+    arr = tail.split('_')
     p,c,r = arr[2],arr[3],arr[4]
 
     cms_cmd = ['cmsRun','EFTLHEReader_cfg.py']
