@@ -317,7 +317,8 @@ public:
             this->err_pairs = added_fit.getErrorPairs();
             this->err_coeffs = added_fit.getErrorCoefficients();
             this->points = added_fit.getFitPoints();
-            this->tag = added_fit.getTag();
+            //this->tag = added_fit.getTag();
+            this->tag = (this->getTag().size() == 0) ? added_fit.getTag() : this->getTag();
             this->start_pt = added_fit.getStart();
             return;
         }
