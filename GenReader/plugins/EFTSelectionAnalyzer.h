@@ -72,11 +72,18 @@ class EFTSelectionAnalyzer: public edm::EDAnalyzer
         virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
         virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
+        void addLepCategory(std::string category_name, std::string fit_tag);
+
         void dumpParticles(const reco::GenParticleCollection& particles);
         void dumpJets(const std::vector<reco::GenJet>& jets);
         const reco::Candidate* GetGenMotherNoFsr(const reco::Candidate* p);
         std::pair<const reco::Candidate*, const reco::Candidate*> GetGenDaughterNoFsr(const reco::Candidate* p);
 
+        std::vector<reco::GenJet>   MakeJetPtEtaCuts(const std::vector<reco::GenJet>& gen_jets, double pt_cut, double eta_cut);
+        reco::GenParticleCollection MakePtEtaCuts(const reco::GenParticleCollection& gen_particles, double pt_cut, double eta_cut);
+        reco::GenParticleCollection GetGenParticlesSubset(const reco::GenParticleCollection& gen_particles, int pdg_id);
+        reco::GenParticleCollection GetGenElectrons(const reco::GenParticleCollection& gen_particles);
+        reco::GenParticleCollection GetGenMuons(const reco::GenParticleCollection& gen_particles);
         reco::GenParticleCollection GetGenLeptons(const reco::GenParticleCollection& gen_particles);
         std::vector<reco::GenJet> GetGenJets(const std::vector<reco::GenJet>& inputs);
         ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>> getSumTLV(reco::GenParticleCollection col);
@@ -110,12 +117,15 @@ class EFTSelectionAnalyzer: public edm::EDAnalyzer
         edm::EDGetTokenT<reco::GenParticleCollection> genParticles_token_;  // reco::GenParticlesCollection is an alias for std::vector<reco::GenParticle>>
         edm::EDGetTokenT<std::vector<reco::GenJet> > genJets_token_;
 
+        std::unordered_map<std::string,WCFit*> lep_fits_dict;
+        std::vector<std::string> lep_category_names_vect; // keys in the dict (but do not have to be names of the fit tags)
+
         // Category counts
-        WCFit* fit_all_incl;
-        WCFit* fit_2lss_incl;
-        WCFit* fit_2lss_ee;
-        WCFit* fit_2lss_emu;
-        WCFit* fit_2lss_mumu;
+        //WCFit* fit_all_incl;
+        //WCFit* fit_2lss_incl;
+        //WCFit* fit_2lss_ee;
+        //WCFit* fit_2lss_emu;
+        //WCFit* fit_2lss_mumu;
 
         // Misc. counters
         int total_ls;
@@ -123,6 +133,25 @@ class EFTSelectionAnalyzer: public edm::EDAnalyzer
         double total_orig_xsec;
         double total_sm_xsec;
 };
+
+
+void EFTSelectionAnalyzer::addLepCategory(std::string category_name, std::string fit_tag) {
+    if (lep_fits_dict.count(category_name) > 0 ) {
+        std::cout << "Warning: The category \"" << category_name << "\" already exists in dictionary, not adding." << std::endl;
+        return;
+    }
+    WCFit* new_category_fit = new WCFit();
+    new_category_fit->setTag(fit_tag);
+    this->lep_fits_dict[category_name] = new_category_fit;
+    this->lep_category_names_vect.push_back(category_name);
+    return;
+}
+
+// TEST example
+//void EFTSelectionAnalyzer::somefunction(WCFit* fit,std::string fit_name) {
+//    eftfit_yield[fit_name] = fit;
+//    yied_catagories.push_back(fit_name);
+//}
 
 void EFTSelectionAnalyzer::dumpParticles(const reco::GenParticleCollection& particles) {
     for (size_t i = 0; i < particles.size(); i++) {
@@ -215,6 +244,70 @@ std::pair<const reco::Candidate*, const reco::Candidate*> EFTSelectionAnalyzer::
     return ret_pair;
 }
 
+reco::GenParticleCollection EFTSelectionAnalyzer::GetGenParticlesSubset(const reco::GenParticleCollection& gen_particles, int pdg_id) {
+    reco::GenParticleCollection gen_subset;
+    for (size_t i = 0; i < gen_particles.size(); i++) {
+        const reco::GenParticle& p = gen_particles.at(i);
+        int id = p.pdgId();
+        if (abs(id) == pdg_id){
+            gen_subset.push_back(p);
+        }
+    }
+    return gen_subset;
+}
+//reco::GenParticleCollection EFTSelectionAnalyzer::GetGenElectrons(const reco::GenParticleCollection& gen_particles) {
+//    reco::GenParticleCollection gen_electrons;
+//    for (size_t i = 0; i < gen_particles.size(); i++) {
+//        const reco::GenParticle& p = gen_particles.at(i);
+//        int id = p.pdgId();
+//        if (abs(id) == 11){
+//            gen_electrons.push_back(p);
+//        }
+//    }
+//    return gen_electrons;
+//}
+//
+//reco::GenParticleCollection EFTSelectionAnalyzer::GetGenMuons(const reco::GenParticleCollection& gen_particles) {
+//    reco::GenParticleCollection gen_muons;
+//    for (size_t i = 0; i < gen_particles.size(); i++) {
+//        const reco::GenParticle& p = gen_particles.at(i);
+//        int id = p.pdgId();
+//        if (abs(id) == 13){
+//            gen_muons.push_back(p);
+//        }
+//    }
+//    return gen_muons;
+//}
+
+std::vector<reco::GenJet> EFTSelectionAnalyzer::MakeJetPtEtaCuts(const std::vector<reco::GenJet>& gen_jets, double pt_cut, double eta_cut) {
+    std::vector<reco::GenJet> gen_jets_cut;
+    for (size_t i = 0; i < gen_jets.size(); i++) {
+        const reco::GenJet& j = gen_jets.at(i);
+        if (j.p4().Pt() < pt_cut) { // Do not include particles whose pt is less than the pt cut
+            continue;
+        } else if (eta_cut > 0.0 && fabs(j.eta()) >= eta_cut) { // Do not include particles whose eta is greater than the eta cut
+            continue;
+        } else {
+            gen_jets_cut.push_back(j);
+        }
+    }
+    return gen_jets_cut;
+}
+reco::GenParticleCollection EFTSelectionAnalyzer::MakePtEtaCuts(const reco::GenParticleCollection& gen_particles, double pt_cut, double eta_cut) {
+    reco::GenParticleCollection gen_particles_cut;
+    for (size_t i = 0; i < gen_particles.size(); i++) {
+        const reco::GenParticle& p = gen_particles.at(i);
+        if (p.p4().Pt() < pt_cut) { // Do not include particles whose pt is less than the pt cut
+            continue;
+        } else if (eta_cut > 0.0 && fabs(p.eta()) >= eta_cut) { // Do not include particles whose eta is greater than the eta cut
+            continue;
+        } else {
+            gen_particles_cut.push_back(p);
+        }
+    }
+    return gen_particles_cut;
+}
+
 reco::GenParticleCollection EFTSelectionAnalyzer::GetGenLeptons(const reco::GenParticleCollection& gen_particles) {
     reco::GenParticleCollection gen_leptons;
     bool is_lepton;
@@ -236,12 +329,12 @@ reco::GenParticleCollection EFTSelectionAnalyzer::GetGenLeptons(const reco::GenP
             continue;
         }
 
-        // Note: The kinematic cuts could realistically go anywhere in this loop
-        if (p.p4().Pt() < min_pt_lep) {
-            continue;
-        } else if (max_eta_lep > 0.0 && fabs(p.eta()) >= max_eta_lep) {
-            continue;
-        }
+        //// Note: The kinematic cuts could realistically go anywhere in this loop
+        //if (p.p4().Pt() < min_pt_lep) {
+        //    continue;
+        //} else if (max_eta_lep > 0.0 && fabs(p.eta()) >= max_eta_lep) {
+        //    continue;
+        //}
 
         int mom_id = id;    // If no mother, set to own id
         if (p_mom) mom_id = p_mom->pdgId();

@@ -27,11 +27,12 @@ void EFTSelectionAnalyzer::beginJob()
     total_orig_xsec = 0.;
     total_sm_xsec = 0.;
 
-    fit_all_incl  = new WCFit;
-    fit_2lss_incl = new WCFit;
-    fit_2lss_ee   = new WCFit;
-    fit_2lss_emu  = new WCFit;
-    fit_2lss_mumu = new WCFit;
+    //this->addLepCategory("fit_all_incl","All Events");
+    this->addLepCategory("fit_2lss_incl","2lss Events");
+    this->addLepCategory("fit_2lss_ee","2lss ee Events");
+    this->addLepCategory("fit_2lss_emu","2lss emu Events");
+    this->addLepCategory("fit_2lss_mumu","2lss mumu Events");
+
 }
 
 void EFTSelectionAnalyzer::endJob()
@@ -58,24 +59,14 @@ void EFTSelectionAnalyzer::endJob()
 
     WCPoint* rwgt_pt = new WCPoint("rwgt",0.0);
 
-    fit_all_incl->setTag("All Events"); 
-    fit_2lss_incl->setTag("2lss Events"); 
-    fit_2lss_ee->setTag("2lss ee Events"); 
-    fit_2lss_emu->setTag("2lss emu Events"); 
-    fit_2lss_mumu->setTag("2lss mumu Events"); 
+    std::cout << "Only positive pairs!" << std::endl;
+    for (uint i=0; i < this->lep_category_names_vect.size(); i++) {
+        std::string lep_category_name = this->lep_category_names_vect.at(i);
+        WCFit* lep_category_fit = this->lep_fits_dict[lep_category_name];
+        std::cout << lep_category_fit->getTag() << " SM Eval : " << lep_category_fit->evalPoint(rwgt_pt) << " +- " << lep_category_fit->evalPointError(rwgt_pt) << std::endl;
+        delete lep_category_fit;
+    }
 
-    std::cout << fit_all_incl->getTag()  << " SM Eval: " << fit_all_incl->evalPoint(rwgt_pt)  << std::endl;
-    std::cout << fit_2lss_incl->getTag() << " SM Eval: " << fit_2lss_incl->evalPoint(rwgt_pt) << std::endl;
-    std::cout << fit_2lss_ee->getTag()   << " SM Eval: " << fit_2lss_ee->evalPoint(rwgt_pt)   << std::endl;
-    std::cout << fit_2lss_emu->getTag()  << " SM Eval: " << fit_2lss_emu->evalPoint(rwgt_pt)  << std::endl;
-    std::cout << fit_2lss_mumu->getTag() << " SM Eval: " << fit_2lss_mumu->evalPoint(rwgt_pt) << std::endl;
-
-    delete fit_all_incl;
-    delete fit_2lss_incl;
-    delete fit_2lss_ee;
-    delete fit_2lss_emu;
-    delete fit_2lss_mumu;
-    delete rwgt_pt;
 }
 
 void EFTSelectionAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& evsetup)
@@ -95,7 +86,40 @@ void EFTSelectionAnalyzer::analyze(const edm::Event& event, const edm::EventSetu
     }
 
     reco::GenParticleCollection gen_leptons = GetGenLeptons(*prunedParticles);
-    //std::vector<reco::GenJet> gen_jets = GetGenJets(*genJets);
+    std::vector<reco::GenJet> gen_jets = GetGenJets(*genJets);
+
+    std::vector<reco::GenJet> gen_jets_cut        = MakeJetPtEtaCuts(gen_jets,30,2.5);
+    reco::GenParticleCollection gen_electrons     = GetGenParticlesSubset(gen_leptons,11);
+    reco::GenParticleCollection gen_electrons_cut = MakePtEtaCuts(gen_electrons, 15,2.5);
+    reco::GenParticleCollection gen_muons         = GetGenParticlesSubset(gen_leptons,13);
+    reco::GenParticleCollection gen_muons_cut     = MakePtEtaCuts(gen_muons, 10,2.5);
+
+    reco::GenParticleCollection gen_leptons_cut = {};
+    gen_leptons_cut.insert(gen_leptons_cut.end(),gen_electrons_cut.begin(),gen_electrons_cut.end());
+    gen_leptons_cut.insert(gen_leptons_cut.end(),gen_muons_cut.begin(),gen_muons_cut.end());
+
+    double mll;
+    
+
+    int charge_sum_lep = 0;
+    for (size_t i = 0; i < gen_leptons_cut.size(); i++) {
+        const reco::GenParticle& p_lep = gen_leptons_cut.at(i);
+        charge_sum_lep += p_lep.charge();
+    }
+
+    // We are only interested in 2lepss events, so skip otherwise: 
+    if (gen_leptons_cut.size() !=2) {
+        return;
+    //} else if (charge_sum_lep == 0) { // Only ss
+    } else if (charge_sum_lep <= 0) { // Only positive
+        return;
+    }
+
+    // Require at least 4 jets
+    //std::cout << "n jets: " << gen_jets_cut.size() << std::endl;
+    if (gen_jets_cut.size() < 4){
+        return;
+    }
 
     double sm_wgt = 0.;
     double orig_wgt = LHEInfo->originalXWGTUP();  // original cross-section
@@ -132,42 +156,31 @@ void EFTSelectionAnalyzer::analyze(const edm::Event& event, const edm::EventSetu
     total_sm_xsec += sm_wgt;
     total_orig_xsec += orig_wgt;
 
-
-    int n_prompt_electrons = 0;
-    int n_prompt_muons = 0;
-    int n_prompt_taus = 0;
-    for (size_t i = 0; i < gen_leptons.size(); i++) {
-        const reco::GenParticle& p1 = gen_leptons.at(i);
-        int id = p1.pdgId();
-        int st = p1.status();
-        double pt = p1.p4().Pt();
-        double eta = p1.p4().Eta();
-
-        int direct_id = p1.mother()->pdgId();
-        const reco::Candidate* p_mom = GetGenMotherNoFsr(&p1);
-        const reco::Candidate* p_gmom = GetGenMotherNoFsr(p_mom);
-        int mom_id = p_mom->pdgId();
-        int gmom_id = p_gmom->pdgId();
-
-        if (abs(id) == 11) { // electron
-            n_prompt_electrons += 1;
-        } else if (abs(id) == 13) { // muon
-            n_prompt_muons += 1;
-        } else if (abs(id) == 13) { // tau
-            n_prompt_taus += 1;
+    //std::cout << "E + MU SUM: " << charge_sum_e << " + " << charge_sum_mu << " = " << charge_sum_e+charge_sum_mu << std::endl;
+    //std::cout << "CHARGE SUM: " << charge_sum_lep << std::endl;
+    //std::cout << "n gen leptons: " << gen_leptons_cut.size() << std::endl;
+    //std::cout << "n gen e: " << gen_electrons_cut.size() << std::endl;
+    //std::cout << "n gen mu: " << gen_muons_cut.size() << std::endl;
+    
+    //this->lep_fits_dict["fit_all_incl"]->addFit(eft_fit);
+    if (gen_leptons_cut.size() == 2 and charge_sum_lep !=0) {
+        lep_fits_dict["fit_2lss_incl"]->addFit(eft_fit);
+        //std::cout << "Adding to fit_2lss_incl" << std::endl;
+        if (gen_electrons_cut.size() == 2 and charge_sum_lep !=0){
+            lep_fits_dict["fit_2lss_ee"]->addFit(eft_fit);
+            //std::cout << "Adding to fit_2lss_ee" << std::endl;
+        }
+        if (gen_muons_cut.size() == 2 and charge_sum_lep !=0){
+            lep_fits_dict["fit_2lss_mumu"]->addFit(eft_fit);
+            //std::cout << "Adding to fit_2lss_mumu" << std::endl;
+        }
+        if (gen_electrons_cut.size() == 1 and gen_muons_cut.size() == 1 and charge_sum_lep) {
+            lep_fits_dict["fit_2lss_emu"]->addFit(eft_fit);
+            //std::cout << "Adding to fit_2lss_emu" << std::endl;
         }
     }
-    fit_all_incl->addFit(eft_fit);
-    if (gen_leptons.size() == 2){
-        fit_2lss_incl->addFit(eft_fit);
-        if (n_prompt_electrons == 2) {
-            fit_2lss_ee->addFit(eft_fit);
-        } else if (n_prompt_electrons == 1 and n_prompt_muons ==1){
-            fit_2lss_emu->addFit(eft_fit);
-        } else if (n_prompt_muons == 2){
-            fit_2lss_mumu->addFit(eft_fit);
-        }
-    }
+    //std::cout << "\n" << std::endl;
+
 
 }
 
