@@ -9,6 +9,16 @@
     "loc": "/tZq_ll_4f_ckm_NLO_TuneCP5_PSweights_13TeV-amcatnlo-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM", 
     "on_das": true
   }, 
+  "central_tZq_new_pmx_v2": {
+    "central_xsec": 0.07358, 
+    "dataset": "/tZq_ll_4f_ckm_NLO_TuneCP5_PSweights_13TeV-amcatnlo-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_new_pmx_94X_mc2017_realistic_v14-v2/MINIAODSIM", 
+    "datatier": "MINIAODSIM", 
+    "description": "Newer version of the central tZq sample, with different DigiReco processing. It also does not have the tHq events seen in the earlier central tZq sample", 
+    "files_per_task": 1, 
+    "is_eft": false, 
+    "loc": "/tZq_ll_4f_ckm_NLO_TuneCP5_PSweights_13TeV-amcatnlo-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_new_pmx_94X_mc2017_realistic_v14-v2/MINIAODSIM", 
+    "on_das": true
+  }, 
   "central_ttH": {
     "central_xsec": 0.5638, 
     "dataset": "/ttHToNonbb_M125_TuneCP5_13TeV-powheg-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM", 
