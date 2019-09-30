@@ -286,7 +286,7 @@
     "description": "tllq4f t-ch with +0 extra partons and pythia jet matching with nJetMax=1", 
     "files_per_task": 5, 
     "is_eft": false, 
-    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/tllq4f_forHadFilterCheck/v1/gen_step_tllq4f_NoDim6NoSchanWJetMax1_run0", 
+    "loc": "/hadoop/store/user/awightma/genOnly_step/2019_04_19/tllq4f_forHadFilterCheck/v1/gen_step_tllq4f_NoDim6NoSchanWJetMax1_run0", 
     "on_das": false
   }, 
   "tllq4f_NoDim6NoSchanWJetMax2": {
@@ -296,7 +296,7 @@
     "description": "tllq4f t-ch with +0 extra partons and pythia jet matching with nJetMax=2", 
     "files_per_task": 5, 
     "is_eft": false, 
-    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/tllq4f_forHadFilterCheck/v1/gen_step_tllq4f_NoDim6NoSchanWJetMax2_run0", 
+    "loc": "/hadoop/store/user/awightma/genOnly_step/2019_04_19/tllq4f_forHadFilterCheck/v1/gen_step_tllq4f_NoDim6NoSchanWJetMax2_run0", 
     "on_das": false
   }, 
   "tllq4f_NoDim6NoSchanWNoMerge": {
@@ -306,7 +306,7 @@
     "description": "tllq4f t-ch with +0 extra partons and pythia jet merging turned off (JetMatching:merge=on)", 
     "files_per_task": 5, 
     "is_eft": false, 
-    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/tllq4f_forHadFilterCheck/v1/gen_step_tllq4f_NoDim6NoSchanWNoMerge_run0", 
+    "loc": "/hadoop/store/user/awightma/genOnly_step/2019_04_19/tllq4f_forHadFilterCheck/v1/gen_step_tllq4f_NoDim6NoSchanWNoMerge_run0", 
     "on_das": false
   }, 
   "tllq4f_SMNoSchanW": {
