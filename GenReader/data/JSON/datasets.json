@@ -239,6 +239,66 @@
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ttll-tllq-ProcessCardStudies/v1/mAOD_step_tllq4fNoHiggs_NoDim6_run0/", 
     "on_das": false
   }, 
+  "tllq4fNoSchanWNoHiggs0p_HanV4Model16DttllScanpointsJetMax1_fromMAOD": {
+    "central_xsec": 0, 
+    "dataset": "", 
+    "datatier": "MINIAODSIM", 
+    "description": "tllq4f t-ch with +0 extra partons and no higgs. MG MLM turned off (still with xqcut=10) and pythia jet matching with nJetMax=2", 
+    "files_per_task": 3, 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/tllq4f-tch-NoHiggs_0partons/v2/mAOD_step_tllq4fNoSchanWNoHiggs0p_HanV4Model16DttllScanpointsJetMax1_run1", 
+    "on_das": false
+  }, 
+  "tllq4fNoSchanWNoHiggs0p_HanV4Model16DttllScanpointsJetMax2_fromMAOD": {
+    "central_xsec": 0, 
+    "dataset": "", 
+    "datatier": "MINIAODSIM", 
+    "description": "tllq4f t-ch with +0 extra partons and no higgs. MG MLM turned off (still with xqcut=10) and pythia jet merging turned off (JetMatching:merge=on)", 
+    "files_per_task": 3, 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/tllq4f-tch-NoHiggs_0partons/v2/mAOD_step_tllq4fNoSchanWNoHiggs0p_HanV4Model16DttllScanpointsJetMax2_run1", 
+    "on_das": false
+  }, 
+  "tllq4fNoSchanWNoHiggs0p_HanV4Model16DttllScanpointsMLMJetMax1_fromMAOD": {
+    "central_xsec": 0, 
+    "dataset": "", 
+    "datatier": "MINIAODSIM", 
+    "description": "tllq4f t-ch with +0 extra partons and no higgs. MG MLM turned on with xqcut=10 and pythia jet matching with nJetMax=2", 
+    "files_per_task": 3, 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/tllq4f-tch-NoHiggs_0partons/v2/mAOD_step_tllq4fNoSchanWNoHiggs0p_HanV4Model16DttllScanpointsMLMJetMax1_run1", 
+    "on_das": false
+  }, 
+  "tllq4fNoSchanWNoHiggs0p_HanV4Model16DttllScanpointsMLMJetMax2_fromMAOD": {
+    "central_xsec": 0, 
+    "dataset": "", 
+    "datatier": "MINIAODSIM", 
+    "description": "tllq4f t-ch with +0 extra partons and no higgs. MG MLM turned on with xqcut=10 and pythia jet merging turned off (JetMatching:merge=on)", 
+    "files_per_task": 3, 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/tllq4f-tch-NoHiggs_0partons/v2/mAOD_step_tllq4fNoSchanWNoHiggs0p_HanV4Model16DttllScanpointsMLMJetMax2_run1", 
+    "on_das": false
+  }, 
+  "tllq4fNoSchanWNoHiggs0p_HanV4Model16DttllScanpointsMLMNoMerge_fromMAOD": {
+    "central_xsec": 0, 
+    "dataset": "", 
+    "datatier": "MINIAODSIM", 
+    "description": "tllq4f t-ch with +0 extra partons and no higgs. MG MLM turned on with xqcut=10 and pythia jet matching with nJetMax=1", 
+    "files_per_task": 3, 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/tllq4f-tch-NoHiggs_0partons/v2/mAOD_step_tllq4fNoSchanWNoHiggs0p_HanV4Model16DttllScanpointsMLMNoMerge_run1", 
+    "on_das": false
+  }, 
+  "tllq4fNoSchanWNoHiggs0p_HanV4Model16DttllScanpointsNoMerge_fromMAOD": {
+    "central_xsec": 0, 
+    "dataset": "", 
+    "datatier": "MINIAODSIM", 
+    "description": "tllq4f t-ch with +0 extra partons and no higgs. MG MLM turned off (still with xqcut=10) and pythia jet matching with nJetMax=1", 
+    "files_per_task": 3, 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/tllq4f-tch-NoHiggs_0partons/v2/mAOD_step_tllq4fNoSchanWNoHiggs0p_HanV4Model16DttllScanpointsNoMerge_run1", 
+    "on_das": false
+  }, 
   "tllq4fNoSchanW_NoMatching-SM": {
     "central_xsec": 0.07358, 
     "dataset": "", 
