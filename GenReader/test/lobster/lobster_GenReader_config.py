@@ -99,6 +99,7 @@ for idx,sample_name in enumerate(samples):
     print "[{0:0>{w}}/{1:0>{w}}] Sample: {sample}".format(idx+1,len(samples),sample=sample_name,w=width)
 
     sample_loc = ds_helper.getData(sample_name,'loc')
+    is_eft = ds_helper.getData(sample_name,'is_eft')
     if hadoop_mode:
         full_path = sample_loc.split("/hadoop")[1]
         rel_path = os.path.relpath(full_path,input_path)
@@ -107,7 +108,10 @@ for idx,sample_name in enumerate(samples):
             files_per_task=5,
             patterns=["*.root"]
         )
-        merge_size = '256M'    # EFT samples with many reweight points are O(25M)
+        if is_eft:
+            merge_size = '256M'     # EFT samples with many reweight points are O(25M)
+        else:
+            merge_size = '512K'     # non-EFT samples are O(50-100k)
         print "\tFullPath:  {path}".format(path=full_path)
         print "\tInputPath: {path}".format(path=input_path)
         print "\tRelPath:   {path}".format(path=rel_path)
@@ -124,7 +128,7 @@ for idx,sample_name in enumerate(samples):
         'minPtJet=30.0',
         'maxEtaJet=2.5'
     ])
-    if not ds_helper.getData(sample_name,'is_eft'):
+    if not is_eft:
         cms_cmd.extend(['iseft=False'])
 
     print "\tCommand:   {cmd}".format(cmd=' '.join(cms_cmd))
