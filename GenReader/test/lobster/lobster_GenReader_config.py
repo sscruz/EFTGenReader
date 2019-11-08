@@ -17,13 +17,26 @@ timestamp_tag = datetime.datetime.now().strftime('%Y%m%d_%H%M')
 input_path = "/store/user/"
 
 out_ver = "v1"
-tag = 'NoTopLeptons-NoCuts'
+#tag = 'central_tZq_noCuts'
+#tag = 'central_tZq_ptEtaCuts'
+#tag = 'ttXJet_HanV4StartPtsR6B1-xqcut10qCutTests_EtaCuts'
+#tag = 'central_tZq_with-e-mu-hists_ptEtaCuts'
+#tag = 'central_tZq_with-e-mu-tau-hists_ptEtaCuts'
+#tag = 'tllq4fMatchedNoSchanW_nJetMaxStudies_noCuts'
+#tag = 'tllq4fMatchedNoSchanW_nJetMaxStudies_ptEtaCuts'
+#tag = 'tllq4fMatchedNoSchanW_fromMAODnJetMaxStudies_with-e-mu-hists_ptEtaCuts'
+#tag = 'tllq4fMatchedNoHiggs_fromMAOD_with-e-mu-hists_ptEtaCuts'
+#tag = 'tllq4fMatchedPrivate_fromMAOD_with-e-mu-tau-hists_ptEtaCuts'
+#tag = 'ttHJet_HanV2Model-xqcut10qcutTests_ptEtaCuts'
+#tag = 'ttXJet-HanV4Model-xqcut10qCutTests_ptEtaCuts'
+#tag = 'ttXJet_R6_B1-B2_ptEtaCuts'
+tag = 'tllq4fNoSchanWNoHiggs0p_7p5mil_checks_ptEtaCuts'
 
 #master_label = 'EFT_LHE_{tstamp}'.format(tstamp=timestamp_tag)
 master_label = 'EFT_T3_{tstamp}'.format(tstamp=timestamp_tag)
 
-RUN_MODE = 'testing'
-# RUN_MODE = 'mg_studies'
+#RUN_MODE = 'testing'
+RUN_MODE = 'mg_studies'
 
 #output_path = "/store/user/$USER/KinematicGenHists/{tag}/{ver}".format(tag=tag,ver=out_ver)
 if RUN_MODE == 'testing':
@@ -51,7 +64,8 @@ processing = Category(
     mode='fixed',
     cores=1,
     memory=1200,
-    disk=1000
+    #disk=1000
+    disk=2900
 )
 
 wf = []
@@ -61,7 +75,50 @@ ds_helper.load(os.path.join(GIT_REPO_DIR,"GenReader/data/JSON/datasets.json"))
 
 width = 1
 samples = [
-    'tllq4f_SMNoSchanW'
+    #'central_tZq',
+    #'central_tZq_new_pmx_v2',
+    #'tllq4fMatchedNoSchanW_fromMAOD_nJetMax1',
+    #'tllq4fMatchedNoSchanW_fromGEN_nJetMax1',
+    #'tllq4fMatchedNoSchanW_fromGEN_nJetMax2',
+    #'tllq4fMatchedNoSchanW_fromGEN_nJetMax2doublecheck',
+    #'tllq4fMatchedNoSchanW_fromMAOD_nJetMax2',
+    #'tllq4fMatchedNoHiggs_fromMAOD',
+    #'ttHJet_HanV2Model-xqcut10qcut15',
+    #'ttHJet_HanV2Model-xqcut10qcut19',
+    #'ttHJet_HanV2Model-xqcut10qcut25',
+    #'ttHJet_HanV4Model-xqcut10qcut15',
+    #'ttHJet_HanV4Model-xqcut10qcut19',
+    #'ttHJet_HanV4Model-xqcut10qcut25',
+    #'ttllNuNuJetNoHiggs_HanV4Model-xqcut10qcut15',
+    #'ttllNuNuJetNoHiggs_HanV4Model-xqcut10qcut19',
+    #'ttllNuNuJetNoHiggs_HanV4Model-xqcut10qcut25',
+    #'ttlnuJet_HanV4Model-xqcut10qcut15',
+    #'ttlnuJet_HanV4Model-xqcut10qcut19',
+    #'ttlnuJet_HanV4Model-xqcut10qcut25',
+    #'ttHJet_HanModel16DttllScanpointsxqcut10-qCut15',
+    #'ttHJet_HanModel16DttllScanpointsxqcut10-qCut19',
+    #'ttHJet_HanModel16DttllScanpointsxqcut10-qCut25',
+    #'ttHJet_HanV4StartPtRun2-xqcut10qcut15',
+    #'ttHJet_HanV4StartPtRun2-xqcut10qcut19',
+    #'ttHJet_HanV4StartPtRun2-xqcut10qcut25',
+    #'ttllNuNuJetNoHiggs_HanV4StartPtRun2-xqcut10qcut15',
+    #'ttllNuNuJetNoHiggs_HanV4StartPtRun2-xqcut10qcut19',
+    #'ttllNuNuJetNoHiggs_HanV4StartPtRun2-xqcut10qcut25',
+    #'ttlnuJet_HanV4StartPtRun1-xqcut10qcut15',
+    #'ttlnuJet_HanV4StartPtRun1-xqcut10qcut19',
+    #'ttlnuJet_HanV4StartPtRun1-xqcut10qcut25',
+    #'ttHJet_FP_R6B1',
+    #'ttHJet_FP_R6B2',
+    #'ttllNuNuJetNoHiggs_FP_R6B1',
+    #'ttllNuNuJetNoHiggs_FP_R6B2',
+    #'ttlnuJet_FP_R6B1',
+    #'ttlnuJet_FP_R6B2',
+    #'ttHJet_FP_R5B1',
+    #'ttlnuJet_FP_R5B1',
+    #'ttllNuNuJetNoHiggs_FP_R5B1',
+    'tllq4fNoSchanWNoHiggs0p_B1_fromMAOD', # Andrew's 500 k
+    'tllq4fNoSchanWNoHiggs0p_B2_fromMAOD', # Andrew's 2 mil
+    'tllq4fNoSchanWNoHiggs0p_B3_fromMAOD', # Andrew's 5 mil
 ]
 
 das_mode = False
@@ -105,7 +162,8 @@ for idx,sample_name in enumerate(samples):
         rel_path = os.path.relpath(full_path,input_path)
         ds = Dataset(
             files=rel_path,
-            files_per_task=5,
+            #files_per_task=5,
+            files_per_task=ds_helper.getData(sample_name,'files_per_task'),
             patterns=["*.root"]
         )
         if is_eft:
@@ -118,9 +176,11 @@ for idx,sample_name in enumerate(samples):
     elif das_mode:
         ds = cmssw.Dataset(
             dataset=sample_loc,
-            events_per_task=100000
+            #events_per_task=100000
+            events_per_task=300000
         )
         merge_size = '512K'     # non-EFT sample sizes are O(40K)
+        #merge_size = -1
 
     cms_cmd = ['cmsRun','lobsterized_EFTGenReader_cfg.py']
     cms_cmd.extend([
@@ -157,8 +217,8 @@ config = Config(
     advanced=AdvancedOptions(
         bad_exit_codes=[127, 160],
         log_level=1,
-        xrootd_servers=['ndcms.crc.nd.edu',
-                       'cmsxrootd.fnal.gov',
-                       'deepthought.crc.nd.edu']
+        #xrootd_servers=['ndcms.crc.nd.edu',
+        #               'cmsxrootd.fnal.gov',
+        #               'deepthought.crc.nd.edu']
     )
 )
