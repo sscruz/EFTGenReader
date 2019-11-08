@@ -140,6 +140,9 @@ if datatier == "GEN":
 elif datatier == "MINIAODSIM":
     process.EFTSelectionAnalyzer.GenParticles = cms.InputTag("prunedGenParticles")
     process.EFTSelectionAnalyzer.GenJets      = cms.InputTag("slimmedGenJets")
+    process.EFTSelectionAnalyzer.PatElectrons = cms.InputTag("slimmedElectrons")
+    process.EFTSelectionAnalyzer.PatMuons     = cms.InputTag("slimmedMuons")
+    process.EFTSelectionAnalyzer.PatJets      = cms.InputTag("slimmedJets")
 else:
     print "[ERROR] Unknown datatier: {}".format(datatier)
     raise RuntimeError

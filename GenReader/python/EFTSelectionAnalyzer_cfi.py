@@ -15,5 +15,8 @@ EFTSelectionAnalyzer = cms.EDAnalyzer("EFTSelectionAnalyzer",
     LHEInfo      = cms.InputTag("externalLHEProducer"),
     GENInfo      = cms.InputTag("generator"),
     GenParticles = cms.InputTag(""),
-    GenJets      = cms.InputTag("")
+    GenJets      = cms.InputTag(""),
+    PatElectrons = cms.InputTag(""),
+    patMuons     = cms.InputTag(""),
+    patJets      = cms.InputTag("")
 )

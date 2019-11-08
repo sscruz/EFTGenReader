@@ -60,7 +60,8 @@ def main():
     max_events = args.nevents
     norm_type = 1
     intg_lumi = 1.0
-    base_cmd = ["cmsRun","EFTGenReader_cfg.py"]
+    #base_cmd = ["cmsRun","EFTGenReader_cfg.py"]
+    base_cmd = ["cmsRun","EFTSelectionAnalyzer_cfg.py"]
     width = 1
     if len(lst) >= 10:
         width = 2
