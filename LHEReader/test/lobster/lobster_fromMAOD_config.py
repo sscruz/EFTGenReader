@@ -14,8 +14,8 @@ timestamp_tag = datetime.datetime.now().strftime('%Y%m%d_%H%M')
 username = "kmohrman"
 
 #RUN_SETUP = 'local'
-#RUN_SETUP = 'full_production'
-RUN_SETUP = 'mg_studies'
+RUN_SETUP = 'full_production'
+#RUN_SETUP = 'mg_studies'
 
 input_version  = ""
 output_version = "v1"
@@ -23,13 +23,16 @@ output_version = "v1"
 #grp_tag  = "2019_04_19/tllq4f_t-channelMatched_pythia-JetMax1_b2"
 grp_tag  = ""
 #out_tag  = "tllq4f_t-channelMatched_pythia-JetMax1_b2"
-out_tag  = "2019_08_14_addPtBranches/ttXJet_R5B1-HanV2ModelNOttggh-HanV4Model-Comp_analysisEtaCut"
+#out_tag  = "2019_08_14_addPtBranches/ttXJet_R5B1-HanV2ModelNOttggh-HanV4Model-Comp_analysisEtaCut"
+#out_tag  = "2019_08_14_addPtBranches/ttX-ttXJet_R5B1-HanModel-0Jetvs1JetTests_analysisEtaCut"
+out_tag  = "ttXjet"
 test_tag = "lobster_20180505_1440"      # If the input LHE files were also produced in 'local' running
-prod_tag = "Round5/Batch1"
+prod_tag = "Round6/Batch2"
 
 # Only run over gridpacks from specific processes/coeffs/runs (i.e. MG starting points)
 #process_whitelist = ["ttlnuJet","ttllNuNuJetNoHiggs","ttHJet"]
 #process_whitelist = ["ttlnuJet","ttHJet"]
+#process_whitelist = ["ttH","ttllNuNuNoHiggs","ttlnu","ttHJet","ttllNuNuJetNoHiggs","ttlnuJet"]
 process_whitelist = []
 coeff_whitelist   = []
 runs_whitelist    = []
@@ -62,10 +65,13 @@ input_path = "/store/user/"
 input_path_full = "/hadoop" + input_path
 
 dir_list = [
-            os.path.join(input_path_full,"awightma/FullProduction/Round5/Batch1/postLHE_step/v1"),
-            os.path.join(input_path_full,"kmohrman/postLHE_step/2019_04_19/ttXJetTests-HanV4Model-xqcut10qCut19/v3"),
-            os.path.join(input_path_full,"kmohrman/postLHE_step/2019_04_19/ttHJet-ttWJet-HanV2ModelNOttgghCheck-xqcut10qCut19/v1"),
-            os.path.join(input_path_full,"kmohrman/postLHE_step/2019_04_19/ttZJet-HanV2ModelNOttgghCheck-xqcut10qCut19/v1"),
+            #os.path.join(input_path_full,"awightma/FullProduction/Round5/Batch1/postLHE_step/v1"),
+            #os.path.join(input_path_full,"kmohrman/postLHE_step/2019_04_19/ttXJetTests-HanV4Model-xqcut10qCut19/v3"),
+            #os.path.join(input_path_full,"kmohrman/postLHE_step/2019_04_19/ttHJet-ttWJet-HanV2ModelNOttgghCheck-xqcut10qCut19/v1"),
+            #os.path.join(input_path_full,"kmohrman/postLHE_step/2019_04_19/ttZJet-HanV2ModelNOttgghCheck-xqcut10qCut19/v1"),
+            #os.path.join(input_path_full,"/hadoop/store/user/kmohrman/postLHE_step/2019_04_19/ttX-HanModel/v1"),
+            #os.path.join(input_path_full,"kmohrman/FullProduction/Round6/Batch1/postLHE_step/v1"), # FP: R6B1 ttXjet
+            os.path.join(input_path_full,"kmohrman/FullProduction/Round6/Batch2/postLHE_step/v1"), # FP: R6B2 ttXjet
         ]
 
 storage = StorageConfiguration(
