@@ -321,7 +321,14 @@ void make_1d_xsec_plot(
     std::vector<WCFit> wc_fits,
     std::vector<WCPoint> ref_pts = {}   // orig_pts
 ) {
-    plt_ops.x_name = "NP Strength";
+    //plt_ops.x_name = "NP Strength";
+    // Name the x axis
+    TString x_axis_title = wc_name;
+    if (wc_name.back() == 'i') {
+        int len = wc_name.size();
+        x_axis_title = wc_name.substr(0,len-1);
+    }
+    plt_ops.x_name = x_axis_title + " Strength";
     plt_ops.y_name = "\\sigma_{NP}/\\sigma_{SM}";
     //plt_ops.y_name = "event wgt";
 
@@ -339,6 +346,7 @@ void make_1d_xsec_plot(
     double origpts_marker_size = 2.0;//2.0;//3.0;
 
     bool include_legend = true;
+    //bool include_legend = false;
     bool include_fitpts = true;
 
     if (include_legend) {
@@ -380,7 +388,7 @@ void make_1d_xsec_plot(
             //WCPoint orig_pt = ref_pts.at(j);
             y_val = wc_fit.evalPoint(&ref_pt);
 
-            plt_ops.updateXLimits(ref_pt.getStrength(wc_name),ref_pt.getStrength(wc_name));
+            plt_ops.updateXLimits(1.2*ref_pt.getStrength(wc_name),1.2*ref_pt.getStrength(wc_name));
             plt_ops.updateYLimits(y_val,y_val);
             plt_ops.updateYLimits(ref_pt.wgt,ref_pt.wgt);
         }
@@ -407,15 +415,17 @@ void make_1d_xsec_plot(
             x_low = std::max(x_low,-25.0);
             x_high = std::min(x_high,25.0);
 
-            // Set ctG lims to -1.5 to 1.5
-            //if (wc_name == "ctG") {
-            //    x_low = -1.5;
-            //    x_high = 1.5;
-            //}
+            ///*
+            //Set ctG lims to -3.5 to 3.5
+            if (wc_name == "ctG") {
+                x_low = -3.5;
+                x_high = 3.5;
+            }
+            //*/
 
             // Set x axis range to range AN range
-            //x_low = -xlims_dict[wc_name];
-            //x_high = xlims_dict[wc_name];
+            x_low = -xlims_dict[wc_name];
+            x_high = xlims_dict[wc_name];
 
             plt_ops.updateXLimits(x_low,x_high);
 
@@ -426,6 +436,8 @@ void make_1d_xsec_plot(
                 plt_ops.updateYLimits(y_val,y_val);
             }
         }
+    } else {
+        std::cout << "Not setting AN lims!!!" << std::endl;
     }
 
     if (plt_ops.y_min < 0.8) {
@@ -515,48 +527,51 @@ void make_1d_xsec_plot(
         err_graph->Draw("3");
         //err_graph->Draw("SAME");
 
-        //std::string fit_x,fit_y;
-        //for (auto& fit_pt: sortByStrength(wc_fit.getFitPoints(),wc_name)) {
-        //    if (!fit_pt.isSMPoint() && fit_pt.getDim() != 1) {
-        //        continue;
-        //    } else if (!fit_pt.isSMPoint() && fit_pt.getStrength(wc_name) == 0.0) {
-        //        continue;
-        //    }
+        // Not sure what this was for?
+        /*
+        std::string fit_x,fit_y;
+        for (auto& fit_pt: sortByStrength(wc_fit.getFitPoints(),wc_name)) {
+            if (!fit_pt.isSMPoint() && fit_pt.getDim() != 1) {
+                continue;
+            } else if (!fit_pt.isSMPoint() && fit_pt.getStrength(wc_name) == 0.0) {
+                continue;
+            }
 
-        //    int marker_clr   = plt_ops.getColor(i);
-        //    double marker_sz = origpts_marker_size;
+            int marker_clr   = plt_ops.getColor(i);
+            double marker_sz = origpts_marker_size;
 
-        //    fit_x = std::to_string(fit_pt.getStrength(wc_name));
-        //    fit_y = std::to_string(fit_pt.wgt);
+            fit_x = std::to_string(fit_pt.getStrength(wc_name));
+            fit_y = std::to_string(fit_pt.wgt);
 
-        //    if (fit_pt.getStrength(wc_name) >= 0) {
-        //        fit_x = " " + fit_x;
-        //    }
+            if (fit_pt.getStrength(wc_name) >= 0) {
+                fit_x = " " + fit_x;
+            }
 
-        //    int dec_sp = 2;
-        //    if (abs(fit_pt.getStrength(wc_name)) > 0) {
-        //        dec_sp = dec_sp - log10(abs(fit_pt.getStrength(wc_name)));
-        //    } else {
-        //        dec_sp = 1;
-        //    }
+            int dec_sp = 2;
+            if (abs(fit_pt.getStrength(wc_name)) > 0) {
+                dec_sp = dec_sp - log10(abs(fit_pt.getStrength(wc_name)));
+            } else {
+                dec_sp = 1;
+            }
 
-        //    if (dec_sp > 0) {
-        //        std::string tmp_str(dec_sp,' ');
-        //        fit_x = tmp_str + fit_x;
-        //    }
+            if (dec_sp > 0) {
+                std::string tmp_str(dec_sp,' ');
+                fit_x = tmp_str + fit_x;
+            }
 
-        //    padR(fit_x,10);
+            padR(fit_x,10);
 
-        //    TGraph* fit_pt_gr = new TGraph(1);
-        //    fit_pt_gr->SetPoint(0,fit_pt.getStrength(wc_name),fit_pt.wgt);
-        //    fit_pt_gr->SetMarkerStyle(origpts_marker_style);
-        //    fit_pt_gr->SetMarkerSize(marker_sz);
-        //    fit_pt_gr->SetMarkerColor(marker_clr);
+            TGraph* fit_pt_gr = new TGraph(1);
+            fit_pt_gr->SetPoint(0,fit_pt.getStrength(wc_name),fit_pt.wgt);
+            fit_pt_gr->SetMarkerStyle(origpts_marker_style);
+            fit_pt_gr->SetMarkerSize(marker_sz);
+            fit_pt_gr->SetMarkerColor(marker_clr);
 
-        //    if (include_fitpts) {
-        //        fit_pt_gr->Draw("P");
-        //    }
-        //}
+            if (include_fitpts) {
+                fit_pt_gr->Draw("P");
+            }
+        }
+        */
     }
 
     // Draw MadGraph reference points (if they happen to land on this particular 1-D axis scan)
@@ -567,6 +582,7 @@ void make_1d_xsec_plot(
             continue;
         }
 
+        //std::cout << "iteration: " << i << " wc name: " << wc_name << " val: " << ref_pt.getStrength(wc_name) << std::endl;
         if (!ref_pt.isSMPoint()) {
             // Need to explicitly include the SM point
             if (ref_pt.getDim() != 1) {

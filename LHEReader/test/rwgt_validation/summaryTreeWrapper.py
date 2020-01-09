@@ -262,11 +262,12 @@ ALL_INFO = [
         'c_wl': [],
         'r_wl': [],
     },
-    {# 1D scans for all 16 WC in all signal processes + ttbar
+    {# 1D scans for all 16 WC in all signal processes + ttbar    ###### TEST #######
         'tag': '2018_08_24/FullReference',
         'grp_name': '1D-Ref',
         'version': 'v1',
         'include': False,
+        #'include': True,
         'p_wl': [],
         'c_wl': [],
         'r_wl': [],
@@ -437,9 +438,130 @@ ALL_INFO = [
         'tag': '2019_04_19/ValidationHanModelPlusJet-mAOD',
         'grp_name': 'matched-1Jet',
         'version': 'v1',
-        'include': True,
+        'include': False,
+        'p_wl': ['ttHJet'],
+        'c_wl': ['HanModel16DttllScanpoints'],
+        'r_wl': [],
+    },
+    {# Validation set of events for samples with +1 parton using Han's model (xqcut/qCut tests)
+        'tag': '2019_04_19/ttHJet-xqcutStudies-mAOD',
+        'grp_name': 'v2-qcut30',
+        'version': 'v2',
+        'include': False,
         'p_wl': [],
         'c_wl': [],
+        'r_wl': [],
+    },
+    {# Validation set of events for samples with +1 parton using Han's model (xqcut/qCut tests)
+        'tag': '2019_04_19/ttHJet-xqcutStudies-mAOD',
+        'grp_name': 'v3-qcut45',
+        'version': 'v3',
+        'include': False,
+        'p_wl': [],
+        'c_wl': [],
+        'r_wl': [],
+    },
+    {# Validation set of events for samples with +1 parton using Han's model (xqcut/qCut tests)
+        'tag': '2019_04_19/ttHJet-xqcutStudies-mAOD',
+        'grp_name': 'v4-qcut19',
+        'version': 'v4',
+        'include': False,
+        'p_wl': [],
+        'c_wl': [],
+        'r_wl': [],
+    },
+    {# Validation set of events for samples with +1 parton using Han's model (xqcut/qCut tests)
+        'tag': '2019_04_19/ttHJet-xqcutStudies-mAOD',
+        'grp_name': 'v5-qcut30',
+        'version': 'v5',
+        'include': False,
+        'p_wl': [],
+        'c_wl': [],
+        'r_wl': [],
+    },
+    {# Validation set of events for samples with +1 parton using Han's model (xqcut/qCut tests)
+        'tag': '2019_04_19/ttHJet-xqcutStudies-mAOD',
+        'grp_name': 'v6-qcut45',
+        'version': 'v6',
+        'include': False,
+        'p_wl': [],
+        'c_wl': [],
+        'r_wl': [],
+    },
+    {# Validation set of events for samples with +1 parton using Han's model (xqcut/qCut tests)
+        'tag': 'ttHJet-xqcutStudies-mAOD',
+        'grp_name': '',
+        'version': 'vTotal',
+        #'include': True,
+        'include': False,
+        'p_wl': [],
+        #'c_wl': [],
+        'c_wl': ["HanModelxqcut10qCut30","HanModelxqcut10qCut19"],
+        'r_wl': [],
+    },
+    {# Validation set of events for samples with +1 parton using Han's model (xqcut/qCut tests)
+        'tag': 'ttHJet-xqcutStudies-qCutScan-GEN',
+        'grp_name': '',
+        'version': 'v1',
+        #'include': True,
+        'include': False,
+        'p_wl': [],
+        #'c_wl': [
+        #    "HanModelxqcut05qCut10",
+        #    "HanModelxqcut05qCut19",
+        #    "HanModelxqcut05qCut25",
+        #    "HanModelxqcut05qCut40",
+        #    "HanModelxqcut05qCut60",
+        #    "HanModelxqcut10qCut19",
+        # ],
+        'c_wl': [],
+        'r_wl': [],
+    },
+    {# Validation set of events for samples with +1 parton using Han's model (xqcut/qCut tests): Scanpoints file
+        'tag': 'ttHJet-xqcutStudies-xqcut10qCutTests-GEN',
+        'grp_name': '',
+        'version': 'v2',
+        #'include': True,
+        'include': False,
+        'p_wl': [],
+        'c_wl': [
+            "HanModel16DttllScanpointsqCut15",
+            "HanModel16DttllScanpointsqCut19",
+            "HanModel16DttllScanpointsqCut25",
+         ],
+        #'c_wl': [],
+        'r_wl': [],
+    },
+    {# Validation set of events for samples with +1 parton using Han's model (xqcut/qCut tests): Scanpoints file (no ctG)
+        'tag': 'ttHJet-HanModelNoctG16DttllScanpoints-GEN',
+        'grp_name': '',
+        'version': 'v1',
+        #'include': True,
+        'include': False,
+        'p_wl': [],
+        'c_wl': [],
+        'r_wl': [],
+    },
+    {# TEST with different base paths
+        'basepath': '/hadoop/store/user/kmohrman/summaryTree_LHE/2019_04_19/',
+        'tag': 'ttHJet-xqcutStudies-qCutScan-GEN',
+        'grp_name': '',
+        'version': 'v1',
+        #'include': True,
+        'include': False,
+        'p_wl': [],
+        'c_wl': ["HanModelxqcut10qCut19"],
+        'r_wl': [],
+    },
+    {# TEST with different base paths
+        'basepath': '/afs/crc.nd.edu/user/k/kmohrman/CMSSW_Releases/CMSSW_9_4_6/src/EFTGenReader/LHEReader/test/rwgt_validation/root_files_from_hadoop/',
+        'tag': 'ttHJet-xqcutStudies-mAOD',
+        'grp_name': '',
+        'version': 'vTotal',
+        #'include': True,
+        'include': False,
+        'p_wl': [],
+        'c_wl': ["HanModelxqcut10qCut19"],
         'r_wl': [],
     },
     {# Validation set of events for samples with +1 parton using Han's model
@@ -448,6 +570,181 @@ ALL_INFO = [
         'version': 'v1',
         'include': False,
         'p_wl': [],
+        'c_wl': [],
+        'r_wl': [],
+    },
+    {# Validation set of events for samples with +1 parton using Han's model (xqcut/qCut tests): Scanpoints files xqcut tests
+        'tag': 'ttHJet-xqcutStudies-xqcutScan_analysisEtaCut-GEN',
+        'grp_name': '',
+        'version': 'v1',
+        #'include': True,
+        'include': False,
+        'p_wl': [],
+        'c_wl': ["HanModel16DttllScanpointsxqcut05qCut10",
+            "HanModel16DttllScanpointsxqcut05qCut25",
+            "HanModel16DttllScanpointsqCut25",
+            "HanModel16DttllScanpointsxqcut15qCut25",
+            "HanModel16DttllScanpointsxqcut20qCut25",
+        ],
+        'r_wl': [],
+    },
+    {# FP samples: 
+        'tag': 'allProcesses-mAOD',
+        'grp_name': '',
+        'version': 'v1',
+        #'include': True,
+        'include': False,
+        'p_wl': [],
+        'c_wl': [],
+        'r_wl': [],
+    },
+    {# Han model v2 xqcut 10 qcut 15,19,25
+        'tag': 'ttHJet-HanV2Model-xqcut10qCutTests_analysisEtaCut-GEN',
+        'grp_name': '',
+        'version': 'v1',
+        #'include': True,
+        'include': False,
+        'p_wl': [],
+        'c_wl': [],
+        'r_wl': [],
+    },
+    {## Han model v4 xqcut 10 qcut 15,19,25
+        'tag': 'ttXJet-HanV4Model-xqcut10qCutTests_analysisEtaCut-GEN',
+        'grp_name': '',
+        'version': 'v1',
+        #'include': True,
+        'include': False,
+        'p_wl': [],
+        'c_wl': [],
+        'r_wl': [],
+    },
+    {## Han model v4 0jet vs 1jet comp
+        'tag': 'ttX-ttXJet-HanV4Model-0Jetvs1JetTests_analysisEtaCut-GEN',
+        'grp_name': '',
+        'version': 'v1',
+        #'include': True,
+        'include': False,
+        'p_wl': [],
+        'c_wl': [],
+        'r_wl': [],
+    },
+    {# Han model v4 vs han origional model comp #########################################
+        'tag': 'ttXJet_R5B1-HanV4Model-Comp_analysisEtaCut-mAOD',
+        'grp_name': '',
+        'version': 'v1',
+        #'include': True,
+        'include': False,
+        'p_wl': ["ttlnuJet","ttHJet","ttllNuNuJetNoHiggs"],
+        'c_wl': ["HanModel16DttllScanpoints"],
+        'r_wl': [],
+    },
+    {# ttH and ttW: Han model v4 vs Han model v2 (w/o missing 5 verts added in) vs han origional model comp
+        'tag': 'ttHJet-ttWJet_R5B1-HanV4Model-Comp_analysisEtaCut-mAOD',
+        'grp_name': '',
+        'version': 'v1',
+        #'include': True,
+        'include': False,
+        'p_wl': [],
+        'c_wl': [],
+        'r_wl': [],
+    },
+    {# ttZ (and also ttH, ttW): Han model v4 vs Han model v2 (w/o missing 5 verts added in) vs han origional model comp
+        'tag': 'ttXJet_R5B1-HanV2ModelNOttggh-HanV4Model-Comp_analysisEtaCut-mAOD',
+        'grp_name': '',
+        'version': 'v1',
+        #'include': True,
+        'include': False,
+        'p_wl': ["ttllNuNuJetNoHiggs"],
+        'c_wl': [],
+        'r_wl': [],
+    },
+    {# HanModel (original) 0jet vs 1jet (FP) comp
+        'tag': 'ttX-ttXJet_R5B1-HanModel-0Jetvs1JetTests_analysisEtaCut-mAOD',
+        'grp_name': '',
+        'version': 'v1',
+        #'include': True,
+        'include': False,
+        'p_wl': [],
+        'c_wl': [],
+        'r_wl': [],
+    },
+    {# HanModelV4 starting points comp for ttHJet (runs 0,2) and ttWJet (all runs)
+        'tag': 'ttHJet-ttWJet_HanV4ttXJetStartPtChecks-xqcut10qCut19_analysisEtaCut-GEN',
+        'grp_name': '',
+        'version': 'v1',
+        #'include': True,
+        'include': False,
+        'p_wl': [],
+        'c_wl': [],
+        'r_wl': [],
+    },
+    {# HanModelV4 starting points comp for ttHJet (all runs) and ttWJet (runs 2 and 3)
+        'tag': 'ttHJet-ttZJet_HanV4ttXJetStartPtChecks-xqcut10qCut19_analysisEtaCut-GEN',
+        'grp_name': '',
+        'version': 'v1',
+        #'include': True,
+        'include': False,
+        'p_wl': [],
+        'c_wl': [],
+        'r_wl': [],
+    },
+    {# HanModelV4 R6B1 starting point ttXJet qCut tests
+        'tag': 'ttXJet_HanV4ttXJetStartPtChecks-xqcut10qCutTests_analysisEtaCut-GEN',
+        'grp_name': '',
+        'version': 'v2',
+        'include': True,
+        #'include': False,
+        'p_wl': ["ttHJet"], ##### Use this version of tthJet for the comparison to dedicated gridpacks #####
+        'c_wl': ["HanV4ttXJetStartPtChecksqCut19"],
+        'r_wl': [],
+    },
+    {# HanModelV4 starting point chekcs for tHq 100k events samples
+        'tag': 'tHq4f_HanV4tHqStartPtChecks-allRunsMatchOff_analysisEtaCut-GEN',
+        'grp_name': '',
+        'version': 'v1',
+        #'include': True,
+        'include': False,
+        'p_wl': [],
+        'c_wl': [],
+        'r_wl': [],
+    },
+    {# HanModelV4 starting point chekcs for tZq 100k events samples
+        'tag': 'tllq4fNoSchanWNoHiggs0p_HanV4tZqStartPtChecks-allRunsMatchOff_analysisEtaCut-GEN',
+        'grp_name': '',
+        'version': 'v1',
+        #'include': True,
+        'include': False,
+        'p_wl': [],
+        'c_wl': [],
+        'r_wl': ["run0"],
+    },
+    {# HanModelV4 Round 6 batch 1 (or batch 2, depending on HADOOP_BASE_PATH) FP ttXjet samples:
+        'tag': 'ttXjet-mAOD',
+        'grp_name': '',
+        'version': 'v1',
+        #'include': True,
+        'include': False,
+        'p_wl': [],
+        'c_wl': [],
+        'r_wl': [],
+    },
+    {# HanModelV4 ttHJet dedicated ctG=[-3,3] axis scan
+        'tag': 'ttHJet_HanV4ctGAxisScan_analysisEtaCut-GEN',
+        'grp_name': '',
+        'version': 'v1',
+        #'include': True,
+        'include': False,
+        'p_wl': [],
+        'c_wl': [],
+        'r_wl': [],
+    },
+    {# HanModelV4 ttHJet xqcut and qcut scan (12 samples in all)
+        'tag': 'ttHJet_HanV4xqcutTests_analysisEtaCut-GEN',
+        'grp_name': '',
+        'version': 'v1',
+        #'include': True,
+        'include': False,
+        'p_wl': ["ttHJet"],
         'c_wl': [],
         'r_wl': [],
     },
@@ -476,25 +773,33 @@ REF_TAGS = [
 
     #'tHqAndtHlnuRefAll4Quark',
 
-
     #'AlexanderDecayChainCheck'
     #'HighResNoDim6Decays'
 
-    'ttH-tllq4f-tHq4f-ttlnu-GEN'
+    #'ttH-tllq4f-tHq4f-ttlnu-GEN'
+
+    'ttHJet_HanV4ctGAxisScan_analysisEtaCut-GEN'
 ]
 
 # Dictionary to map certain MG processes to another for use in finding reference samples
 REF_PROCESS_MAP = {
     #'tllq4fMatchedNoHiggs': 'tllq',
     #'ttHJet': 'ttH',
+    'ttH': 'ttHJet',
     #'ttlnuJet': 'ttlnu',
     #'tHq4fMatched': 'tHq',
     #'ttllNuNuJetNoHiggs': 'ttll'
 }
 
 #HADOOP_PATH = "/hadoop/store/user/awightma/summaryTree_LHE/%s/%s/" % (grp_tag,version)
-HADOOP_BASE_PATH = "/hadoop/store/user/awightma/summaryTree_LHE/"
+#HADOOP_BASE_PATH = "/hadoop/store/user/awightma/summaryTree_LHE/"
+#HADOOP_BASE_PATH = "/hadoop/store/user/kmohrman/summaryTree_LHE/"
 
+#HADOOP_BASE_PATH = "/afs/crc.nd.edu/user/k/kmohrman/CMSSW_Releases/CMSSW_9_4_6/src/EFTGenReader/LHEReader/test/rwgt_validation/root_files_from_hadoop/"
+#HADOOP_BASE_PATH = "/hadoop/store/user/kmohrman/summaryTree_LHE/2019_04_19/"
+HADOOP_BASE_PATH = "/hadoop/store/user/kmohrman/summaryTree_LHE/2019_08_14_addPtBranches/" ###
+#HADOOP_BASE_PATH = "/hadoop/store/user/kmohrman/summaryTree_LHE/FP/Round5/Batch1/"
+#HADOOP_BASE_PATH = "/hadoop/store/user/kmohrman/summaryTree_LHE/FP/Round6/Batch2/"
 
 def runByProcess():
     #file_dirs = groupByProcess(HADOOP_PATH,grp_tag,process_whitelist,coeff_whitelist,run_whitelist)
@@ -506,9 +811,15 @@ def runByProcess():
     for idx,info in enumerate(ALL_INFO):
         if not info['include']:
             continue
+        #HADOOP_BASE_PATH = info['basepath'] # TEST !!!
         path = os.path.join(HADOOP_BASE_PATH,info['tag'],info['version'])
-        grouped_dirs = groupByProcess(path,info['tag'],info['grp_name'],info['p_wl'],info['c_wl'],info['r_wl'])
-        file_dirs.update(grouped_dirs)
+        #grouped_dirs = groupByProcess(path,info['tag'],info['grp_name'],info['p_wl'],info['c_wl'],info['r_wl'])
+        grouped_dirs = groupByProcess(path,info['tag'],'',info['p_wl'],info['c_wl'],info['r_wl'])
+        for tup,dirs in grouped_dirs.iteritems():
+            if not file_dirs.has_key(tup):
+                file_dirs[tup] = []
+            file_dirs[tup].extend(dirs)
+        #file_dirs.update(grouped_dirs)
         for k in file_dirs.keys():
             if len(k[2]) > 0:
                 spacing = max([spacing,len("%s_%s" % (k[1],k[2]))])
@@ -542,6 +853,10 @@ def runByProcess():
                     r_wl=[]
                 )
         #ref_dirs = []
+
+        print tup
+        for x in fdirs:
+            print "\t{}".format(x)
 
         dir_inputs = 'dirpaths.txt'
         ref_inputs = 'refpaths.txt'

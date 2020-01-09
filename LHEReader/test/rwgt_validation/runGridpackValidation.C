@@ -135,11 +135,13 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
 
         int chain_entries = chain.GetEntries();
         int last_entry = chain_entries;
-        //if (chain_entries > 100000) {
-        //    std::cout << "Chain_entries: " << chain_entries << std::endl;
-        //    last_entry = 100000;
-        //}
-        //std::cout << "Last_entry: " << last_entry << std::endl;
+        if (chain_entries > 100000) { // 100k takes about 10min
+            std::cout << "Chain_entries: " << chain_entries << std::endl;
+            last_entry = 100000;
+        }
+        last_entry = 100; // For testing
+        std::cout << "Last_entry: " << last_entry << std::endl;
+
         int first_entry = 0;
 
         WCFit* wcFit_intree = 0;
@@ -157,6 +159,19 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
 
         WCFit inclusive_fit;
 
+        // Set up the wc point string (depends a lot on the naming scheme)
+        std::map<string,string> ref_pts_dict;
+        std::string wcname = "ctG";
+        int range_max = 3;
+        int run = 0;
+        for (int wcval=-range_max; wcval<=range_max; wcval++){
+            ref_pts_dict["run"+std::to_string(run)] = "wcpt_"+wcname+"_"+std::to_string(wcval);
+            run = run + 1;
+        }
+        std::cout << "Run label: " << run_label << " , Dictionary entry: " << ref_pts_dict[run_label] << std::endl;
+        std::string pt_str = ref_pts_dict[run_label];
+        WCPoint ref_fit_pt = WCPoint(pt_str);
+
         sw.start("Full Loop");
         for (int i = first_entry; i < last_entry; i++) {
             sw.start("Event Loop");
@@ -171,6 +186,8 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
             inclusive_fit.addFit(*wcFit_intree);
             sw.lap("Add Fit");
             sw.lap("Event Loop");
+
+            ref_fit_pt.wgt += originalXWGTUP_intree;
         }
         sw.stop("Full Loop");
 
@@ -178,15 +195,53 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
         double SM_xsec = inclusive_fit.evalPoint(&sm_pt);
         inclusive_fit.scale(1.0/SM_xsec);
 
+        // Normalize ref pt and add to list
+        std::cout << "Is ref? " << is_ref << std::endl;
         if (is_ref) {
-            ref_fits.push_back(inclusive_fit);
+            //ref_fits.push_back(inclusive_fit); ???
+            ref_fit_pt.scale(1.0/SM_xsec);
+            ref_pts.push_back(ref_fit_pt);
         }
 
         if (is_tar) {
-            std::string fit_tag;
-            fit_tag = grp_tag;
 
-            inclusive_fit.setTag(fit_tag);
+            //std::string fit_tag;
+            //fit_tag = grp_tag;
+            //fit_tag = process + " " + fit_tag; // TMP!!!
+
+            std::cout << "group tag: " << grp_tag << std::endl;
+            std::string leg_tag;
+            TString process_TStr = process;
+            TString tmp_tag = grp_tag;
+
+            // Get cleaned up version of process name
+            //TString comp_type = "0p1pComp";
+            //TString comp_type = "qCutScan";
+            TString comp_type = "matchScaleScan";
+            //TString comp_type = "startPtComp";
+            if (process_TStr.Index("ttH") != -1){
+                leg_tag = "tth";
+            } else if (process_TStr.Index("ttll") != -1) {
+                leg_tag = "ttZ";
+            } else if (process_TStr.Index("ttlnu") != -1) {
+                leg_tag = "ttW";
+            } else {
+                std::cout << "Warning: process " << process << " is not ttH, ttll, or ttlnu" << std::endl;
+            }
+            if (comp_type == "0p1pComp"){
+                if (tmp_tag.Index("NoJets") != -1) {
+                    leg_tag = leg_tag + " 0p";
+                } else {
+                    leg_tag = leg_tag + " 0+1p  ";
+                }
+            } else if (comp_type == "qCutScan") {
+                leg_tag = leg_tag + " 0+1p: xqcut10, " + tmp_tag(tmp_tag.Index("qCut"), tmp_tag.Length());
+            } else if (comp_type == "matchScaleScan") {
+                leg_tag = leg_tag + " 0+1p: " + tmp_tag(tmp_tag.Index("xqcut"),100);
+            } else if (comp_type == "startPtComp"){
+                leg_tag = tmp_tag + " " + run_label;
+            }
+            inclusive_fit.setTag(leg_tag);
 
             //fit_tag.erase(0,25);
             //if (fit_tag[0] != 'x') {
@@ -245,13 +300,27 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
 
         xsec_plt_ops_1d.tag = output_name.Data();   // This becomes the save name for the plot
         xsec_plt_ops_1d.tag += "_" + wc_name;
+
+        // Make a string for the cleaned up process name (e.g. ttllNuNuJetNoHiggs -> ttW)
+        TString curr_process_clean = curr_process;
+        if (curr_process_clean.Index("ttH") != -1){
+            curr_process_clean = "tth";
+        } else if (curr_process_clean.Index("ttll") != -1) {
+            curr_process_clean = "ttZ";
+        } else if (curr_process_clean.Index("ttlnu") != -1) {
+            curr_process_clean = "ttW";
+        }
+
         // Strip the 'i' from certain WC names (e.g. ctei --> cte) in the plot titles
         if (wc_name.back() == 'i') {
             int len = wc_name.size();
             xsec_plt_ops_1d.title = curr_process + " " + wc_name.substr(0,len-1);
+            //xsec_plt_ops_1d.title = curr_process_clean + " " + wc_name.substr(0,len-1); // TMP!!! (for e.g. ttllNuNuJetNoHiggs -> ttW)
         } else {
             xsec_plt_ops_1d.title = curr_process + " " + wc_name;
+            //xsec_plt_ops_1d.title = curr_process_clean + " " + wc_name; // TMP!!!
         }
+        //xsec_plt_ops_1d.title = ""; // NO TITLE!!!
         
         bool save_fits = false; // Don't save the fits for now
         if (save_fits) {
