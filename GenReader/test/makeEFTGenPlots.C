@@ -24,9 +24,8 @@
 //    f->Close();
 //}
 
-#include "EFTGenReader/GenReader/interface/TH1EFT.h"
-#include "EFTGenReader/GenReader/interface/WCPoint.h"
-//#include <map>
+#include "EFTGenReader/EFTHelperUtilities/interface/TH1EFT.h"
+#include "EFTGenReader/EFTHelperUtilities/interface/WCPoint.h"
 
 TCanvas* findCanvas(TString search,std::vector<TCanvas*> canvs) {
     //TCanvas* canv = nullptr;
@@ -57,24 +56,28 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
 
     TH1::SetDefaultSumw2();
 
-    const Int_t kCLRS = 9;
+    //const Int_t kCLRS = 9;
+    const Int_t kCLRS = 5;
     Int_t palette[kCLRS];
-    palette[0] = kBlack;
-    palette[1] = kBlue;
-    palette[2] = kRed;
-    palette[3] = kGreen;
-    palette[4] = kMagenta;
-    palette[5] = kCyan;
-    palette[6] = kCyan+3;
-    palette[7] = kGreen+3;
-    palette[8] = kRed+3;
+    //palette[0] = kBlack;
+    //palette[1] = kBlue;
+    //palette[2] = kRed;
+    //palette[3] = kGreen;
+    //palette[4] = kMagenta;
+    //palette[5] = kCyan;
+    //palette[6] = kCyan+3;
+    //palette[7] = kGreen+3;
+    //palette[8] = kRed+3;
     //palette[9] = kMagenta+3;
 
-    const Int_t kCLRS2 = 3;
-    Int_t pal2[kCLRS2];
-    pal2[0] = kBlue;
-    pal2[1] = kRed;
-    pal2[2] = kBlack;
+    string colorScheme = "standard";
+    if (colorScheme == "standard") {
+        palette[0] = kBlack;
+        palette[1] = kCyan;
+        palette[2] = kBlue;
+        palette[3] = kGreen;
+        palette[4] = kRed;
+    }
 
     // TLegend parameters
     double left,right,top,bottom,scale_factor,minimum;
@@ -85,9 +88,9 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
     minimum      = 0.1;
 
     gStyle->SetPalette(kCLRS,palette);
-    if (input_fnames.size() <= 3) {
-        gStyle->SetPalette(kCLRS2,pal2);
-    }
+    //if (input_fnames.size() <= 3) {
+    //    gStyle->SetPalette(kCLRS2,pal2);
+    //}
     gStyle->SetOptStat(0);
     gStyle->SetPadRightMargin(0.2);
 
@@ -139,7 +142,11 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
                     h1->SetBinContent(bin_idx,wcfit_bin_val);
                 }
             }
-            h1->Scale(1.0/eventsum_SM1);
+            //h1->Scale(1.0/eventsum_SM1);
+            if (s1 != "h_SMwgt_norm") {
+                h1->Scale(1.0/eventsum_SM1);
+            }
+
             // Fill the dictionary:
             if (maxYvals_dict.count(string(s1)) == 0) {
                 maxYvals_dict[string(s1)] = h1->GetMaximum();
@@ -153,25 +160,26 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
         f1->Close();
     }
 
-
-
-
     for (auto f: files) {
         f->Print();
 
         TString fname = f->GetName();
+        cout << "name of the file !!! " << fname << std::endl;
         TString sub_str;
         Ssiz_t idx = fname.First('/');
+        //cout << "idx !!! " << idx << std::endl;
         int idx_begin = 0;
         int idx_end = 0;
         if (idx != TString::kNPOS) {
             sub_str = fname(idx+1,fname.Length());
         }
-        //idx = sub_str.Index("_NoTopLeptons");
-        //sub_str = sub_str(0,idx);
-        idx_begin = sub_str.Index("output_")+7;
-        idx_end = sub_str.Index("output_tree_")-1;
+        TString marker = "output_";
+        //TString marker = "0p_";
+        idx_begin = sub_str.Index(marker)+marker.Length();
+        //idx_end = sub_str.Index("fromMAOD.root");
+        idx_end = sub_str.Index(".root");
         sub_str = sub_str(idx_begin,idx_end-idx_begin);
+        //cout << " this is the sub str now !!!!!!!!!! " << sub_str << std::endl;
 
         TDirectory* td = f->GetDirectory("EFTGenReader");
 
@@ -185,6 +193,13 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
             TString s = key->GetName();
             if (s == cmp) continue;
 
+            /*
+            // FOR NOT PLOTTING EFT PLOTS
+            if (s.Index("EFT") != -1) {
+                continue;
+            }
+            */
+
             //TH1D* h = (TH1D*)td->Get(key->GetName());
             TH1EFT* h = (TH1EFT*)td->Get(key->GetName());
             h->SetMarkerStyle(kFullCircle);
@@ -193,7 +208,6 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
 
             //Int_t nbins = h->GetNbinsX();
             //Double_t intg = h->Integral(0,nbins+1);
-
             //if (intg > 1.0) {
             //    h->Scale(1./intg);
             //}
@@ -212,6 +226,7 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
             bool is_new = !c;
             if (is_new) {
                 c = new TCanvas(canv_str,key->GetName(),1280,720);
+
                 canvs.push_back(c);
                 
                 bottom = std::max(top - scale_factor*(files.size()+1),minimum);
@@ -221,37 +236,42 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
                 leg = legs.at(c_idx);
             }
 
-            c->cd();
+            //c->cd();
+            // Log log scale for wgt hist
+            TPad* canv_pad = (TPad*)c->cd();
+            if (s == "h_SMwgt_norm") {
+                canv_pad->SetLogy(1);
+                canv_pad->SetLogx(1);
+            }
 
-            //WCPoint smpt("SMpt");
             if (s.Index("EFT") != -1) {
                 //std::cout << h->GetName() << std::endl;
                 for (Int_t bin_idx = 0; bin_idx <= h->GetNbinsX()+1; bin_idx++) {
-                    //double wcfit_bin_val = h->GetBinContent(bin_idx,smpt);
-                    //double wcfit_bin_val = h->GetBinFit(bin_idx).evalPoint(smpt);
-                    //double wcfit_bin_err = h->GetBinFit(bin_idx).evalPointError(smpt);
                     double wcfit_bin_val = h->GetBinFit(bin_idx).evalPoint(wc_pt);
                     double wcfit_bin_err = h->GetBinFit(bin_idx).evalPointError(wc_pt);
-                    //std::cout << wcfit_bin_val << std::endl;
-                    //std::cout << eventsum_SM << std::endl;
-                    //std::cout << std::endl;
                     h->SetBinContent(bin_idx,wcfit_bin_val);
                     h->SetBinError(bin_idx,wcfit_bin_err);
-                    //h->SetBinContent(bin_idx,wcfit_bin_val/eventsum_SM);
-                    //h->SetBinError(bin_idx,wcfit_bin_err/eventsum_SM);
-                    //h->SetBinError(bin_idx,sqrt(wcfit_bin_val));
                 }
-            //} else {
-                //h->Scale(1.0/eventsum_SM);
             }
-            h->Scale(1.0/eventsum_SM);
-            h->GetYaxis()->SetRangeUser(0.0,1.2*maxYvals_dict[string(s)]);
+            // SM norm
+            //h->Scale(1.0/eventsum_SM);
+            //h->GetYaxis()->SetRangeUser(0.0,1.2*maxYvals_dict[string(s)]);
+            if (s != "h_SMwgt_norm") {
+                h->Scale(1.0/eventsum_SM);
+                h->GetYaxis()->SetRangeUser(0.0,1.2*maxYvals_dict[string(s)]);
+            } else {
+                std::cout << "\nNot normalizing this histogram: " << s << "\n" << std::endl;
+                h->GetYaxis()->SetRangeUser(0.1,2*maxYvals_dict[string(s)]);
+            }
 
-            //Int_t nbins = h->GetNbinsX();
-            //Double_t intg = h->Integral(0,nbins+1);
-            //if (intg > 1.0) {
-            //   h->Scale(1./intg);
-            //}
+            /*
+            // Unit norm
+            Int_t nbins = h->GetNbinsX();
+            Double_t intg = h->Integral(0,nbins+1);
+            if (intg > 1.0) {
+               h->Scale(1./intg);
+            }
+            */
 
             if (is_new) {
                 h->Draw("E PLC PMC");
@@ -267,9 +287,10 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
     }
 
     for (auto c: canvs) {
-        c->cd();
 
+        c->cd();
         int idx = findCanvasIndex(c->GetTitle(),canvs);
+
         legs.at(idx)->Draw();
 
         //TString s = (TString)c->GetTitle() + "_" + output_fname + ".png";
