@@ -185,12 +185,13 @@ void EFTGenReader::beginJob()
     // misc. observables
     h_deltaREFT    = newfs->make<TH1EFT>("h_deltaREFT","h_deltaREFT",deltaR_bins,0,5);
     h_deltaRSM     = newfs->make<TH1D>("h_deltaRSM","h_deltaRSM",deltaR_bins,0,5);
-    h_e_deltaREFT  = newfs->make<TH1EFT>("h_e_deltaREFT","h_e_deltaREFT",deltaR_bins,0,5);
-    h_e_deltaRSM   = newfs->make<TH1D>("h_e_deltaRSM","h_e_deltaRSM",deltaR_bins,0,5);
-    h_mu_deltaREFT = newfs->make<TH1EFT>("h_mu_deltaREFT","h_mu_deltaREFT",deltaR_bins,0,5);
-    h_mu_deltaRSM  = newfs->make<TH1D>("h_mu_deltaRSM","h_mu_deltaRSM",deltaR_bins,0,5);
-    h_tau_deltaREFT = newfs->make<TH1EFT>("h_tau_deltaREFT","h_tau_deltaREFT",deltaR_bins,0,5);
-    h_tau_deltaRSM  = newfs->make<TH1D>("h_tau_deltaRSM","h_tau_deltaRSM",deltaR_bins,0,5);
+    // NOTE: Should re write how these dR hists are filled to only fill with min dR; till then, leave commented
+    //h_e_deltaREFT  = newfs->make<TH1EFT>("h_e_deltaREFT","h_e_deltaREFT",deltaR_bins,0,5);
+    //h_e_deltaRSM   = newfs->make<TH1D>("h_e_deltaRSM","h_e_deltaRSM",deltaR_bins,0,5);
+    //h_mu_deltaREFT = newfs->make<TH1EFT>("h_mu_deltaREFT","h_mu_deltaREFT",deltaR_bins,0,5);
+    //h_mu_deltaRSM  = newfs->make<TH1D>("h_mu_deltaRSM","h_mu_deltaRSM",deltaR_bins,0,5);
+    //h_tau_deltaREFT = newfs->make<TH1EFT>("h_tau_deltaREFT","h_tau_deltaREFT",deltaR_bins,0,5);
+    //h_tau_deltaRSM  = newfs->make<TH1D>("h_tau_deltaRSM","h_tau_deltaRSM",deltaR_bins,0,5);
     
     h_prompt_leptonsEFT   = newfs->make<TH1EFT>("h_prompt_leptonsEFT","h_prompt_leptonsEFT",30,0,11);
     h_prompt_leptonsSM    = newfs->make<TH1D>("h_prompt_leptonsSM","h_prompt_leptonsSM",30,0,11);
@@ -202,7 +203,9 @@ void EFTGenReader::beginJob()
     h_prompt_tausSM       = newfs->make<TH1D>("h_prompt_tausSM","h_prompt_tausSM",30,0,11);
 
     // Don't normalize these plots
-    h_SMwgt_norm = newfs->make<TH1D>("h_SMwgt_norm","h_SMwgt_norm",350,-0.1,2.0);
+    //h_SMwgt_norm = newfs->make<TH1D>("h_SMwgt_norm","h_SMwgt_norm",350,-0.1,2.0);
+    h_SMwgt_norm = newfs->make<TH1D>("h_SMwgt_norm","h_SMwgt_norm",350,-8,1); // Log x scale
+    binLogX(h_SMwgt_norm);
 
     summaryTree = newfs->make<TTree>("summaryTree","Summary Event Values");
     tree_add_branches();
@@ -290,10 +293,12 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
     total_sm_xsec += sm_wgt;
     total_orig_xsec += originalXWGTUP_intree;
 
-    //h_SMwgt_norm->Fill(norm_sm_wgt);
     h_SMwgt_norm->Fill(sm_wgt);
 
     h_prompt_leptonsEFT->Fill(gen_leptons.size(),1.0,eft_fit);   h_prompt_leptonsSM->Fill(gen_leptons.size(),sm_wgt);
+
+
+    double min_dR = -1;
 
     int n_prompt_electrons = 0;
     int n_prompt_muons = 0;
@@ -327,7 +332,8 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
             h_pdgIdMuonMotherEFT->Fill(mom_id,1.0,eft_fit);        h_pdgIdMuonMotherSM->Fill(mom_id,sm_wgt);
             h_mu_ptEFT->Fill(pt,1.0,eft_fit);                      h_mu_ptSM->Fill(pt,sm_wgt);
             h_mu_etaEFT->Fill(eta,1.0,eft_fit);                    h_mu_etaSM->Fill(eta,sm_wgt);
-        } else if (abs(id) == 13) { // tau
+        //} else if (abs(id) == 13) { // tau
+        } else if (abs(id) == 15) { // tau
             n_prompt_taus += 1;
             h_pdgIdTauGrMotherEFT->Fill(gmom_id,1.0,eft_fit);      h_pdgIdTauGrMotherSM->Fill(gmom_id,sm_wgt);
             h_pdgIdTauMotherEFT->Fill(mom_id,1.0,eft_fit);         h_pdgIdTauMotherSM->Fill(mom_id,sm_wgt);
@@ -398,24 +404,29 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
             int id1 = p1.pdgId();
             int id2 = p2.pdgId();
 
+            if (min_dR < 0 or std::min(dR,min_dR) == dR){ // Add in this to fix the dR plots!!!
+                min_dR = dR;
+            }
+
             h_mllEFT->Fill(mll,1.0,eft_fit);              h_mllSM->Fill(mll,sm_wgt);
-            h_deltaREFT->Fill(dR,1.0,eft_fit);            h_deltaRSM->Fill(dR,sm_wgt);
+            //h_deltaREFT->Fill(dR,1.0,eft_fit);            h_deltaRSM->Fill(dR,sm_wgt);
             h_lepSum_ptEFT->Fill(sum_pt,1.0,eft_fit);     h_lepSum_ptSM->Fill(sum_pt,sm_wgt);
             if (abs(id1) == 11 and abs(id2) == 11){ // both are electrons
                 h_meeEFT->Fill(mll,1.0,eft_fit);          h_meeSM->Fill(mll,sm_wgt);
-                h_e_deltaREFT->Fill(dR,1.0,eft_fit);      h_e_deltaRSM->Fill(dR,sm_wgt);
+                //h_e_deltaREFT->Fill(dR,1.0,eft_fit);      h_e_deltaRSM->Fill(dR,sm_wgt);
                 h_eSum_ptEFT->Fill(sum_pt,1.0,eft_fit);   h_eSum_ptSM->Fill(sum_pt,sm_wgt);
             } else if (abs(id1) == 13 and abs(id2) == 13){ // both are muons
                 h_mmumuEFT->Fill(mll,1.0,eft_fit);        h_mmumuSM->Fill(mll,sm_wgt);
-                h_mu_deltaREFT->Fill(dR,1.0,eft_fit);     h_mu_deltaRSM->Fill(dR,sm_wgt);
+                //h_mu_deltaREFT->Fill(dR,1.0,eft_fit);     h_mu_deltaRSM->Fill(dR,sm_wgt);
                 h_muSum_ptEFT->Fill(sum_pt,1.0,eft_fit);  h_muSum_ptSM->Fill(sum_pt,sm_wgt);
-            } else if (abs(id1) == 15 and abs(id2) == 15){ // both are taus )
+            } else if (abs(id1) == 15 and abs(id2) == 15){ // both are taus
                 h_mtautauEFT->Fill(mll,1.0,eft_fit);      h_mtautauSM->Fill(mll,sm_wgt);
-                h_tau_deltaREFT->Fill(dR,1.0,eft_fit);    h_tau_deltaRSM->Fill(dR,sm_wgt);
+                //h_tau_deltaREFT->Fill(dR,1.0,eft_fit);    h_tau_deltaRSM->Fill(dR,sm_wgt);
                 h_tauSum_ptEFT->Fill(sum_pt,1.0,eft_fit); h_tauSum_ptSM->Fill(sum_pt,sm_wgt);
             }
         }
     }
+    h_deltaREFT->Fill(min_dR,1.0,eft_fit); h_deltaRSM->Fill(min_dR,sm_wgt);
 
     h_prompt_electronsEFT->Fill(n_prompt_electrons,1.0,eft_fit); h_prompt_electronsSM->Fill(n_prompt_electrons,sm_wgt);
     h_prompt_muonsEFT->Fill(n_prompt_muons,1.0,eft_fit);         h_prompt_muonsSM->Fill(n_prompt_muons,sm_wgt);
@@ -458,7 +469,6 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
     lumiBlock_intree = event.id().luminosityBlock();
     runNumber_intree = event.id().run();
 
-    //summaryTree->Fill();
 }
 
 void EFTGenReader::beginRun(edm::Run const& run, edm::EventSetup const& evsetup)

@@ -66,6 +66,7 @@
 #include "EFTGenReader/EFTHelperUtilities/interface/WCPoint.h"
 #include "EFTGenReader/EFTHelperUtilities/interface/WCFit.h"
 #include "EFTGenReader/EFTHelperUtilities/interface/TH1EFT.h"
+#include "EFTGenReader/EFTHelperUtilities/interface/utilities.h"
 
 // end includes
 // -----------------------------------------------
@@ -165,7 +166,7 @@ class EFTGenReader: public edm::EDAnalyzer
         TH1EFT* h_e1_ptEFT;            TH1D* h_e1_ptSM;
         TH1EFT* h_e2_ptEFT;            TH1D* h_e2_ptSM;
         TH1EFT* h_meeEFT;              TH1D* h_meeSM;
-        TH1EFT* h_e_deltaREFT;         TH1D* h_e_deltaRSM;
+        //TH1EFT* h_e_deltaREFT;         TH1D* h_e_deltaRSM;
         TH1EFT* h_eSum_ptEFT;          TH1D* h_eSum_ptSM;
 
         // Lepton Histograms: muons
@@ -175,7 +176,7 @@ class EFTGenReader: public edm::EDAnalyzer
         TH1EFT* h_mu1_ptEFT;           TH1D* h_mu1_ptSM;
         TH1EFT* h_mu2_ptEFT;           TH1D* h_mu2_ptSM;
         TH1EFT* h_mmumuEFT;            TH1D* h_mmumuSM;
-        TH1EFT* h_mu_deltaREFT;        TH1D* h_mu_deltaRSM;
+        //TH1EFT* h_mu_deltaREFT;        TH1D* h_mu_deltaRSM;
         TH1EFT* h_muSum_ptEFT;         TH1D* h_muSum_ptSM;
 
         // Lepton Histograms: Taus
@@ -185,7 +186,7 @@ class EFTGenReader: public edm::EDAnalyzer
         TH1EFT* h_tau1_ptEFT;          TH1D* h_tau1_ptSM;
         TH1EFT* h_tau2_ptEFT;          TH1D* h_tau2_ptSM;
         TH1EFT* h_mtautauEFT;          TH1D* h_mtautauSM;
-        TH1EFT* h_tau_deltaREFT;       TH1D* h_tau_deltaRSM;
+        //TH1EFT* h_tau_deltaREFT;       TH1D* h_tau_deltaRSM;
         TH1EFT* h_tauSum_ptEFT;        TH1D* h_tauSum_ptSM;
 
         // Jet Histograms
