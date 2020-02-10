@@ -979,6 +979,16 @@
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelBaseline/v1/mAOD_step_ttH_HanModelNoDim6_run0", 
     "on_das": false
   }, 
+  "ttH_HanV4ModelNoJets": {
+    "central_xsec": 0, 
+    "dataset": "", 
+    "datatier": "GEN", 
+    "description": "", 
+    "files_per_task": 5, 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/ttX-ttXJet-HanV4Model-0Jetvs1JetTests/v1/gen_step_ttH_HanV4ModelNoJets16DttllScanpoints_run1", 
+    "on_das": false
+  }, 
   "ttH_SM": {
     "central_xsec": 0.5638, 
     "dataset": "", 
@@ -1247,6 +1257,16 @@
     "files_per_task": 1, 
     "is_eft": false, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelBaseline/v1/mAOD_step_ttllNuNuNoHiggs_HanModelNoDim6_run0", 
+    "on_das": false
+  }, 
+  "ttllNuNuNoHiggs_HanV4ModelNoJets": {
+    "central_xsec": 0, 
+    "dataset": "", 
+    "datatier": "GEN", 
+    "description": "", 
+    "files_per_task": 5, 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/ttX-ttXJet-HanV4Model-0Jetvs1JetTests/v1/gen_step_ttllNuNuNoHiggs_HanV4ModelNoJets16DttllScanpoints_run1", 
     "on_das": false
   }, 
   "ttll_FP_R4B9": {
@@ -1537,6 +1557,16 @@
     "files_per_task": 1, 
     "is_eft": false, 
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelBaseline/v1/mAOD_step_ttlnu_HanModelNoDim6_run0", 
+    "on_das": false
+  }, 
+  "ttlnu_HanV4ModelNoJets": {
+    "central_xsec": 0, 
+    "dataset": "", 
+    "datatier": "GEN", 
+    "description": "", 
+    "files_per_task": 5, 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/ttX-ttXJet-HanV4Model-0Jetvs1JetTests/v1/gen_step_ttlnu_HanV4ModelNoJets16DttllScanpoints_run1", 
     "on_das": false
   }, 
   "ttlnu_NoPDFWeights": {
