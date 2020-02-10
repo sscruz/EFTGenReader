@@ -104,8 +104,10 @@ void EFTGenReader::beginJob()
     h_mtautauSM = newfs->make<TH1D>("h_mtautauSM","h_mtautauSM",invmass_bins,0,300);
 
     // Jet histograms
-    h_nJetsEFT = newfs->make<TH1EFT>("h_njetsEFT","h_njetsEFT",16,0,15);
-    h_nJetsSM = newfs->make<TH1D>("h_njetsSM","h_njetsSM",16,0,15);
+    //h_nJetsEFT = newfs->make<TH1EFT>("h_njetsEFT","h_njetsEFT",16,0,15);
+    //h_nJetsSM = newfs->make<TH1D>("h_njetsSM","h_njetsSM",16,0,15);
+    h_nJetsEFT = newfs->make<TH1EFT>("h_njetsEFT","h_njetsEFT",njet_bins,0,njet_bins);
+    h_nJetsSM = newfs->make<TH1D>("h_njetsSM","h_njetsSM",njet_bins,0,njet_bins);
 
     h_jet_ptEFT = newfs->make<TH1EFT>("h_jet_ptEFT","h_jet_ptEFT",pt_bins,0,300);
     h_jet_ptSM = newfs->make<TH1D>("h_jet_ptSM","h_jet_ptSM",pt_bins,0,300);
