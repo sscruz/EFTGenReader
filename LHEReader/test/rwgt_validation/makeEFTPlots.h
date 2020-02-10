@@ -57,7 +57,8 @@ class PlotOptions
 {
 private:
     const int kNColors = 8;
-    const int clr_map[8] = {12,46,9,30,41,4,6,8};
+    //const int clr_map[8] = {12,46,9,30,41,4,6,8};
+    const int clr_map[8] = {46,12,9,30,41,4,6,8};
     int clr_idx = 0;
 public:
     PlotOptions(){};
@@ -125,6 +126,53 @@ void printProgress(int current_index, int total_entries, int interval=20) {
         float fraction = 100.*current_index/total_entries;
         std::cout << int(fraction) << " % processed " << std::endl;
     }
+}
+
+// Returns a histogram that is the ratio of h1/h2
+template<typename T>
+TH1D* makeRatioHistogram(TString name,T* h1,T* h2) {
+    if (h1->GetXaxis()->GetNbins() != h2->GetXaxis()->GetNbins()) {
+        std::cout << "[Error] makeRatioHistogram() - bin mismatch between ratio of hists" << std::endl;
+        throw;
+    }
+    TAxis* xaxis = h1->GetXaxis();
+    int bins = xaxis->GetNbins();
+    Double_t low = xaxis->GetXmin();
+    Double_t high = xaxis->GetXmax();
+
+    TAxis* yaxis = h1->GetYaxis();
+    Double_t yaxis_sz = yaxis->GetLabelSize();
+
+    // std::cout << "Ratio Name: " << name << std::endl;
+    TH1D* h_ratio = new TH1D(name,"",bins,low,high);    // Make sure the title is empty!
+    h_ratio->GetYaxis()->SetLabelSize(yaxis_sz*1.5);
+    h_ratio->GetXaxis()->SetLabelSize(yaxis_sz*2.5);    // Note: If this is done after alphanumeric, it does nothing
+    for (int i = 1; i <= bins; i++) {
+        if (xaxis->IsAlphanumeric()) {
+            TString bin_label = xaxis->GetBinLabel(i);
+            h_ratio->GetXaxis()->SetBinLabel(i,bin_label);
+        }
+        double val1 = h1->GetBinContent(i);
+        double err1 = h1->GetBinError(i);
+
+        double val2 = h2->GetBinContent(i);
+        double err2 = h2->GetBinError(i);
+
+        double ratio;
+        double ratio_err;
+        if (val2 != 0) {
+            ratio = abs(val1 / val2);
+        } else if (val1 == 0 && val2 == 0) {
+            ratio = 1.0;
+        } else {
+            ratio = -1;
+        }
+        ratio_err = 0.0;    // Ignore the error for now
+        h_ratio->SetBinContent(i,ratio);
+        h_ratio->SetBinError(i,ratio_err);
+    }
+    //h_ratio->GetYaxis()->SetRangeUser(0.0,2.3);
+    return h_ratio;
 }
 
 // Returns a vector of file names inside of the specified directory
@@ -321,6 +369,12 @@ void make_1d_xsec_plot(
     std::vector<WCFit> wc_fits,
     std::vector<WCPoint> ref_pts = {}   // orig_pts
 ) {
+
+
+    bool include_legend = true;
+    bool include_title = true;
+    bool include_ratio = true;
+
     //plt_ops.x_name = "NP Strength";
     // Name the x axis
     TString x_axis_title = wc_name;
@@ -345,8 +399,6 @@ void make_1d_xsec_plot(
     double fitpts_marker_size  = 0.7;
     double origpts_marker_size = 2.0;//2.0;//3.0;
 
-    bool include_legend = true;
-    //bool include_legend = false;
     bool include_fitpts = true;
 
     if (include_legend) {
@@ -449,21 +501,76 @@ void make_1d_xsec_plot(
     //plt_ops.y_max = 1.2;
 
     TCanvas *c1 = new TCanvas("c1","",1280,720);
-    c1->ToggleEventStatus();
-    c1->cd();
-    c1->SetGrid(1,1);
+    //c1->ToggleEventStatus();
+    //c1->cd();
+    //c1->SetGrid(1,1);
+
+    //Float_t small = .04;
+    Float_t small = .08;
+    const float padding = 1e-5;
+    if (include_ratio) {
+        const float ydiv = 0.3;
+        c1->Divide(1,2,small,small);
+        c1->GetPad(1)->SetPad(padding,ydiv+padding,1-padding,1-padding);
+        c1->GetPad(1)->SetLeftMargin(.05);
+        c1->GetPad(1)->SetRightMargin(.05);
+        c1->GetPad(1)->SetBottomMargin(.3);
+        c1->GetPad(1)->SetGrid(1,1);
+        c1->GetPad(1)->Modified();
+        
+        c1->GetPad(2)->SetLeftMargin(.05);
+        c1->GetPad(2)->SetRightMargin(.05);
+        c1->GetPad(2)->SetBottomMargin(.3);
+        c1->GetPad(2)->SetPad(padding,padding,1-padding,ydiv-padding);
+        c1->GetPad(2)->SetGrid(1,1);
+        c1->GetPad(2)->Modified();
+
+        c1->cd(2);
+        gPad->SetTopMargin(small);
+        gPad->SetTickx();
+        gPad->Modified();
+        c1->cd(1);
+        gPad->SetBottomMargin(small);
+        gPad->Modified();
+    } else {
+        c1->ToggleEventStatus();
+        c1->cd();
+        c1->SetGrid(1,1);
+    }
+
+
 
     double left,right,top,bottom,scale_factor,minimum;
-    left         = 0.81;
-    right        = 0.98;
-    top          = 0.9;
-    scale_factor = 0.05;
-    minimum      = 0.1;
-    bottom = std::max(top - scale_factor*(wc_fits.size()+1),minimum);
-    TLegend *legend = new TLegend(left,top,right,bottom);
+    //left         = 0.81;
+    //right        = 0.98;
+    //top          = 0.9;
+    //scale_factor = 0.05;
+    //minimum      = 0.1;
+    //bottom = std::max(top - scale_factor*(wc_fits.size()+1),minimum);
+    //TLegend *legend = new TLegend(left,top,right,bottom);
+
+    TLegend *legend;
+    if (include_ratio) {
+        left   = 0.37; 
+        right  = 0.63;
+        top    = 0.88;
+        bottom = 0.8;
+        legend = new TLegend(left,top,right,bottom);
+        legend->SetNColumns(wc_fits.size());
+        legend->SetBorderSize(0);
+    } else {
+        left         = 0.81;
+        right        = 0.98;
+        top          = 0.9;
+        scale_factor = 0.05;
+        minimum      = 0.1;
+        bottom = std::max(top - scale_factor*(wc_fits.size()+1),minimum);
+        legend = new TLegend(left,top,right,bottom);
+    }
 
     bool include_orig_pts = (wc_fits.size() == ref_pts.size());
 
+    std::vector<TH1D*> hist_vect;
     for (uint i = 0; i < wc_fits.size(); i++) {
         WCFit wc_fit = wc_fits.at(i);
         double s0 = wc_fit.getCoefficient(wc_fit.kSMstr,wc_fit.kSMstr);
@@ -479,7 +586,16 @@ void make_1d_xsec_plot(
         fit->SetMaximum(plt_ops.y_max);
         fit->GetXaxis()->SetTitle(x_axis_name);
         fit->GetYaxis()->SetTitle(y_axis_name);
-        fit->SetTitle(plot_name);
+        if (include_title){
+            fit->SetTitle(plot_name);
+        } else {
+            fit->SetTitle(""); // no title
+        }
+        if (include_ratio){
+            fit->GetYaxis()->SetTitleOffset(.6);
+            fit->GetXaxis()->SetTitleOffset(.9);
+            fit->SetMinimum(0.4); // hard code min, probably not good for all situations
+        }
 
 
         // Error bands: 
@@ -494,17 +610,23 @@ void make_1d_xsec_plot(
         float x_range = x_max - x_min;
         float step_size = x_range/(npts-1);
 
+        TH1D* hist = new TH1D("hist","",npts,x_min,x_max); // Hist for getting ratio plot
+
         WCPoint wc_pt;
         float x_coord;
         for (int idx = 0; idx < npts; idx++){
-            x_coord = x_min + idx*step_size;
+            //x_coord = x_min + idx*step_size;
+            x_coord = hist->GetBinCenter(idx+1);
             wc_pt.setStrength(wc_name,x_coord);
             x_vals[idx] = x_coord;
             y_vals[idx] = wc_fit.evalPoint(&wc_pt);
             xerr_vals[idx] = 0;
             yerr_vals[idx] = wc_fit.evalPointError(&wc_pt);
+
+            hist->SetBinContent(idx+1,y_vals[idx]);
         }
 
+        hist_vect.push_back(hist);
         TGraphErrors *err_graph = new TGraphErrors(npts, x_vals, y_vals, xerr_vals, yerr_vals);
 
         //fit->SetLineStyle(9);
@@ -515,9 +637,11 @@ void make_1d_xsec_plot(
 
         if (i == 0) {
             fit->Draw();
+            //hist->Draw("SAME");
             legend->AddEntry(fit,leg_str,"l");
         } else {
             fit->Draw("LSAME");
+            //hist->Draw("SAME");
             legend->AddEntry(fit,leg_str,"l");
         }
 
@@ -574,6 +698,26 @@ void make_1d_xsec_plot(
         */
     }
 
+    // Calculate the ratio hists
+    if (include_ratio){
+        c1->cd(2);
+        TH1D* ratio_hist;
+        for (int i=0; i<hist_vect.size(); i++){
+            ratio_hist = makeRatioHistogram("rhist",hist_vect.at(i),hist_vect.at(1)); // Need to choose which hist to divide w.r.t.
+            ratio_hist->GetYaxis()->SetNdivisions(010,true);
+            ratio_hist->GetYaxis()->SetTitle("(0+1p)/0p"); // For the 0p vs 0+1p comp
+            ratio_hist->GetYaxis()->SetTitleOffset(0.2);
+            ratio_hist->GetYaxis()->SetTitleSize(0.09);
+            ratio_hist->GetXaxis()->SetTitleFont(12);
+            ratio_hist->SetLineWidth(2);
+            ratio_hist->SetLineColor(plt_ops.getColor(i));
+            ratio_hist->SetMaximum(2);
+            ratio_hist->SetMinimum(0);
+            ratio_hist->Draw("SAME C");
+        }
+    }
+    
+
     // Draw MadGraph reference points (if they happen to land on this particular 1-D axis scan)
     for (uint i = 0; i < ref_pts.size(); i++) {
         WCPoint ref_pt = ref_pts.at(i);
@@ -605,7 +749,12 @@ void make_1d_xsec_plot(
     legend->SetFillColor(0);
 
     if (include_legend) {
-        legend->Draw();
+        if (include_ratio){
+            c1->cd(1);
+            legend->Draw();
+        } else {
+            legend->Draw();
+        }
     }
 
     double txt_x = 0.9;
@@ -935,6 +1084,7 @@ void multi_proc_1d_xsec_plot(
     save_name = output_dir + "/" + fname + "." + file_type;
     c1->Print(save_name,file_type);
 }
+
 
 #endif
 /* MAKEEFTPLOTS */
