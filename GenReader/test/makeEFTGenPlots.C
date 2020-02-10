@@ -50,12 +50,66 @@ int findCanvasIndex(TString search,std::vector<TCanvas*> canvs) {
     return -1;
 }
 
+// Returns a histogram that is the ratio of h1/h2
+template<typename T>
+TH1D* makeRatioHistogram(TString name,T* h1,T* h2) {
+    if (h1->GetXaxis()->GetNbins() != h2->GetXaxis()->GetNbins()) {
+        std::cout << "[Error] makeRatioHistogram() - bin mismatch between ratio of hists" << std::endl;
+        throw;
+    }
+    TAxis* xaxis = h1->GetXaxis();
+    int bins = xaxis->GetNbins();
+    Double_t low = xaxis->GetXmin();
+    Double_t high = xaxis->GetXmax();
+
+    TAxis* yaxis = h1->GetYaxis();
+    Double_t yaxis_sz = yaxis->GetLabelSize();
+
+    // std::cout << "Ratio Name: " << name << std::endl;
+    TH1D* h_ratio = new TH1D(name,"",bins,low,high);    // Make sure the title is empty!
+    h_ratio->GetYaxis()->SetLabelSize(yaxis_sz*1.5);
+    h_ratio->GetXaxis()->SetLabelSize(yaxis_sz*2.5);    // Note: If this is done after alphanumeric, it does nothing
+    for (int i = 1; i <= bins; i++) {
+        if (xaxis->IsAlphanumeric()) {
+            TString bin_label = xaxis->GetBinLabel(i);
+            h_ratio->GetXaxis()->SetBinLabel(i,bin_label);
+        }
+        double val1 = h1->GetBinContent(i);
+        double err1 = h1->GetBinError(i);
+
+        double val2 = h2->GetBinContent(i);
+        double err2 = h2->GetBinError(i);
+
+        double ratio;
+        double ratio_err;
+        if (val2 != 0) {
+            ratio = abs(val1 / val2);
+        } else if (val1 == 0 && val2 == 0) {
+            ratio = 1.0;
+        } else {
+            ratio = -1;
+        }
+        ratio_err = 0.0;    // Ignore the error for now
+        h_ratio->SetBinContent(i,ratio);
+        h_ratio->SetBinError(i,ratio_err);
+    }
+    //h_ratio->GetYaxis()->SetRangeUser(0.0,2.3);
+    return h_ratio;
+}
+
+
 //void makeEFTGenPlots(TString output_fname,std::vector<TString> input_fnames) {
 void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
+
+    bool only_njets = false;
+    bool only_SM = false;
+    bool include_ratio = true;
+
     std::vector<TFile*> files;
 
     TH1::SetDefaultSumw2();
 
+    /*
     //const Int_t kCLRS = 9;
     const Int_t kCLRS = 5;
     Int_t palette[kCLRS];
@@ -78,16 +132,25 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
         palette[3] = kGreen;
         palette[4] = kRed;
     }
+    */
 
+    std::vector<int> clrs {kBlack,kBlue,kRed,kGreen};
     // TLegend parameters
     double left,right,top,bottom,scale_factor,minimum;
-    left         = 0.81;
-    right        = 0.98;
-    top          = 0.9;
-    scale_factor = 0.05;
+    if (include_ratio) {
+        left         = 0.75;
+        right        = 0.95;
+        scale_factor = 0.08;
+        top          = 0.89;
+    } else {
+        left         = 0.81;
+        right        = 0.98;
+        scale_factor = 0.05;
+        top          = 0.9;
+    }
     minimum      = 0.1;
 
-    gStyle->SetPalette(kCLRS,palette);
+    //gStyle->SetPalette(kCLRS,palette);
     //if (input_fnames.size() <= 3) {
     //    gStyle->SetPalette(kCLRS2,pal2);
     //}
@@ -160,6 +223,10 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
         f1->Close();
     }
 
+
+    std::map<std::string,std::vector<TH1D*>> hist_dict;
+    int clr_idx = 0;
+
     for (auto f: files) {
         f->Print();
 
@@ -173,13 +240,25 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
         if (idx != TString::kNPOS) {
             sub_str = fname(idx+1,fname.Length());
         }
-        TString marker = "output_";
+
+
+        //TString marker = "output_";
+        TString marker = "HanV4Model";
         //TString marker = "0p_";
         idx_begin = sub_str.Index(marker)+marker.Length();
         //idx_end = sub_str.Index("fromMAOD.root");
         idx_end = sub_str.Index(".root");
         sub_str = sub_str(idx_begin,idx_end-idx_begin);
         //cout << " this is the sub str now !!!!!!!!!! " << sub_str << std::endl;
+
+        // Hard code for  making no jets vs jets plots!
+        if (sub_str.Index("NoJets") != -1){
+            std::cout << "th no jets sub str! " << sub_str << std::endl;
+            sub_str = "ttW 0 partons";
+        } else {
+            std::cout << "th plus jets sub str! " << sub_str << std::endl;
+            sub_str = "ttW 0+1 partons";
+        }
 
         TDirectory* td = f->GetDirectory("EFTGenReader");
 
@@ -193,18 +272,26 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
             TString s = key->GetName();
             if (s == cmp) continue;
 
-            /*
-            // FOR NOT PLOTTING EFT PLOTS
-            if (s.Index("EFT") != -1) {
-                continue;
+            if(only_SM) { // For not plotting EFT plots
+                if (s.Index("EFT") != -1) {
+                    continue;
+                }
             }
-            */
+            if(only_njets){ // For only plotting njets plots
+                if (s.Index("njets") == -1) {
+                    continue;
+                }
+            }
 
             //TH1D* h = (TH1D*)td->Get(key->GetName());
             TH1EFT* h = (TH1EFT*)td->Get(key->GetName());
             h->SetMarkerStyle(kFullCircle);
             h->SetMarkerSize(0.25);
             h->SetOption("E");
+            h->SetMarkerColor(clrs.at(clr_idx));
+            if (only_njets){
+                h->SetTitle("");
+            }
 
             //Int_t nbins = h->GetNbinsX();
             //Double_t intg = h->Integral(0,nbins+1);
@@ -222,13 +309,41 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
             int c_idx = findCanvasIndex(key->GetName(),canvs);
 
             TString canv_str = (TString)f->GetName() + "-" + (TString)key->GetName();
+            std::cout << "\nthe canvas info!!! " << canv_str << "\n" << std::endl;
 
             bool is_new = !c;
             if (is_new) {
+                std::cout << "is new !!!!" << std::endl;
                 c = new TCanvas(canv_str,key->GetName(),1280,720);
 
+                if (include_ratio) {
+                    Float_t small = .04;
+                    const float padding = 1e-5;
+                    const float ydiv = 0.3;
+                    c->Divide(1,2,small,small);
+                    c->GetPad(1)->SetPad(padding,ydiv+padding,1-padding,1-padding);
+                    c->GetPad(1)->SetLeftMargin(.05);
+                    c->GetPad(1)->SetRightMargin(.05);
+                    c->GetPad(1)->SetBottomMargin(.3);
+                    c->GetPad(1)->Modified();
+
+                    c->GetPad(2)->SetLeftMargin(.05);
+                    c->GetPad(2)->SetRightMargin(.05);
+                    c->GetPad(2)->SetBottomMargin(.3);
+                    c->GetPad(2)->SetPad(padding,padding,1-padding,ydiv-padding);
+                    c->GetPad(2)->Modified();
+
+                    c->cd(1);
+                    gPad->SetBottomMargin(small);
+                    gPad->Modified();
+
+                    c->cd(2);
+                    gPad->SetTopMargin(small);
+                    gPad->SetTickx();
+                    gPad->Modified();
+                }
+
                 canvs.push_back(c);
-                
                 bottom = std::max(top - scale_factor*(files.size()+1),minimum);
                 leg = new TLegend(left,top,right,bottom);
                 legs.push_back(leg);
@@ -236,9 +351,13 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
                 leg = legs.at(c_idx);
             }
 
-            //c->cd();
             // Log log scale for wgt hist
-            TPad* canv_pad = (TPad*)c->cd();
+            TPad* canv_pad;
+            if (include_ratio) {
+                canv_pad = (TPad*)c->cd(1);
+            } else {
+                canv_pad = (TPad*)c->cd();
+            }
             if (s == "h_SMwgt_norm") {
                 canv_pad->SetLogy(1);
                 canv_pad->SetLogx(1);
@@ -274,24 +393,105 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
             */
 
             if (is_new) {
-                h->Draw("E PLC PMC");
+                //h->Draw("E PLC PMC");
+                h->Draw("E");
             } else {
-                h->Draw("E SAME PLC PMC");
+                //h->Draw("E SAME PLC PMC");
+                h->Draw("E SAME");
             }
+            //std::cout << "clr_idx: " << clr_idx << " clrs.at(clr_idx) " << clrs.at(clr_idx) << std::endl;
+            h->SetLineColor(clrs.at(clr_idx));
             leg->AddEntry(h,sub_str,"l");
+            if (include_ratio) {
+                leg->SetBorderSize(0);
+            }
             c->Update();
-
+            hist_dict[string(s)].push_back(h);
         }
-
+        clr_idx = clr_idx + 1;
         filecounter++;
     }
+
+    // Get ratio hists and put them in a dictionary (format of hist_dict: {"hist name": [h1,h2]})
+    TH1D* ratio_hist;
+    std::map<std::string,std::vector<TH1D*>> ratio_hist_dict;
+    std::cout << "\n the length !!! " << hist_dict.size() << "\n" << std::endl;
+    for (auto it = hist_dict.begin(); it != hist_dict.end(); it++ ){
+        std::cout << " it->first " << it->first << std:: endl;
+        std::cout << "hist_dict[it->first].size()" << hist_dict[it->first].size() << std::endl;
+        for(int i=0; i<hist_dict[it->first].size(); i++){
+            ratio_hist = makeRatioHistogram(it->first,hist_dict[it->first].at(i), hist_dict[it->first].at(0));
+            ratio_hist_dict[string(it->first)].push_back(ratio_hist);
+            // Print the hists
+            for(int k=0; k<=hist_dict[it->first].at(i)->GetNbinsX(); k++){
+                std::cout << "hist " << i << " bin " << k << ": " << hist_dict[it->first].at(i)->GetBinContent(k) << std::endl;
+            }
+            for(int k=0; k<=ratio_hist->GetNbinsX(); k++){
+                std::cout << "h" << i << "/h0 bin " << k << ": " << ratio_hist->GetBinContent(k) << std::endl;
+            }
+        }
+    }
+
 
     for (auto c: canvs) {
 
         c->cd();
         int idx = findCanvasIndex(c->GetTitle(),canvs);
-
+        c->cd(1);
         legs.at(idx)->Draw();
+
+        // Draw the ratio hists
+        if (include_ratio) {
+            c->cd(2);
+            // Check the max and min ratio values to scale the y axis
+            double max_ratio = 0;
+            double min_ratio = 1;
+            double ratio_high = 0;
+            double ratio_low = 0;
+            for (int i=0; i<ratio_hist_dict[c->GetTitle()].size(); i++){
+                ratio_high = ratio_hist_dict[c->GetTitle()].at(i)->GetBinContent(ratio_hist_dict[c->GetTitle()].at(i)->GetMaximumBin());
+                ratio_low  = ratio_hist_dict[c->GetTitle()].at(i)->GetBinContent(ratio_hist_dict[c->GetTitle()].at(i)->GetMinimumBin());
+                if (ratio_high > max_ratio){
+                    max_ratio = ratio_high;
+                } 
+                if (ratio_low < min_ratio){
+                    min_ratio = ratio_low;
+                }
+            }
+            std::cout << "max for " << c->GetTitle() << " " << max_ratio << std::endl;
+            std::cout << "min for " << c->GetTitle() << " " << min_ratio << std::endl;
+
+            // Plot the hists
+            clr_idx = 0;
+            for (int i=0; i<ratio_hist_dict[c->GetTitle()].size(); i++){
+                TH1D* r_hist = ratio_hist_dict[c->GetTitle()].at(i);
+                r_hist->GetYaxis()->SetNdivisions(305,true);
+                if (i==0){
+                    r_hist->Draw("e2");
+                    //r_hist->SetMaximum(1.2*max_ratio);
+                    //r_hist->SetMinimum(0.4*min_ratio);
+                    // Hard code max,min: 0p vs 1p ttH_ctW2: 3,0; qCut comp ttH_ctG2: 1.75,.25
+                    r_hist->SetMaximum(4); // Hard code max
+                    r_hist->SetMinimum(0);  // Hard code min
+                    if (only_njets) {
+                        r_hist->GetXaxis()->SetTitle("N jets");
+                    }
+                    r_hist->GetXaxis()->CenterTitle();
+                    r_hist->GetXaxis()->SetTitleOffset(1.0);
+                    r_hist->GetXaxis()->SetTitleSize(0.14);
+                    r_hist->GetXaxis()->SetTitleFont(12);
+                } else {
+                    r_hist->Draw("e2 same");
+                }
+                std::cout << "color idx " << clr_idx << std::endl;
+                r_hist->SetLineColor(clrs.at(clr_idx));
+                clr_idx = clr_idx + 1;
+            }
+            c->GetPad(1)->RedrawAxis();
+            c->GetPad(2)->RedrawAxis();
+            c->Update();
+        }
+
 
         //TString s = (TString)c->GetTitle() + "_" + output_fname + ".png";
         // No need to uniquely name the images, since they will be placed in a dedicated directory
@@ -314,3 +514,4 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
         f->Close();
     }
 }
+
