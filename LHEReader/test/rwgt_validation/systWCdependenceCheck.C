@@ -1,0 +1,311 @@
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <string>
+#include <vector>
+#include <unordered_map>
+#include <set>
+
+#include <math.h>
+
+#include "TString.h"
+#include "TSystemDirectory.h"
+#include "TSystemFile.h"
+#include "TFile.h"
+#include "TList.h"
+#include "TChain.h"
+#include "TStyle.h"
+
+///
+#include "TCanvas.h"
+#include "TLegend.h"
+#include "TH1D.h"
+#include "TMath.h"
+#include "TF1.h"
+#include "TGraph.h"
+#include "TLatex.h"
+
+#include "TGraphErrors.h"
+///
+
+#include "TRandom3.h"
+
+#include "EFTGenReader/EFTHelperUtilities/interface/WCPoint.h"
+#include "EFTGenReader/EFTHelperUtilities/interface/WCFit.h"
+#include "EFTGenReader/EFTHelperUtilities/interface/TH1EFT.h"
+#include "EFTGenReader/EFTHelperUtilities/interface/Stopwatch.h"
+#include "EFTGenReader/EFTHelperUtilities/interface/split_string.h"
+#include "makeEFTPlots.h"
+
+
+void makePlot(vector<WCPoint> pts_vect, vector<WCPoint> pts_vect_WgtU, vector<WCPoint> pts_vect_WgtD){
+    WCFit* wc_fit = new WCFit(pts_vect,"test");
+    WCFit* wc_fit_WgtU = new WCFit(pts_vect_WgtU,"test");
+    WCFit* wc_fit_WgtD = new WCFit(pts_vect_WgtD,"test");
+
+    std::string wc_name = "cpt"; // Should pass this to makePlot?
+    TString plot_name = "";
+    TString x_axis_name = wc_name+" Strength";
+    TString y_axis_name = "\\sigma_{NP}/\\sigma_{SM}";
+    int nom_clr = kBlack;
+    int u_clr = kGreen;
+    int d_clr = kBlue;
+    int x_min = -20;
+    int x_max = 20;
+    float y_min = .9;
+
+    TCanvas *c1 = new TCanvas("c1","",1200,800);
+    c1->cd();
+    c1->SetGrid(1,1);
+
+    float left   = 0.37;
+    float right  = 0.63;
+    float top    = 0.88;
+    float bottom = 0.8;
+    TLegend *legend;
+    legend = new TLegend(left,top,right,bottom);
+    legend->SetNColumns(3);
+    legend->SetBorderSize(0);
+
+    // NOMINAL //
+    double s0 = wc_fit->getCoefficient(wc_fit->kSMstr,wc_fit->kSMstr);
+    double s1 = wc_fit->getCoefficient(wc_fit->kSMstr,wc_name);
+    double s2 = wc_fit->getCoefficient(wc_name,wc_name);
+    TF1* fit = new TF1("fit","pol2",x_min,x_max);
+    fit->SetParameter(0,s0);
+    fit->SetParameter(1,s1);
+    fit->SetParameter(2,s2);
+    fit->SetMinimum(y_min);
+    fit->SetLineColor(nom_clr);
+    fit->GetXaxis()->SetTitle(x_axis_name);
+    fit->GetYaxis()->SetTitle(y_axis_name);
+    fit->SetTitle(plot_name);
+    fit->Draw();
+    legend->AddEntry(fit,"Nominal","l");
+    for (int i = 0; i < pts_vect.size(); i++) {
+        WCPoint ref_pt = pts_vect.at(i);
+        TGraph* ref_pt_gr = new TGraph(1);
+        ref_pt_gr->SetPoint(0,ref_pt.getStrength(wc_name),ref_pt.wgt);
+        ref_pt_gr->SetMarkerStyle(4);
+        ref_pt_gr->SetMarkerColor(1);
+        ref_pt_gr->Draw("P");
+    }
+    // Error band for nominal
+    const int npts = 100;
+    Float_t x_vals[npts];
+    Float_t y_vals[npts];
+    Float_t xerr_vals[npts];
+    Float_t yerr_vals[npts];
+    float x_range = x_max - x_min;
+    float step_size = x_range/(npts-1);
+    float x_coord;
+    WCPoint wc_pt_for_err_graph;
+    for (int idx = 0; idx < npts; idx++){
+        x_coord = x_min + idx*step_size;
+        wc_pt_for_err_graph.setStrength(wc_name,x_coord);
+        x_vals[idx] = x_coord;
+        y_vals[idx] = wc_fit->evalPoint(&wc_pt_for_err_graph);
+        std::cout << "ycoord " << y_vals[idx] << std::endl;
+        xerr_vals[idx] = 0;
+        yerr_vals[idx] = wc_fit->evalPointError(&wc_pt_for_err_graph);
+        std::cout << "yerr " << yerr_vals[idx] << std::endl;
+    }
+    TGraphErrors *err_graph = new TGraphErrors(npts, x_vals, y_vals, xerr_vals, yerr_vals);
+    err_graph->SetFillStyle(3002);
+    //err_graph->Draw("3");
+    
+    // UP //
+    double s0_u = wc_fit_WgtU->getCoefficient(wc_fit_WgtU->kSMstr,wc_fit_WgtU->kSMstr);
+    double s1_u = wc_fit_WgtU->getCoefficient(wc_fit_WgtU->kSMstr,wc_name);
+    double s2_u = wc_fit_WgtU->getCoefficient(wc_name,wc_name);
+    TF1* fit_u = new TF1("fit_u","pol2",-20,20);
+    fit_u->SetParameter(0,s0_u);
+    fit_u->SetParameter(1,s1_u);
+    fit_u->SetParameter(2,s2_u);
+    fit_u->SetLineColor(u_clr);
+    fit_u->Draw("same");
+    legend->AddEntry(fit_u,"UP","l");
+    for (int i = 0; i < pts_vect_WgtU.size(); i++) {
+        WCPoint ref_pt_u = pts_vect_WgtU.at(i);
+        TGraph* ref_pt_gr_u = new TGraph(1);
+        ref_pt_gr_u->SetPoint(0,ref_pt_u.getStrength(wc_name),ref_pt_u.wgt);
+        ref_pt_gr_u->SetMarkerStyle(4);
+        ref_pt_gr_u->SetMarkerColor(u_clr);
+        ref_pt_gr_u->Draw("P");
+    }
+    // DOWN //
+    double s0_d = wc_fit_WgtD->getCoefficient(wc_fit_WgtD->kSMstr,wc_fit_WgtD->kSMstr);
+    double s1_d = wc_fit_WgtD->getCoefficient(wc_fit_WgtD->kSMstr,wc_name);
+    double s2_d = wc_fit_WgtD->getCoefficient(wc_name,wc_name);
+    TF1* fit_d = new TF1("fit_d","pol2",-20,20);
+    fit_d->SetParameter(0,s0_d);
+    fit_d->SetParameter(1,s1_d);
+    fit_d->SetParameter(2,s2_d);
+    fit_d->SetLineColor(d_clr);
+    fit_d->Draw("same");
+    legend->AddEntry(fit_d,"DOWN","l");
+    for (int i = 0; i < pts_vect_WgtD.size(); i++) {
+        WCPoint ref_pt_d = pts_vect_WgtD.at(i);
+        TGraph* ref_pt_gr_d = new TGraph(1);
+        ref_pt_gr_d->SetPoint(0,ref_pt_d.getStrength(wc_name),ref_pt_d.wgt);
+        ref_pt_gr_d->SetMarkerStyle(4);
+        ref_pt_gr_d->SetMarkerColor(d_clr);
+        ref_pt_gr_d->Draw("P");
+    }
+
+    // Draw, save, delete
+    legend->Draw();
+    c1->Print("TEST.png");
+    delete legend;
+    delete c1;
+
+
+
+}
+
+void run(TString run_dirs_file){
+
+    std::vector<WCPoint> selection_pts_vect;
+    std::vector<WCPoint> selection_pts_WgtU_vect;
+    std::vector<WCPoint> selection_pts_WgtD_vect;
+    WCPoint sm_pt("smpt");
+    std::vector<TString> all_dirs;
+    TString fdir;
+    std::ifstream input_filenames(run_dirs_file);
+    std::cout << "Using dirs:" << std::endl;
+    while (input_filenames >> fdir) {
+        all_dirs.push_back(fdir);
+        std::cout << "\t" << fdir << std::endl;
+    }
+    input_filenames.close();
+    int n_pts = all_dirs.size();
+    std::cout << "Number of points to plot (number of files provied): " << n_pts << std::endl;
+
+    // Set up the wc point string (depends a lot on the naming scheme!):
+    // Right now this is set up for the 5 cpt axis scan files!!!
+    std::map<string,string> ref_pts_dict;
+    std::string wcname = "cpt";
+    float range_max = 15;
+    float npts = 5;
+    float step = (range_max*2)/(npts-1);
+    std::cout << "STEP" << step << std::endl;
+    int run = 0;
+    for (float wcval=-range_max; wcval<=range_max; wcval=wcval+step){
+        ref_pts_dict["run"+std::to_string(run)] = "wcpt_"+wcname+"_"+std::to_string(wcval);
+        run = run + 1;
+        std::cout << "Run: " << run << " wc val: " << wcval << std::endl;
+    }
+
+    // Loop over files
+    for (int idx=0; idx<all_dirs.size(); idx++){
+        fdir = all_dirs.at(idx);
+        std::string run_dir = getRunDirectory(fdir.Data());
+        std::cout << "[" << (idx+1) << "/" << all_dirs.size() << "] Full Path: " << fdir << std::endl;
+
+        std::vector<std::string> words;
+        split_string(run_dir,words,"_");
+        if (words.size() != 4) {
+            std::cout << "[WARNING] Skipping invalid run directory!" << std::endl;
+            continue;
+        }
+
+        // Get the tags from the file names
+        std::string process   = words.at(1);
+        std::string grp_tag   = words.at(2);
+        std::string run_label = words.at(3);
+        std::cout << "Process: " << process << " Grp tag: " << grp_tag << " Run label: " << run_label << std::endl;
+
+        // Chain together all root files in the run directory
+        TChain chain("EFTLHEReader/summaryTree");
+        auto dir_files = getFiles(fdir);
+        for (auto fn: dir_files) {
+            //std::cout << "\tFiles: " << fn << std::endl;
+            TString fname = fdir + "/" + fn;
+            chain.Add(fname);
+        }
+
+        // Set up number of events in loop
+        int chain_entries = chain.GetEntries();
+        int last_entry = chain_entries;
+        if (chain_entries > 100000) { // 100k ~ 10min
+            std::cout << "Chain_entries: " << chain_entries << std::endl;
+            last_entry = 100000;
+        }
+        //last_entry = 100000; // For testing
+        std::cout << "Last_entry: " << last_entry << std::endl;
+        int first_entry = 0;
+
+        WCFit* wcFit_intree = 0;
+        WCFit inclusive_fit;
+        WCFit selection_fit;
+
+        double originalXWGTUP_intree = -1.;
+        double genLep_pt3_intree;
+        double genJet_pt4_intree;
+
+        double psISRweightUp_intree;
+        double psFSRweightUp_intree;
+        double psISRweightDown_intree;
+        double psFSRweightDown_intree;
+
+        chain.SetBranchAddress("originalXWGTUP",&originalXWGTUP_intree);
+        chain.SetBranchAddress("wcFit",&wcFit_intree);
+        chain.SetBranchAddress("genLep_pt3",&genLep_pt3_intree);
+        chain.SetBranchAddress("genJet_pt4",&genJet_pt4_intree);
+
+        chain.SetBranchAddress("psISRweightUp",&psISRweightUp_intree);
+        chain.SetBranchAddress("psFSRweightUp",&psFSRweightUp_intree);
+        chain.SetBranchAddress("psISRweightDown",&psISRweightDown_intree);
+        chain.SetBranchAddress("psFSRweightDown",&psFSRweightDown_intree);
+
+        // WC Point 
+        std::cout << "Run label: " << run_label << " , Dictionary entry: " << ref_pts_dict[run_label] << std::endl;
+        std::string pt_str = ref_pts_dict[run_label];
+        WCPoint selection_pt = WCPoint(pt_str); // Remember to only add wgt for events that pass selection
+        WCPoint selection_pt_WgtU = WCPoint(pt_str); // Remember to only add wgt for events that pass selection
+        WCPoint selection_pt_WgtD = WCPoint(pt_str); // Remember to only add wgt for events that pass selection
+
+        // Event loop:
+        int selection_events = 0;
+        for (int i = first_entry; i < last_entry; i++) {
+            chain.GetEntry(i);
+            inclusive_fit.addFit(*wcFit_intree);
+            if (genLep_pt3_intree > 10 and genJet_pt4_intree > 30){
+                selection_events = selection_events + 1;
+                selection_fit.addFit(*wcFit_intree);
+                selection_pt.wgt += originalXWGTUP_intree;
+                selection_pt_WgtU.wgt += originalXWGTUP_intree*psISRweightUp_intree;
+                selection_pt_WgtD.wgt += originalXWGTUP_intree*psISRweightDown_intree;
+                
+            } else{
+                //std::cout << "Skip; pt: " << genLep_pt3_intree << " , " << genJet_pt4_intree << std::endl;
+            }
+
+        }
+        std::cout << "\n Selected events over total: " << selection_events << "/" << last_entry << "->" << (float)selection_events/last_entry << "\n" << std::endl;
+
+        // Normalize to SM
+        double SM_xsec_incl = inclusive_fit.evalPoint(&sm_pt);
+        double SM_xsec_sel = selection_fit.evalPoint(&sm_pt);
+        inclusive_fit.scale(1.0/SM_xsec_incl);
+        selection_fit.scale(1.0/SM_xsec_sel);
+        selection_pt.scale(1.0/SM_xsec_sel);
+
+        selection_pt_WgtU.scale(1.0/SM_xsec_sel);
+        selection_pt_WgtD.scale(1.0/SM_xsec_sel);
+
+        // Fill the vector of WC points
+        selection_pts_vect.push_back(selection_pt);
+        selection_pts_WgtU_vect.push_back(selection_pt_WgtU);
+        selection_pts_WgtD_vect.push_back(selection_pt_WgtD);
+    }
+
+    makePlot(selection_pts_vect,selection_pts_WgtU_vect,selection_pts_WgtD_vect);
+
+}
+
+
+void systWCdependenceCheck(TString run_dirs_file) {
+    gStyle->SetOptStat(0);
+    run(run_dirs_file);
+}
