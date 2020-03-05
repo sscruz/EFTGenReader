@@ -90,29 +90,6 @@ void makePlot(vector<WCPoint> pts_vect, vector<WCPoint> pts_vect_WgtU, vector<WC
         ref_pt_gr->SetMarkerColor(1);
         ref_pt_gr->Draw("P");
     }
-    // Error band for nominal
-    const int npts = 100;
-    Float_t x_vals[npts];
-    Float_t y_vals[npts];
-    Float_t xerr_vals[npts];
-    Float_t yerr_vals[npts];
-    float x_range = x_max - x_min;
-    float step_size = x_range/(npts-1);
-    float x_coord;
-    WCPoint wc_pt_for_err_graph;
-    for (int idx = 0; idx < npts; idx++){
-        x_coord = x_min + idx*step_size;
-        wc_pt_for_err_graph.setStrength(wc_name,x_coord);
-        x_vals[idx] = x_coord;
-        y_vals[idx] = wc_fit->evalPoint(&wc_pt_for_err_graph);
-        std::cout << "ycoord " << y_vals[idx] << std::endl;
-        xerr_vals[idx] = 0;
-        yerr_vals[idx] = wc_fit->evalPointError(&wc_pt_for_err_graph);
-        std::cout << "yerr " << yerr_vals[idx] << std::endl;
-    }
-    TGraphErrors *err_graph = new TGraphErrors(npts, x_vals, y_vals, xerr_vals, yerr_vals);
-    err_graph->SetFillStyle(3002);
-    //err_graph->Draw("3");
     
     // UP //
     double s0_u = wc_fit_WgtU->getCoefficient(wc_fit_WgtU->kSMstr,wc_fit_WgtU->kSMstr);
@@ -152,15 +129,11 @@ void makePlot(vector<WCPoint> pts_vect, vector<WCPoint> pts_vect_WgtU, vector<WC
         ref_pt_gr_d->SetMarkerColor(d_clr);
         ref_pt_gr_d->Draw("P");
     }
-
     // Draw, save, delete
     legend->Draw();
     c1->Print("TEST.png");
     delete legend;
     delete c1;
-
-
-
 }
 
 void run(TString run_dirs_file){
@@ -231,22 +204,33 @@ void run(TString run_dirs_file){
             std::cout << "Chain_entries: " << chain_entries << std::endl;
             last_entry = 100000;
         }
-        //last_entry = 100000; // For testing
+        //last_entry = 100; // For testing
         std::cout << "Last_entry: " << last_entry << std::endl;
         int first_entry = 0;
 
         WCFit* wcFit_intree = 0;
         WCFit inclusive_fit;
         WCFit selection_fit;
+        WCFit selection_fit_WgtU;
+        WCFit selection_fit_WgtD;
 
         double originalXWGTUP_intree = -1.;
         double genLep_pt3_intree;
         double genJet_pt4_intree;
 
         double psISRweightUp_intree;
-        double psFSRweightUp_intree;
         double psISRweightDown_intree;
+        double psFSRweightUp_intree;
         double psFSRweightDown_intree;
+
+        double muRWeightUp_intree;
+        double muRWeightDown_intree;
+        double muFWeightUp_intree;
+        double muFWeightDown_intree;
+        double muRmuFWeightUp_intree;
+        double muRmuFWeightDown_intree;
+        double nnpdfWeightUp_intree;
+        double nnpdfWeightDown_intree;
 
         chain.SetBranchAddress("originalXWGTUP",&originalXWGTUP_intree);
         chain.SetBranchAddress("wcFit",&wcFit_intree);
@@ -257,6 +241,14 @@ void run(TString run_dirs_file){
         chain.SetBranchAddress("psFSRweightUp",&psFSRweightUp_intree);
         chain.SetBranchAddress("psISRweightDown",&psISRweightDown_intree);
         chain.SetBranchAddress("psFSRweightDown",&psFSRweightDown_intree);
+        chain.SetBranchAddress("muRWeightUp",&muRWeightUp_intree);
+        chain.SetBranchAddress("muRWeightDown",&muRWeightDown_intree);
+        chain.SetBranchAddress("muFWeightUp",&muFWeightUp_intree);
+        chain.SetBranchAddress("muFWeightDown",&muFWeightDown_intree);
+        chain.SetBranchAddress("muRmuFWeightUp",&muRmuFWeightUp_intree);
+        chain.SetBranchAddress("muRmuFWeightDown",&muRmuFWeightDown_intree);
+        chain.SetBranchAddress("nnpdfWeightUp",&nnpdfWeightUp_intree);
+        chain.SetBranchAddress("nnpdfWeightDown",&nnpdfWeightDown_intree);
 
         // WC Point 
         std::cout << "Run label: " << run_label << " , Dictionary entry: " << ref_pts_dict[run_label] << std::endl;
@@ -270,29 +262,51 @@ void run(TString run_dirs_file){
         for (int i = first_entry; i < last_entry; i++) {
             chain.GetEntry(i);
             inclusive_fit.addFit(*wcFit_intree);
+            // Define syst dict:
+            std::map<std::string,std::map<std::string,double>> sys_map {
+                {"psISR"  , {{"u",psISRweightUp_intree}  , {"d",psISRweightDown_intree}}},
+                {"psFSR"  , {{"u",psFSRweightUp_intree}  , {"d",psFSRweightDown_intree}}},
+                {"muR"    , {{"u",muRWeightUp_intree}    , {"d",muRWeightDown_intree}}},
+                {"muF"    , {{"u",muFWeightUp_intree}    , {"d",muFWeightDown_intree}}},
+                {"muRmuF" , {{"u",muRmuFWeightUp_intree} , {"d",muRmuFWeightDown_intree}}},
+                {"nnpdf"  , {{"u",nnpdfWeightUp_intree}  , {"d",nnpdfWeightDown_intree}}}
+            };
             if (genLep_pt3_intree > 10 and genJet_pt4_intree > 30){
                 selection_events = selection_events + 1;
                 selection_fit.addFit(*wcFit_intree);
-                selection_pt.wgt += originalXWGTUP_intree;
-                selection_pt_WgtU.wgt += originalXWGTUP_intree*psISRweightUp_intree;
-                selection_pt_WgtD.wgt += originalXWGTUP_intree*psISRweightDown_intree;
-                
-            } else{
-                //std::cout << "Skip; pt: " << genLep_pt3_intree << " , " << genJet_pt4_intree << std::endl;
-            }
+                std::string sys = "nnpdf";
 
+                // Scale the up fit
+                wcFit_intree->scale(sys_map[sys]["u"]);
+                selection_fit_WgtU.addFit(*wcFit_intree);
+                wcFit_intree->scale(1/sys_map[sys]["u"]); // Put wcFit back to orig value
+
+                // Scale the down fit
+                wcFit_intree->scale(sys_map[sys]["d"]);
+                selection_fit_WgtD.addFit(*wcFit_intree);
+                wcFit_intree->scale(1/sys_map[sys]["d"]); // Put wcFit back to orig value
+
+                // Update the WC pts
+                selection_pt.wgt += originalXWGTUP_intree;
+                selection_pt_WgtU.wgt += originalXWGTUP_intree*sys_map[sys]["u"];
+                selection_pt_WgtD.wgt += originalXWGTUP_intree*sys_map[sys]["d"];
+            }
         }
         std::cout << "\n Selected events over total: " << selection_events << "/" << last_entry << "->" << (float)selection_events/last_entry << "\n" << std::endl;
 
         // Normalize to SM
         double SM_xsec_incl = inclusive_fit.evalPoint(&sm_pt);
         double SM_xsec_sel = selection_fit.evalPoint(&sm_pt);
+        double SM_xsec_sel_WgtU = selection_fit_WgtU.evalPoint(&sm_pt);
+        double SM_xsec_sel_WgtD = selection_fit_WgtD.evalPoint(&sm_pt);
         inclusive_fit.scale(1.0/SM_xsec_incl);
         selection_fit.scale(1.0/SM_xsec_sel);
         selection_pt.scale(1.0/SM_xsec_sel);
 
-        selection_pt_WgtU.scale(1.0/SM_xsec_sel);
-        selection_pt_WgtD.scale(1.0/SM_xsec_sel);
+        //selection_pt_WgtU.scale(1.0/SM_xsec_sel);
+        //selection_pt_WgtD.scale(1.0/SM_xsec_sel);
+        selection_pt_WgtU.scale(1.0/SM_xsec_sel_WgtU);
+        selection_pt_WgtD.scale(1.0/SM_xsec_sel_WgtD);
 
         // Fill the vector of WC points
         selection_pts_vect.push_back(selection_pt);
