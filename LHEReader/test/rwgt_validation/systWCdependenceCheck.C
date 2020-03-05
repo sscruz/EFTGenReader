@@ -38,12 +38,13 @@
 #include "makeEFTPlots.h"
 
 
-void makePlot(vector<WCPoint> pts_vect, vector<WCPoint> pts_vect_WgtU, vector<WCPoint> pts_vect_WgtD){
+void makePlot(TString sys, vector<WCPoint> pts_vect, vector<WCPoint> pts_vect_WgtU, vector<WCPoint> pts_vect_WgtD){
     WCFit* wc_fit = new WCFit(pts_vect,"test");
     WCFit* wc_fit_WgtU = new WCFit(pts_vect_WgtU,"test");
     WCFit* wc_fit_WgtD = new WCFit(pts_vect_WgtD,"test");
 
     std::string wc_name = "cpt"; // Should pass this to makePlot?
+    TString save_name = sys+".png";
     TString plot_name = "";
     TString x_axis_name = wc_name+" Strength";
     TString y_axis_name = "\\sigma_{NP}/\\sigma_{SM}";
@@ -58,8 +59,8 @@ void makePlot(vector<WCPoint> pts_vect, vector<WCPoint> pts_vect_WgtU, vector<WC
     c1->cd();
     c1->SetGrid(1,1);
 
-    float left   = 0.37;
-    float right  = 0.63;
+    float left   = 0.32;
+    float right  = 0.68;
     float top    = 0.88;
     float bottom = 0.8;
     TLegend *legend;
@@ -101,7 +102,7 @@ void makePlot(vector<WCPoint> pts_vect, vector<WCPoint> pts_vect_WgtU, vector<WC
     fit_u->SetParameter(2,s2_u);
     fit_u->SetLineColor(u_clr);
     fit_u->Draw("same");
-    legend->AddEntry(fit_u,"UP","l");
+    legend->AddEntry(fit_u,sys+"UP","l");
     for (int i = 0; i < pts_vect_WgtU.size(); i++) {
         WCPoint ref_pt_u = pts_vect_WgtU.at(i);
         TGraph* ref_pt_gr_u = new TGraph(1);
@@ -120,7 +121,7 @@ void makePlot(vector<WCPoint> pts_vect, vector<WCPoint> pts_vect_WgtU, vector<WC
     fit_d->SetParameter(2,s2_d);
     fit_d->SetLineColor(d_clr);
     fit_d->Draw("same");
-    legend->AddEntry(fit_d,"DOWN","l");
+    legend->AddEntry(fit_d,sys+"DOWN","l");
     for (int i = 0; i < pts_vect_WgtD.size(); i++) {
         WCPoint ref_pt_d = pts_vect_WgtD.at(i);
         TGraph* ref_pt_gr_d = new TGraph(1);
@@ -131,16 +132,21 @@ void makePlot(vector<WCPoint> pts_vect, vector<WCPoint> pts_vect_WgtU, vector<WC
     }
     // Draw, save, delete
     legend->Draw();
-    c1->Print("TEST.png");
+    //c1->Print(save_name+".png");
+    c1->Print(save_name,"png");
     delete legend;
     delete c1;
 }
 
 void run(TString run_dirs_file){
 
+    std::vector<std::string> sys_names {"psISR","psFSR","muR","muF","muRmuF","nnpdf"};
+
     std::vector<WCPoint> selection_pts_vect;
-    std::vector<WCPoint> selection_pts_WgtU_vect;
-    std::vector<WCPoint> selection_pts_WgtD_vect;
+    //std::vector<WCPoint> selection_pts_WgtU_vect;
+    //std::vector<WCPoint> selection_pts_WgtD_vect;
+    std::map<std::string,std::vector<WCPoint>> selection_pts_WgtU_map;
+    std::map<std::string,std::vector<WCPoint>> selection_pts_WgtD_map;
     WCPoint sm_pt("smpt");
     std::vector<TString> all_dirs;
     TString fdir;
@@ -254,8 +260,17 @@ void run(TString run_dirs_file){
         std::cout << "Run label: " << run_label << " , Dictionary entry: " << ref_pts_dict[run_label] << std::endl;
         std::string pt_str = ref_pts_dict[run_label];
         WCPoint selection_pt = WCPoint(pt_str); // Remember to only add wgt for events that pass selection
-        WCPoint selection_pt_WgtU = WCPoint(pt_str); // Remember to only add wgt for events that pass selection
-        WCPoint selection_pt_WgtD = WCPoint(pt_str); // Remember to only add wgt for events that pass selection
+        std::map<std::string,WCFit> wcfit_systs_U_map;
+        std::map<std::string,WCFit> wcfit_systs_D_map;
+        std::map<std::string,WCPoint> wcpt_systs_U_map;
+        std::map<std::string,WCPoint> wcpt_systs_D_map;
+        for (auto sys: sys_names) {
+            wcpt_systs_U_map[sys] = WCPoint(pt_str);
+            wcpt_systs_D_map[sys] = WCPoint(pt_str);
+        }
+
+        //WCPoint selection_pt_WgtU = WCPoint(pt_str); // Remember to only add wgt for events that pass selection
+        //WCPoint selection_pt_WgtD = WCPoint(pt_str); // Remember to only add wgt for events that pass selection
 
         // Event loop:
         int selection_events = 0;
@@ -274,22 +289,30 @@ void run(TString run_dirs_file){
             if (genLep_pt3_intree > 10 and genJet_pt4_intree > 30){
                 selection_events = selection_events + 1;
                 selection_fit.addFit(*wcFit_intree);
-                std::string sys = "nnpdf";
-
-                // Scale the up fit
-                wcFit_intree->scale(sys_map[sys]["u"]);
-                selection_fit_WgtU.addFit(*wcFit_intree);
-                wcFit_intree->scale(1/sys_map[sys]["u"]); // Put wcFit back to orig value
-
-                // Scale the down fit
-                wcFit_intree->scale(sys_map[sys]["d"]);
-                selection_fit_WgtD.addFit(*wcFit_intree);
-                wcFit_intree->scale(1/sys_map[sys]["d"]); // Put wcFit back to orig value
-
-                // Update the WC pts
                 selection_pt.wgt += originalXWGTUP_intree;
-                selection_pt_WgtU.wgt += originalXWGTUP_intree*sys_map[sys]["u"];
-                selection_pt_WgtD.wgt += originalXWGTUP_intree*sys_map[sys]["d"];
+
+                for (auto it = sys_map.begin(); it != sys_map.end(); it++){
+                    std::string sys = it->first;
+
+                    // Scale the up fit
+                    wcFit_intree->scale(sys_map[sys]["u"]);   // Scale wcFit by sys UP weight
+                    //selection_fit_WgtU.addFit(*wcFit_intree); // Add scaled fit
+                    wcfit_systs_U_map[sys].addFit(*wcFit_intree); // Add scaled fit
+                    wcFit_intree->scale(1/sys_map[sys]["u"]); // Put wcFit back to orig value
+
+                    // Scale the down fit
+                    wcFit_intree->scale(sys_map[sys]["d"]);   // Scale wcFit by sys DOWN weight
+                    //selection_fit_WgtD.addFit(*wcFit_intree); // Add scaled fit
+                    wcfit_systs_D_map[sys].addFit(*wcFit_intree); // Add scaled fit
+                    wcFit_intree->scale(1/sys_map[sys]["d"]); // Put wcFit back to orig value
+
+                    // Update the WC pts
+                    //selection_pt_WgtU.wgt += originalXWGTUP_intree*sys_map[sys]["u"];
+                    //selection_pt_WgtD.wgt += originalXWGTUP_intree*sys_map[sys]["d"];
+                    wcpt_systs_U_map[sys].wgt += originalXWGTUP_intree*sys_map[sys]["u"];
+                    wcpt_systs_D_map[sys].wgt += originalXWGTUP_intree*sys_map[sys]["d"];
+
+                }
             }
         }
         std::cout << "\n Selected events over total: " << selection_events << "/" << last_entry << "->" << (float)selection_events/last_entry << "\n" << std::endl;
@@ -297,24 +320,36 @@ void run(TString run_dirs_file){
         // Normalize to SM
         double SM_xsec_incl = inclusive_fit.evalPoint(&sm_pt);
         double SM_xsec_sel = selection_fit.evalPoint(&sm_pt);
-        double SM_xsec_sel_WgtU = selection_fit_WgtU.evalPoint(&sm_pt);
-        double SM_xsec_sel_WgtD = selection_fit_WgtD.evalPoint(&sm_pt);
-        inclusive_fit.scale(1.0/SM_xsec_incl);
-        selection_fit.scale(1.0/SM_xsec_sel);
         selection_pt.scale(1.0/SM_xsec_sel);
-
-        //selection_pt_WgtU.scale(1.0/SM_xsec_sel);
-        //selection_pt_WgtD.scale(1.0/SM_xsec_sel);
-        selection_pt_WgtU.scale(1.0/SM_xsec_sel_WgtU);
-        selection_pt_WgtD.scale(1.0/SM_xsec_sel_WgtD);
-
-        // Fill the vector of WC points
         selection_pts_vect.push_back(selection_pt);
-        selection_pts_WgtU_vect.push_back(selection_pt_WgtU);
-        selection_pts_WgtD_vect.push_back(selection_pt_WgtD);
+
+        for (auto sys: sys_names){
+            //double SM_xsec_sel_WgtU = selection_fit_WgtU.evalPoint(&sm_pt);
+            //double SM_xsec_sel_WgtD = selection_fit_WgtD.evalPoint(&sm_pt);
+            double SM_xsec_sel_WgtU = wcfit_systs_U_map[sys].evalPoint(&sm_pt);
+            double SM_xsec_sel_WgtD = wcfit_systs_D_map[sys].evalPoint(&sm_pt);
+            inclusive_fit.scale(1.0/SM_xsec_incl);
+            selection_fit.scale(1.0/SM_xsec_sel);
+
+            ////selection_pt_WgtU.scale(1.0/SM_xsec_sel);
+            ////selection_pt_WgtD.scale(1.0/SM_xsec_sel);
+            //selection_pt_WgtU.scale(1.0/SM_xsec_sel_WgtU);
+            //selection_pt_WgtD.scale(1.0/SM_xsec_sel_WgtD);
+            wcpt_systs_U_map[sys].scale(1.0/SM_xsec_sel_WgtU);
+            wcpt_systs_D_map[sys].scale(1.0/SM_xsec_sel_WgtD);
+
+            // Fill the vector of WC points
+            //selection_pts_WgtU_vect.push_back(selection_pt_WgtU);
+            //selection_pts_WgtD_vect.push_back(selection_pt_WgtD);
+            selection_pts_WgtU_map[sys].push_back(wcpt_systs_U_map[sys]);
+            selection_pts_WgtD_map[sys].push_back(wcpt_systs_D_map[sys]);
+        }
     }
 
-    makePlot(selection_pts_vect,selection_pts_WgtU_vect,selection_pts_WgtD_vect);
+    //makePlot(selection_pts_vect,selection_pts_WgtU_vect,selection_pts_WgtD_vect);
+    for(auto sys : sys_names){
+        makePlot(sys,selection_pts_vect,selection_pts_WgtU_map[sys],selection_pts_WgtD_map[sys]);
+    }
 
 }
 
