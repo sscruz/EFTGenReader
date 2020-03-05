@@ -17,12 +17,9 @@
 #include "TStyle.h"
 #include "TCanvas.h"
 #include "TLegend.h"
-//#include "TH1D.h"
-//#include "TMath.h"
 #include "TF1.h"
 #include "TGraph.h"
 #include "TLatex.h"
-//#include "TRandom3.h"
 
 #include "EFTGenReader/EFTHelperUtilities/interface/WCPoint.h"
 #include "EFTGenReader/EFTHelperUtilities/interface/WCFit.h"
@@ -139,11 +136,12 @@ void makePlot(TString sys, vector<WCPoint> pts_vect, vector<WCPoint> pts_vect_Wg
     delete c1;
 }
 
-void run(TString run_dirs_file){
+// Returns a vector of 3 maps (for nominal, up, down), each map contains a vector of the 5 WCPoints for each systematic
+std::vector<std::map<std::string,std::vector<WCPoint>>> get_WCpt_syst_maps(TString run_dirs_file){
 
     std::vector<std::string> sys_names {"psISR","psFSR","muR","muF","muRmuF","nnpdf"};
 
-    std::vector<WCPoint> selection_pts_vect;
+    std::map<std::string,std::vector<WCPoint>> selection_pts_map; // Should only have key "nominal", could be a vect but want same type as selection_pts_WgtU/D_map
     std::map<std::string,std::vector<WCPoint>> selection_pts_WgtU_map;
     std::map<std::string,std::vector<WCPoint>> selection_pts_WgtD_map;
     WCPoint sm_pt("smpt");
@@ -205,7 +203,7 @@ void run(TString run_dirs_file){
         // Set up number of events in loop
         int chain_entries = chain.GetEntries();
         int last_entry = chain_entries;
-        if (chain_entries > 100000) { // 100k ~ 10min
+        if (chain_entries > 100000) { // 100k != 10min for some reason
             std::cout << "Chain_entries: " << chain_entries << std::endl;
             last_entry = 100000;
         }
@@ -313,7 +311,7 @@ void run(TString run_dirs_file){
         double SM_xsec_incl = inclusive_fit.evalPoint(&sm_pt);
         double SM_xsec_sel = selection_fit.evalPoint(&sm_pt);
         selection_pt.scale(1.0/SM_xsec_sel);
-        selection_pts_vect.push_back(selection_pt);
+        selection_pts_map["nominal"].push_back(selection_pt);
 
         for (auto sys: sys_names){
             double SM_xsec_sel_WgtU = wcfit_systs_U_map[sys].evalPoint(&sm_pt);
@@ -332,14 +330,26 @@ void run(TString run_dirs_file){
         }
     }
 
-    for(auto sys : sys_names){
-        makePlot(sys,selection_pts_vect,selection_pts_WgtU_map[sys],selection_pts_WgtD_map[sys]);
-    }
+    std::vector<std::map<std::string,std::vector<WCPoint>>> return_vect = {selection_pts_map,selection_pts_WgtU_map,selection_pts_WgtD_map};
+    return return_vect;
 
+    //for(auto sys : sys_names){
+        //makePlot(sys,selection_pts_map["nominal"],selection_pts_WgtU_map[sys],selection_pts_WgtD_map[sys]);
+    //}
 }
 
 
 void systWCdependenceCheck(TString run_dirs_file) {
     gStyle->SetOptStat(0);
-    run(run_dirs_file);
+    std::vector<std::string> sys_names {"psISR","psFSR","muR","muF","muRmuF","nnpdf"};
+
+    std::vector<std::map<std::string,std::vector<WCPoint>>> systs_pts_vect;
+    systs_pts_vect = get_WCpt_syst_maps(run_dirs_file);
+    std::map<std::string,std::vector<WCPoint>> selection_pts_map      = systs_pts_vect.at(0);
+    std::map<std::string,std::vector<WCPoint>> selection_pts_WgtU_map = systs_pts_vect.at(1);
+    std::map<std::string,std::vector<WCPoint>> selection_pts_WgtD_map = systs_pts_vect.at(2);
+
+    for(auto sys : sys_names){
+        makePlot(sys,selection_pts_map["nominal"],selection_pts_WgtU_map[sys],selection_pts_WgtD_map[sys]);
+    }
 }
