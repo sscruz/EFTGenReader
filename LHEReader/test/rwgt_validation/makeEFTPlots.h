@@ -370,10 +370,18 @@ void make_1d_xsec_plot(
     std::vector<WCPoint> ref_pts = {}   // orig_pts
 ) {
 
-
     bool include_legend = true;
-    bool include_title = true;
+    bool include_title = false;
     bool include_ratio = true;
+
+    //bool use_smefit_lims = true;
+    bool use_smefit_lims = false;
+    bool use_asimov_lims = true;
+
+    if (wc_fits.size() < 2 and include_ratio == true) {
+        std::cout << "\nOnly one fit, not making ratio plot!\n" << std::endl;
+        include_ratio = false;
+    }
 
     //plt_ops.x_name = "NP Strength";
     // Name the x axis
@@ -454,6 +462,37 @@ void make_1d_xsec_plot(
         xlims_dict[wc_names_vect.at(i)] = abs(an_lims_vals_vect.at(i));
     }
 
+    std::map<string,std::pair<double,double>> smefit_lims_dict {
+        {"ctG"  , {-0.4, 0.4} },
+        {"ctW"  , {-1.8, 0.9} },
+        {"cbW"  , {-2.6, 3.1} },
+        {"ctZ"  , {-2.1, 4.0} },
+        {"cptb" , {-27, 8.7}  },
+        {"cpQ3" , {-5.5, 5.8} },
+        {"cpQM" , {-3.5, 3}   },
+        {"cpt"  , {-13, 18}   },
+        {"ctp"  , {-60, 10}   }
+    };
+
+    std::map<string,std::pair<double,double>> asimov_lims_dict {
+        {"ctW"   , {-1.75, 2.58}   },
+        {"ctZ"   , {-3.31, 3.29}   },
+        {"ctp"   , {-10.14, 39.02} },
+        {"cpQM"  , {-8.04, 26.49}  },
+        {"ctG"   , {-1.02, 0.92}   },
+        {"cbW"   , {-4.06, 4.03}   },
+        {"cpQ3"  , {-8.12, 3.60}   },
+        {"cptb"  , {-14.74, 14.57} },
+        {"cpt"   , {-22.34, 13.86} },
+        {"cQl3i" , {-7.93, 7.28}   },
+        {"cQlMi" , {-4.30, 5.39}   },
+        {"cQei"  , {-4.76, 4.84}   },
+        {"ctli"  , {-4.65, 5.29}   },
+        {"ctei"  , {-4.69, 5.27}   },
+        {"ctlSi" , {-6.84, 6.84}   },
+        {"ctlTi" , {-0.90, 0.90}   }
+    };
+
     // Re-try setting axis ranges w/o using reference pts
     if (plt_ops.x_min == plt_ops.x_max) {
         for (auto& wc_fit: wc_fits) {
@@ -467,17 +506,28 @@ void make_1d_xsec_plot(
             x_low = std::max(x_low,-25.0);
             x_high = std::min(x_high,25.0);
 
-            ///*
+            /*
             //Set ctG lims to -3.5 to 3.5
             if (wc_name == "ctG") {
                 x_low = -3.5;
                 x_high = 3.5;
             }
-            //*/
+            */
 
             // Set x axis range to range AN range
-            x_low = -xlims_dict[wc_name];
-            x_high = xlims_dict[wc_name];
+            //x_low = -xlims_dict[wc_name];
+            //x_high = xlims_dict[wc_name];
+            if ( smefit_lims_dict.find(wc_name) != smefit_lims_dict.end() and use_smefit_lims){
+                //std::cout << "in smefit_lims_dict ! " << wc_name << std::endl;
+                //std::cout << smefit_lims_dict[wc_name].first << " , " << smefit_lims_dict[wc_name].first << std::endl;
+                x_low  = smefit_lims_dict[wc_name].first;
+                x_high = smefit_lims_dict[wc_name].second;
+            } else if (asimov_lims_dict.find(wc_name) != asimov_lims_dict.end() and use_asimov_lims){
+                //std::cout << "in asimov_lims_dict! " << wc_name << std::endl;
+                //std::cout << asimov_lims_dict[wc_name].first << " , " << asimov_lims_dict[wc_name].first << std::endl;
+                x_low  = asimov_lims_dict[wc_name].first;
+                x_high = asimov_lims_dict[wc_name].second;
+            }
 
             plt_ops.updateXLimits(x_low,x_high);
 
@@ -497,10 +547,13 @@ void make_1d_xsec_plot(
     }
     //plt_ops.x_min = -10.0;
     //plt_ops.x_max = 10.0;
-    //plt_ops.y_min = 0.4;
+    if (wc_name != "ctp" and wc_name != "ctG"){
+        plt_ops.y_min = 0.5;
+    }
     //plt_ops.y_max = 1.2;
 
-    TCanvas *c1 = new TCanvas("c1","",1280,720);
+    //TCanvas *c1 = new TCanvas("c1","",1280,720);
+    TCanvas *c1 = new TCanvas("c1","",1200,800);
     //c1->ToggleEventStatus();
     //c1->cd();
     //c1->SetGrid(1,1);
@@ -512,14 +565,14 @@ void make_1d_xsec_plot(
         const float ydiv = 0.3;
         c1->Divide(1,2,small,small);
         c1->GetPad(1)->SetPad(padding,ydiv+padding,1-padding,1-padding);
-        c1->GetPad(1)->SetLeftMargin(.05);
-        c1->GetPad(1)->SetRightMargin(.05);
+        c1->GetPad(1)->SetLeftMargin(.08);
+        c1->GetPad(1)->SetRightMargin(.08);
         c1->GetPad(1)->SetBottomMargin(.3);
         c1->GetPad(1)->SetGrid(1,1);
         c1->GetPad(1)->Modified();
         
-        c1->GetPad(2)->SetLeftMargin(.05);
-        c1->GetPad(2)->SetRightMargin(.05);
+        c1->GetPad(2)->SetLeftMargin(.08);
+        c1->GetPad(2)->SetRightMargin(.08);
         c1->GetPad(2)->SetBottomMargin(.3);
         c1->GetPad(2)->SetPad(padding,padding,1-padding,ydiv-padding);
         c1->GetPad(2)->SetGrid(1,1);
@@ -551,8 +604,10 @@ void make_1d_xsec_plot(
 
     TLegend *legend;
     if (include_ratio) {
-        left   = 0.37; 
-        right  = 0.63;
+        //left   = 0.37; // Small
+        //right  = 0.63; // Small
+        left   = 0.14; // Larger
+        right  = 0.85; // Larger
         top    = 0.88;
         bottom = 0.8;
         legend = new TLegend(left,top,right,bottom);
@@ -583,7 +638,8 @@ void make_1d_xsec_plot(
         fit->SetParameter(2,s2);
         fit->SetLineColor(plt_ops.getColor(i));
         fit->SetMinimum(plt_ops.y_min);
-        fit->SetMaximum(plt_ops.y_max);
+        //fit->SetMaximum(plt_ops.y_max);
+        fit->SetMaximum(plt_ops.y_max*1.2);
         fit->GetXaxis()->SetTitle(x_axis_name);
         fit->GetYaxis()->SetTitle(y_axis_name);
         if (include_title){
@@ -594,7 +650,8 @@ void make_1d_xsec_plot(
         if (include_ratio){
             fit->GetYaxis()->SetTitleOffset(.6);
             fit->GetXaxis()->SetTitleOffset(.9);
-            fit->SetMinimum(0.4); // hard code min, probably not good for all situations
+            //fit->SetMinimum(0.4); // hard code min, probably not good for all situations
+            //fit->SetMinimum(0.5); // hard code min, probably not good for all situations
         }
 
 
@@ -622,6 +679,7 @@ void make_1d_xsec_plot(
             y_vals[idx] = wc_fit.evalPoint(&wc_pt);
             xerr_vals[idx] = 0;
             yerr_vals[idx] = wc_fit.evalPointError(&wc_pt);
+            std::cout << "yerr!!! " << yerr_vals[idx] << std::endl;
 
             hist->SetBinContent(idx+1,y_vals[idx]);
         }
@@ -702,17 +760,23 @@ void make_1d_xsec_plot(
     if (include_ratio){
         c1->cd(2);
         TH1D* ratio_hist;
+        //std::cout << hist_vect.size() << std::endl;
         for (int i=0; i<hist_vect.size(); i++){
             ratio_hist = makeRatioHistogram("rhist",hist_vect.at(i),hist_vect.at(1)); // Need to choose which hist to divide w.r.t.
             ratio_hist->GetYaxis()->SetNdivisions(010,true);
-            ratio_hist->GetYaxis()->SetTitle("(0+1p)/0p"); // For the 0p vs 0+1p comp
-            ratio_hist->GetYaxis()->SetTitleOffset(0.2);
+            //ratio_hist->GetYaxis()->SetTitle("(0+1p)/0p"); // For the 0p vs 0+1p comp
+            ratio_hist->GetYaxis()->SetTitle("ratio to qCut19"); // For the qCut comps
+            ratio_hist->GetYaxis()->SetTitleOffset(0.3);
             ratio_hist->GetYaxis()->SetTitleSize(0.09);
             ratio_hist->GetXaxis()->SetTitleFont(12);
             ratio_hist->SetLineWidth(2);
             ratio_hist->SetLineColor(plt_ops.getColor(i));
-            ratio_hist->SetMaximum(2);
-            ratio_hist->SetMinimum(0);
+            //ratio_hist->SetMaximum(2);
+            //ratio_hist->SetMinimum(0);
+            //ratio_hist->SetMaximum(1.5); // Ok for most 0j vs 1j comps
+            //ratio_hist->SetMinimum(0.5); // Ok for most 0j vs 1j comps
+            ratio_hist->SetMaximum(1.03); // Ok for qCut comps
+            ratio_hist->SetMinimum(.97); // Ok for qCut comps
             ratio_hist->Draw("SAME C");
         }
     }
