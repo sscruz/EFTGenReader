@@ -158,6 +158,17 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
         }
 
         WCFit inclusive_fit;
+        WCFit selection_fit;
+
+        int selection_events = 0;
+        double genLep_pt1_intree;
+        double genLep_pt2_intree;
+        double genLep_pt3_intree;
+        double genJet_pt4_intree;
+        chain.SetBranchAddress("genLep_pt1",&genLep_pt1_intree);
+        chain.SetBranchAddress("genLep_pt2",&genLep_pt2_intree);
+        chain.SetBranchAddress("genLep_pt3",&genLep_pt3_intree);
+        chain.SetBranchAddress("genJet_pt4",&genJet_pt4_intree);
 
         // Set up the wc point string (depends a lot on the naming scheme)
         std::map<string,string> ref_pts_dict;
@@ -188,18 +199,46 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
             sw.lap("Event Loop");
 
             ref_fit_pt.wgt += originalXWGTUP_intree;
+
+            //if (genLep_pt3_intree > 10 and genJet_pt4_intree > 100){
+            if (genLep_pt3_intree > 10 and genJet_pt4_intree > 30){
+                selection_events = selection_events + 1;
+                selection_fit.addFit(*wcFit_intree);
+            } else{
+                //std::cout << "Skip; pt: " << genLep_pt3_intree << " , " << genJet_pt4_intree << std::endl;
+            }
+
         }
         sw.stop("Full Loop");
 
+        std::cout << "\n Selected events over total: " << selection_events << "/" << last_entry << "->" << (float)selection_events/last_entry << "\n" << std::endl;
+
         // Normalize to SM
-        double SM_xsec = inclusive_fit.evalPoint(&sm_pt);
-        inclusive_fit.scale(1.0/SM_xsec);
+        //std::cout << "\nBefore all norm!!! incl SM xsec: " << inclusive_fit.evalPoint(&sm_pt) << " selection SM xsec: " << selection_fit.evalPoint(&sm_pt) << std::endl;
+
+        double SM_xsec_incl = inclusive_fit.evalPoint(&sm_pt);
+        double SM_xsec_sel = selection_fit.evalPoint(&sm_pt);
+        inclusive_fit.scale(1.0/SM_xsec_incl);
+        selection_fit.scale(1.0/SM_xsec_sel);
+
+        //std::cout << "\nAfter all norm!!! incl SM xsec: " << inclusive_fit.evalPoint(&sm_pt) << " selection SM xsec: " << selection_fit.evalPoint(&sm_pt) << std::endl;
+
+        ///* // Dump the fit functions
+        //std::vector<std::string> list_of_WC = {"ctG","ctW"};
+        std::vector<std::string> list_of_WC = {"ctp","cpQM","ctW","ctZ","ctG","cbW","cpQ3","cptb","cpt","cQl3i","cQlMi","cQei","ctli","ctei","ctlSi","ctlTi"};
+        std::cout << " " << std:: endl;
+        for (std::string WC : list_of_WC){ 
+            inclusive_fit.dump(false,153,WC);
+            //selection_fit.dump(false,153,WC);
+            std::cout << " " << std:: endl;
+        }
+        //*/
 
         // Normalize ref pt and add to list
         std::cout << "Is ref? " << is_ref << std::endl;
         if (is_ref) {
             //ref_fits.push_back(inclusive_fit); ???
-            ref_fit_pt.scale(1.0/SM_xsec);
+            ref_fit_pt.scale(1.0/SM_xsec_incl); // CHECK SM_xsec_incl vs SM_xsec_sel if making ref pts!!!!!!!
             ref_pts.push_back(ref_fit_pt);
         }
 
@@ -216,8 +255,8 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
 
             // Get cleaned up version of process name
             //TString comp_type = "0p1pComp";
-            //TString comp_type = "qCutScan";
-            TString comp_type = "matchScaleScan";
+            TString comp_type = "qCutScan";
+            //TString comp_type = "matchScaleScan";
             //TString comp_type = "startPtComp";
             if (process_TStr.Index("ttH") != -1){
                 leg_tag = "tth";
@@ -242,6 +281,7 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
                 leg_tag = tmp_tag + " " + run_label;
             }
             inclusive_fit.setTag(leg_tag);
+            //selection_fit.setTag(leg_tag);
 
             //fit_tag.erase(0,25);
             //if (fit_tag[0] != 'x') {
@@ -251,6 +291,7 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
             //inclusive_fit.setTag(fit_tag);
 
             target_fits.push_back(inclusive_fit);
+            //target_fits.push_back(selection_fit);
         }
 
         std::cout << std::endl;
