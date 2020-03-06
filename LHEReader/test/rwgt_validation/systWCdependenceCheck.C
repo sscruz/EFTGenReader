@@ -129,8 +129,8 @@ void makePlot(TString sys, vector<WCPoint> pts_vect, vector<WCPoint> pts_vect_Wg
     // Draw, save, delete
     float max_val = std::max(max_y_u,max_y_d);
     float min_val = std::min(min_y_u,min_y_d);
-    //fit->SetMaximum(max_val);
-    //fit->SetMinimum(min_val);
+    fit->SetMaximum(max_val);
+    fit->SetMinimum(min_val);
     legend->Draw();
     c1->Print(save_name,"png");
     //c1->Print("TEST.png","png");
@@ -164,6 +164,16 @@ std::vector<std::map<std::string,std::vector<WCPoint>>> get_WCpt_syst_maps(TStri
     std::map<std::string,std::vector<WCPoint>> selection_pts_map; // Should only have key "nominal", could be a vect but want same type as selection_pts_WgtU/D_map
     std::map<std::string,std::vector<WCPoint>> selection_pts_WgtU_map;
     std::map<std::string,std::vector<WCPoint>> selection_pts_WgtD_map;
+
+    TString sm_run = "run2"; // Depends very much on the files we loop over!
+    float sm_norm_NOM = 0;
+    std::map<std::string,float> sm_norm_UP;
+    std::map<std::string,float> sm_norm_DOWN;
+    for (auto sys: sys_names){
+        sm_norm_UP[sys] = 0;
+        sm_norm_DOWN[sys] = 0;
+    }
+
     WCPoint sm_pt("smpt");
     std::vector<TString> all_dirs;
     TString fdir;
@@ -178,22 +188,6 @@ std::vector<std::map<std::string,std::vector<WCPoint>>> get_WCpt_syst_maps(TStri
     std::cout << "Number of points to plot (number of files provied): " << n_pts << std::endl;
 
     std::map<string,string> ref_pts_dict = make_wcpt_run_map(); // Very bad, depends very much on naming scheme!)
-    /*
-    // Set up the wc point string (depends a lot on the naming scheme!):
-    // Right now this is set up for the 5 cpt axis scan files!!!
-    std::map<string,string> ref_pts_dict;
-    std::string wcname = "cpt";
-    float range_max = 15;
-    float npts = 5;
-    float step = (range_max*2)/(npts-1);
-    std::cout << "STEP" << step << std::endl;
-    int run = 0;
-    for (float wcval=-range_max; wcval<=range_max; wcval=wcval+step){
-        ref_pts_dict["run"+std::to_string(run)] = "wcpt_"+wcname+"_"+std::to_string(wcval);
-        run = run + 1;
-        std::cout << "Run: " << run << " wc val: " << wcval << std::endl;
-    }
-    */
 
     // Loop over files
     for (int idx=0; idx<all_dirs.size(); idx++){
@@ -305,12 +299,13 @@ std::vector<std::map<std::string,std::vector<WCPoint>>> get_WCpt_syst_maps(TStri
             };
             if (genLep_pt3_intree > 10 and genJet_pt4_intree > 30){
                 selection_events = selection_events + 1;
-                selection_fit.addFit(*wcFit_intree);
+                //selection_fit.addFit(*wcFit_intree);
                 selection_pt.wgt += originalXWGTUP_intree;
 
                 for (auto it = sys_map.begin(); it != sys_map.end(); it++){
                     std::string sys = it->first;
 
+                    /*
                     // Scale the up fit
                     wcFit_intree->scale(sys_map[sys]["u"]);       // Scale wcFit by sys UP weight
                     wcfit_systs_U_map[sys].addFit(*wcFit_intree); // Add scaled fit
@@ -320,6 +315,7 @@ std::vector<std::map<std::string,std::vector<WCPoint>>> get_WCpt_syst_maps(TStri
                     wcFit_intree->scale(sys_map[sys]["d"]);       // Scale wcFit by sys DOWN weight
                     wcfit_systs_D_map[sys].addFit(*wcFit_intree); // Add scaled fit
                     wcFit_intree->scale(1/sys_map[sys]["d"]);     // Put wcFit back to orig value
+                    */
 
                     // Update the WC pts
                     wcpt_systs_U_map[sys].wgt += originalXWGTUP_intree*sys_map[sys]["u"];
@@ -330,22 +326,53 @@ std::vector<std::map<std::string,std::vector<WCPoint>>> get_WCpt_syst_maps(TStri
         }
         std::cout << "\n Selected events over total: " << selection_events << "/" << last_entry << "->" << (float)selection_events/last_entry << "\n" << std::endl;
 
+        // Find the nominal SM value to normalize to
+        if (run_label == sm_run){ 
+            sm_norm_NOM = selection_pt.wgt;
+            std::cout << "norm for nominal !!!, run : " << run_label << "\n" << std::endl;
+        } else if (sm_norm_NOM == 0){
+            std::cout << "\nError: No SM value to normalize to! Check order of files in input file (SM run needs to be first).\n" << std::endl;
+            throw std::exception();
+        }
+
+
         // Normalize to SM
-        double SM_xsec_incl = inclusive_fit.evalPoint(&sm_pt);
-        double SM_xsec_sel = selection_fit.evalPoint(&sm_pt);
-        selection_pt.scale(1.0/SM_xsec_sel);
+        //double SM_xsec_incl = inclusive_fit.evalPoint(&sm_pt);
+        //double SM_xsec_sel = selection_fit.evalPoint(&sm_pt);
+        //selection_pt.scale(1.0/SM_xsec_sel);
+        //selection_pt.scale(1.0/SM_xsec_sel);
+
+        selection_pt.scale(1/sm_norm_NOM);
         selection_pts_map["nominal"].push_back(selection_pt);
 
         for (auto sys: sys_names){
-            double SM_xsec_sel_WgtU = wcfit_systs_U_map[sys].evalPoint(&sm_pt);
-            double SM_xsec_sel_WgtD = wcfit_systs_D_map[sys].evalPoint(&sm_pt);
-            inclusive_fit.scale(1.0/SM_xsec_incl);
-            selection_fit.scale(1.0/SM_xsec_sel);
 
-            //wcpt_systs_U_map[sys].scale(1.0/SM_xsec_sel);
-            //wcpt_systs_D_map[sys].scale(1.0/SM_xsec_sel);
-            wcpt_systs_U_map[sys].scale(1.0/SM_xsec_sel_WgtU);
-            wcpt_systs_D_map[sys].scale(1.0/SM_xsec_sel_WgtD);
+            // Find the up and down SM value to normalize to
+            if (run_label == sm_run){ 
+                sm_norm_UP[sys] = wcpt_systs_U_map[sys].wgt;
+                sm_norm_DOWN[sys] = wcpt_systs_D_map[sys].wgt;
+                std::cout << "\nnorm for up and down!!!, run : " << run_label << "\n" << std::endl;
+            } else if ( sm_norm_UP[sys]==0 or sm_norm_DOWN[sys]==0){
+                std::cout << "\nError: No SM value to normalize to! Check order of files in input file (SM run needs to be first).\n" << std::endl;
+                throw std::exception();
+            }
+            std::cout << sys << " " << sm_norm_UP[sys] << " " << sm_norm_DOWN[sys] << std::endl;
+
+            //double SM_xsec_sel_WgtU = wcfit_systs_U_map[sys].evalPoint(&sm_pt);
+            //double SM_xsec_sel_WgtD = wcfit_systs_D_map[sys].evalPoint(&sm_pt);
+            //inclusive_fit.scale(1.0/SM_xsec_incl);
+            //selection_fit.scale(1.0/SM_xsec_sel);
+
+            ////wcpt_systs_U_map[sys].scale(1.0/SM_xsec_sel);
+            ////wcpt_systs_D_map[sys].scale(1.0/SM_xsec_sel);
+            //wcpt_systs_U_map[sys].scale(1.0/SM_xsec_sel_WgtU);
+            //wcpt_systs_D_map[sys].scale(1.0/SM_xsec_sel_WgtD);
+
+            // New norm!
+            //wcpt_systs_U_map[sys].scale(1/sm_norm_NOM);
+            //wcpt_systs_D_map[sys].scale(1/sm_norm_NOM);
+            wcpt_systs_U_map[sys].scale(1/sm_norm_UP[sys]);
+            wcpt_systs_D_map[sys].scale(1/sm_norm_DOWN[sys]);
 
             // Fill the vector of WC points
             selection_pts_WgtU_map[sys].push_back(wcpt_systs_U_map[sys]);
@@ -463,21 +490,18 @@ std::vector<std::map<std::string,std::vector<WCPoint>>> get_WCpt_qCut_maps(TStri
                 selection_events = selection_events + 1;
 
                 // Nominal
-                //if (grp_tag.find("qCut19") != std::string::npos){
                 if (f_type == "qCut_nom"){
                     selection_fit.addFit(*wcFit_intree);
                     selection_pt.wgt += originalXWGTUP_intree;
                 }
 
                 // Scale the up fit and update WC pt
-                //if (grp_tag.find("qCut25") != std::string::npos){
                 if (f_type == "qCut_up"){
                     wcfit_systs_U_map["qCut"].addFit(*wcFit_intree);
                     wcpt_systs_U_map["qCut"].wgt += originalXWGTUP_intree;
                 }
 
                 // Scale the down fit and update WC pt
-                //if (grp_tag.find("qCut15") != std::string::npos){
                 if (f_type == "qCut_down"){
                     wcfit_systs_D_map["qCut"].addFit(*wcFit_intree);
                     wcpt_systs_D_map["qCut"].wgt += originalXWGTUP_intree;
@@ -529,7 +553,7 @@ void systWCdependenceCheck(TString run_dirs_file, TString run_dirs_qCuts_file) {
     }
     //*/
     
-    ///*
+    /* // Normalization has not been updated
     std::cout << "\n ---------- Starting on the q cut calculations ----------\n" << std::endl;
     std::vector<std::map<std::string,std::vector<WCPoint>>> qCut_pts_vect;
     qCut_pts_vect = get_WCpt_qCut_maps(run_dirs_qCuts_file);
@@ -537,6 +561,6 @@ void systWCdependenceCheck(TString run_dirs_file, TString run_dirs_qCuts_file) {
     std::map<std::string,std::vector<WCPoint>> selection_pts_qCutU_map = qCut_pts_vect.at(1);
     std::map<std::string,std::vector<WCPoint>> selection_pts_qCutD_map = qCut_pts_vect.at(2);
     makePlot("qCut",selection_pts_map["nominal"],selection_pts_qCutU_map["qCut"],selection_pts_qCutD_map["qCut"]);
-    //*/
+    */
 
 }
