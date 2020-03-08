@@ -20,6 +20,9 @@
 #include "TF1.h"
 #include "TGraph.h"
 #include "TLatex.h"
+#include "TH1D.h"
+
+#include "TGaxis.h"
 
 #include "EFTGenReader/EFTHelperUtilities/interface/WCPoint.h"
 #include "EFTGenReader/EFTHelperUtilities/interface/WCFit.h"
@@ -28,15 +31,30 @@
 #include "EFTGenReader/EFTHelperUtilities/interface/split_string.h"
 #include "makeEFTPlots.h"
 
+// Returns a TH1D whose bins are f1/f2 in the range xmin to xmax
+TH1D* divideTF1s(TF1* f1, TF1* f2, float xmin, float xmax){
+    int nsteps = 1000;
+    float step = (xmax - xmin)/nsteps;
+    float xcoord;
+    float ratio;
+    TH1D* ratio_hst = new TH1D("hist","",nsteps,xmin,xmax);
+    for (int i=0; i<nsteps; i++){
+        xcoord = xmin + (step*i);
+        ratio = f1->Eval(xcoord)/f2->Eval(xcoord);
+        ratio_hst->SetBinContent(i+1,ratio);
+    }
+    return ratio_hst;
+}
 
 void makePlot(TString sys, vector<WCPoint> pts_vect, vector<WCPoint> pts_vect_WgtU, vector<WCPoint> pts_vect_WgtD){
+
+    bool include_ratio = true;
     WCFit* wc_fit = new WCFit(pts_vect,"test");
     WCFit* wc_fit_WgtU = new WCFit(pts_vect_WgtU,"test");
     WCFit* wc_fit_WgtD = new WCFit(pts_vect_WgtD,"test");
 
     std::string wc_name = "cpt"; // Should pass this to makePlot?
     TString save_name = sys+".png";
-    //TString save_name = "TEST.png";
     TString plot_name = "";
     TString x_axis_name = wc_name+" Strength";
     TString y_axis_name = "\\sigma_{NP}/\\sigma_{SM}";
@@ -48,8 +66,20 @@ void makePlot(TString sys, vector<WCPoint> pts_vect, vector<WCPoint> pts_vect_Wg
     float y_min = .9;
 
     TCanvas *c1 = new TCanvas("c1","",1200,800);
-    c1->cd();
-    c1->SetGrid(1,1);
+    TPad *pad1 = new TPad("pad1", "pad1", 0, 0.3, 1, 1.0);
+    TPad *pad2 = new TPad("pad2", "pad2", 0, 0.05, 1, 0.3);
+    if (include_ratio){
+        pad1->SetBottomMargin(.1); // Upper and lower plot are not joined
+        pad1->SetGrid(1,1);        // Grid
+        pad1->Draw();              // Draw the upper pad: pad1
+        c1->cd();                  // Go back to the main canvas before defining pad2
+        pad2->SetTopMargin(0);
+        pad2->SetTopMargin(0.1);
+        pad2->SetBottomMargin(0.2);
+        pad2->SetGrid(1,1);
+        pad2->Draw();
+        pad1->cd();
+    }
 
     float left   = 0.32;
     float right  = 0.68;
@@ -126,6 +156,38 @@ void makePlot(TString sys, vector<WCPoint> pts_vect, vector<WCPoint> pts_vect_Wg
         ref_pt_gr_d->SetMarkerColor(d_clr);
         ref_pt_gr_d->Draw("P");
     }
+
+    if (include_ratio){
+        pad2->cd();               // pad1 becomes the current pad
+        TH1D* u_ratio_hist;
+        u_ratio_hist = divideTF1s(fit_u,fit,x_min,x_max);
+        u_ratio_hist->SetLineColor(u_clr);
+        u_ratio_hist->SetLineWidth(2);
+        u_ratio_hist->GetYaxis()->SetNdivisions(305,true);
+        u_ratio_hist->GetYaxis()->SetTitleOffset(0.3);
+        u_ratio_hist->GetYaxis()->SetTitleSize(0.09);
+        u_ratio_hist->GetXaxis()->SetLabelSize(0.1);
+        u_ratio_hist->GetYaxis()->SetLabelSize(0.1);
+        u_ratio_hist->GetYaxis()->SetTitle("Ratio to nominal");
+        u_ratio_hist->Draw();
+        TH1D* d_ratio_hist;
+        d_ratio_hist = divideTF1s(fit_d,fit,x_min,x_max);
+        d_ratio_hist->SetLineColor(d_clr);
+        d_ratio_hist->SetLineWidth(2);
+        d_ratio_hist->Draw("same");
+        TH1D* nom_ratio_hist;
+        nom_ratio_hist = divideTF1s(fit,fit,x_min,x_max);
+        nom_ratio_hist->SetLineColor(nom_clr);
+        nom_ratio_hist->SetLineWidth(2); 
+        nom_ratio_hist->Draw("same");
+
+        float ratio_y_lim = max( abs(u_ratio_hist->GetBinContent(1)-1), abs(d_ratio_hist->GetBinContent(1)-1) );
+        u_ratio_hist->SetMaximum(1.1*(1+ratio_y_lim));
+        u_ratio_hist->SetMinimum(0.9*(1-ratio_y_lim));
+
+        pad1->cd();
+    }
+
     // Draw, save, delete
     float max_val = std::max(max_y_u,max_y_d);
     float min_val = std::min(min_y_u,min_y_d);
@@ -208,7 +270,6 @@ std::vector<std::map<std::string,std::vector<WCPoint>>> get_WCpt_syst_maps(TStri
         std::string run_label = words.at(3);
         std::cout << "Process: " << process << " Grp tag: " << grp_tag << " Run label: " << run_label << std::endl;
 
-
         // Check qCut type
         std::string f_type = "";
         if (grp_tag.find("qCut19") != std::string::npos){
@@ -221,7 +282,6 @@ std::vector<std::map<std::string,std::vector<WCPoint>>> get_WCpt_syst_maps(TStri
             f_type = "qCut_down";
             std::cout << "qCut variation: down. Group tag: " << grp_tag << std::endl;
         }
-
 
         // Chain together all root files in the run directory
         TChain chain("EFTLHEReader/summaryTree");
@@ -361,10 +421,10 @@ std::vector<std::map<std::string,std::vector<WCPoint>>> get_WCpt_syst_maps(TStri
                 }
 
                 // Normalize
-                wcpt_systs_U_map[sys].scale(1/sm_norm_NOM); // Norm up to nominal at 0
-                wcpt_systs_D_map[sys].scale(1/sm_norm_NOM); // Norm down to nominal at 0
-                //wcpt_systs_U_map[sys].scale(1/sm_norm_UP[sys]);   // Norm to up to up at 0
-                //wcpt_systs_D_map[sys].scale(1/sm_norm_DOWN[sys]); // Norm down to down at 0
+                //wcpt_systs_U_map[sys].scale(1/sm_norm_NOM); // Norm up to nominal at 0
+                //wcpt_systs_D_map[sys].scale(1/sm_norm_NOM); // Norm down to nominal at 0
+                wcpt_systs_U_map[sys].scale(1/sm_norm_UP[sys]);   // Norm to up to up at 0
+                wcpt_systs_D_map[sys].scale(1/sm_norm_DOWN[sys]); // Norm down to down at 0
 
                 // Fill the vector of WC points
                 selection_pts_WgtU_map[sys].push_back(wcpt_systs_U_map[sys]);
@@ -381,8 +441,8 @@ std::vector<std::map<std::string,std::vector<WCPoint>>> get_WCpt_syst_maps(TStri
                 throw std::exception();
             }
             //std::cout << " sm_norm_UP[qCut] " << sm_norm_UP["qCut"] << std::endl;
-            //wcpt_systs_U_map["qCut"].scale(1/sm_norm_UP["qCut"]); // Norm up to up at 0
-            wcpt_systs_U_map["qCut"].scale(1/sm_norm_NOM); // Norm up to nominal at 0
+            wcpt_systs_U_map["qCut"].scale(1/sm_norm_UP["qCut"]); // Norm up to up at 0
+            //wcpt_systs_U_map["qCut"].scale(1/sm_norm_NOM); // Norm up to nominal at 0
             selection_pts_WgtU_map["qCut"].push_back(wcpt_systs_U_map["qCut"]);
         } 
         else if (f_type == "qCut_down"){
@@ -393,8 +453,8 @@ std::vector<std::map<std::string,std::vector<WCPoint>>> get_WCpt_syst_maps(TStri
                 throw std::exception();
             }
             //std::cout << " sm_norm_DOWN[qCut] " << sm_norm_DOWN["qCut"] << std::endl;
-            //wcpt_systs_D_map["qCut"].scale(1/sm_norm_DOWN["qCut"]); // Norm down to down at 0
-            wcpt_systs_D_map["qCut"].scale(1/sm_norm_NOM); // Norm down to nominal at 0
+            wcpt_systs_D_map["qCut"].scale(1/sm_norm_DOWN["qCut"]); // Norm down to down at 0
+            //wcpt_systs_D_map["qCut"].scale(1/sm_norm_NOM); // Norm down to nominal at 0
             selection_pts_WgtD_map["qCut"].push_back(wcpt_systs_D_map["qCut"]);
         }
 
