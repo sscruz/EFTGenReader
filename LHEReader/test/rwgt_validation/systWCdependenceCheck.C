@@ -19,6 +19,7 @@
 #include "TLegend.h"
 #include "TF1.h"
 #include "TGraph.h"
+#include "TGraphAsymmErrors.h"
 #include "TLatex.h"
 #include "TH1D.h"
 
@@ -169,6 +170,7 @@ TH1D* divideTF1s(TString name, TF1* f1, TF1* f2, float xmin, float xmax){
 void makePlot(TString sys, vector<WCPoint> pts_vect, vector<WCPoint> pts_vect_WgtU, vector<WCPoint> pts_vect_WgtD){
 
     bool include_ratio = true;
+    bool draw_errorband = true;
     WCFit* wc_fit = new WCFit(pts_vect,"test");
     WCFit* wc_fit_WgtU = new WCFit(pts_vect_WgtU,"test");
     WCFit* wc_fit_WgtD = new WCFit(pts_vect_WgtD,"test");
@@ -193,7 +195,6 @@ void makePlot(TString sys, vector<WCPoint> pts_vect, vector<WCPoint> pts_vect_Wg
         pad1->SetGrid(1,1);        // Grid
         pad1->Draw();              // Draw the upper pad: pad1
         c1->cd();                  // Go back to the main canvas before defining pad2
-        pad2->SetTopMargin(0);
         pad2->SetTopMargin(0.1);
         pad2->SetBottomMargin(0.2);
         pad2->SetGrid(1,1);
@@ -314,11 +315,34 @@ void makePlot(TString sys, vector<WCPoint> pts_vect, vector<WCPoint> pts_vect_Wg
         u_ratio_hist->SetMinimum(0.9*(1-ratio_y_lim));
         //u_ratio_hist->SetMaximum(1.025);
         //u_ratio_hist->SetMinimum(0.975);
-
         pad1->cd();
-        delete nom_ratio_hist;
-        delete u_ratio_hist;
-        delete d_ratio_hist;
+    }
+
+    if (draw_errorband){
+        const Int_t n = 100;
+        double xcoord = 0;
+        double step_size = (x_max-x_min)/float(n-1);
+        Double_t x[n], y[n], exl[n], eyl[n], exh[n], eyh[n];
+        for (int i=0; i<n; i++){
+            xcoord = x_min + i*step_size;
+            x[i] = xcoord;
+            y[i] = fit->Eval(xcoord);
+            // The errror band only makes sense in the same line is either always above or always below nominal
+            // If this is not the case, these if statements do not cover that situation, we'll just get some negative error bars
+            // Probably we should not be trying to draw error bands between u and d fits if they are crossing nominal anyway
+            if (fit_u->Eval(xcoord) > fit->Eval(xcoord)){
+                eyh[i] = fit_u->Eval(xcoord) - fit->Eval(xcoord);
+                eyl[i] = fit->Eval(xcoord) - fit_d->Eval(xcoord);
+            } else {
+                eyh[i] = fit_d->Eval(xcoord) - fit->Eval(xcoord);
+                eyl[i] = fit->Eval(xcoord) - fit_u->Eval(xcoord);
+            }
+            exl[i] = 0;
+            exh[i] = 0;
+        }
+        auto error_band = new TGraphAsymmErrors(n,x,y,exl,exh,eyl,eyh);
+        error_band->SetFillStyle(3002);
+        error_band->Draw("3");
     }
 
     // Draw, save, delete
@@ -429,7 +453,7 @@ std::vector<std::map<std::string,std::vector<WCPoint>>> get_WCpt_syst_maps(TStri
         int last_entry = chain_entries;
         if (chain_entries > 100000) { // 100k != 10min for some reason
             std::cout << "Chain_entries: " << chain_entries << std::endl;
-            last_entry = 100000;
+            //last_entry = 100000;
         }
         //last_entry = 100; // For testing
         std::cout << "Last_entry: " << last_entry << std::endl;
@@ -607,7 +631,7 @@ void systWCdependenceCheck(TString run_dirs_file, TString run_dirs_qCuts_file) {
     std::map<std::string,std::vector<WCPoint>> selection_pts_WgtD_map = systs_pts_vect.at(2);
 
     // Make plots for all of the systematics individually
-    sys_names.push_back("qCut");
+    sys_names.push_back("qCut"); // If including qCut
     for(auto sys : sys_names){
         makePlot(sys,selection_pts_map["nominal"],selection_pts_WgtU_map[sys],selection_pts_WgtD_map[sys]);
     }
