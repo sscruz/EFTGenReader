@@ -31,6 +31,122 @@
 #include "EFTGenReader/EFTHelperUtilities/interface/split_string.h"
 #include "makeEFTPlots.h"
 
+
+// Checks if two vectors of WCPoints are the same size
+void checkVectSizes(std::vector<WCPoint> v1, std::vector<WCPoint> v2){
+    if ( v1.size() != v2.size() ){
+        std::cout << "\nError: Vectors are not the same length! First is " << v1.size() << " while second is " << v2.size() << ". Exiting...\n" << std::endl;
+        throw std::exception();
+    }
+}
+
+// Returns a map (for "inc" and "dec") of vectors of WCpoints that are the max and min muR, muF, muRmuF
+std::map<std::string,std::vector<WCPoint>> muRmuFenvelope(std::vector<WCPoint> v_nom, std::map<std::string,std::vector<WCPoint>> m1, std::map<std::string,std::vector<WCPoint>> m2){
+
+    std::map<std::string,std::vector<WCPoint>> return_map;
+    std::vector<std::string> s_lst {"muR","muF","muRmuF"};
+    double wgt1, wgt2, wgt_min, wgt_max;
+    for (int i=0; i<v_nom.size(); i++){
+        WCPoint wcpt_inc;
+        WCPoint wcpt_dec;
+        wcpt_inc.setStrength("cpt",v_nom.at(i).getStrength("cpt"));
+        wcpt_dec.setStrength("cpt",v_nom.at(i).getStrength("cpt"));
+        wgt_min = 1000;
+        wgt_max = 0;
+        for (auto sys : s_lst){
+            wgt1 = m1[sys].at(i).wgt;
+            wgt2 = m2[sys].at(i).wgt;
+            std::cout << "w1 and w2: " << wgt1 << " " << wgt2 << std::endl;
+            if (wgt1 < wgt_min) {
+                wgt_min = wgt1;
+            }
+            if (wgt1 > wgt_max) {
+                wgt_max = wgt1;
+            }
+            if (wgt2 < wgt_min) {
+                wgt_min = wgt2;
+            }
+            if (wgt2 > wgt_max) {
+                wgt_max = wgt2;
+            }
+        }
+        wcpt_inc.wgt = wgt_max;
+        wcpt_dec.wgt = wgt_min;
+        std::cout << "w min  and w max: " << wgt_min << " " << wgt_max << std::endl;
+        return_map["inc"].push_back(wcpt_inc);
+        return_map["dec"].push_back(wcpt_dec);
+    }
+    return return_map;
+}
+
+
+// Returns a map of two vectors of WCPoints, one with all of the systs that inc the xsec added in quad, one wiht all the systs that dec the xsec added in quad
+std::map<std::string,std::vector<WCPoint>> getQuadSums(std::vector<std::string> s_names, std::map<std::string,std::vector<WCPoint>> nom_map, std::map<std::string,std::vector<WCPoint>> up_map, std::map<std::string,std::vector<WCPoint>> down_map){
+
+    map<std::string,std::vector<WCPoint>> return_map;
+    std::map<std::string,std::vector<WCPoint>> return_map_inc;
+    std::map<std::string,std::vector<WCPoint>> return_map_dec;
+    //float u , d , n , delta_inc , delta_dec , quad_sum_inc , quad_sum_dec;
+    double u , d , n , delta_inc , delta_dec , quad_sum_inc , quad_sum_dec;
+
+    for (int i=0; i<nom_map["nominal"].size(); i++){
+        std::cout << "\npoint: " << i << "\n" << std::endl;
+
+        quad_sum_inc = 0;
+        quad_sum_dec = 0;
+        WCPoint wcpt_inc;
+        WCPoint wcpt_dec;
+        wcpt_inc.setStrength("cpt",nom_map["nominal"].at(i).getStrength("cpt"));
+        wcpt_dec.setStrength("cpt",nom_map["nominal"].at(i).getStrength("cpt"));
+
+        n = nom_map["nominal"].at(i).wgt;
+        for(auto sys : s_names){
+            std::cout << "sys: " << sys << std::endl;
+            std::cout << "WC Strength: " << nom_map["nominal"].at(i).getStrength("cpt") << " " << up_map[sys].at(i).getStrength("cpt") << " " << down_map[sys].at(i).getStrength("cpt") << std::endl;
+
+            u = up_map[sys].at(i).wgt;
+            d = down_map[sys].at(i).wgt;
+            std::cout << "weights nom, up, down: " << n << " " << u << " " << d << std::endl;
+
+            if ( (u-n>0 and d-n>0) or (u-n<0 and d-n<0) ){ // Both u and d are in same dir
+                std::cout << "wgts in same dir" << std::endl;
+                delta_inc = max( abs(u-n),abs(d-n) );
+                delta_dec = max( abs(u-n),abs(d-n) );
+            } else { // u and d are in opposite directions
+                std::cout << "wgts NOT in same dir" << std::endl;
+                if (u>n) {
+                    delta_inc = abs(u-n);
+                    delta_dec = abs(d-n);
+                } else if (u<n) {
+                    delta_inc = abs(d-n);
+                    delta_dec = abs(u-n);
+                } else if ( u==n and d==n ){
+                    delta_inc = 0;
+                    delta_dec = 0;
+                } else {
+                    if (u==n){
+                        std::cout << "up equals nom: " << u << " " << n << std::endl;
+                    }
+                    if (d==n){
+                        std::cout << "down equals nom: " << d << " " << n << std::endl;
+                    }
+                    std::cout << "This should not happen! Fix the if statements to account for this possiblity. Exiting..." << std::endl;
+                    throw std::exception();
+                }
+            }
+            std::cout << "delta inc and dec: " << delta_inc << " " << delta_dec << "\n" << std::endl;
+            quad_sum_inc = quad_sum_inc + delta_inc*delta_inc;
+            quad_sum_dec = quad_sum_dec + delta_dec*delta_dec;
+        }
+        std::cout << "quad sum inc and dec: " << quad_sum_inc << " " << quad_sum_dec << std::endl;
+        wcpt_inc.wgt = n+sqrt(quad_sum_inc);
+        wcpt_dec.wgt = n-sqrt(quad_sum_dec);
+        return_map["inc"].push_back(wcpt_inc);
+        return_map["dec"].push_back(wcpt_dec);
+    }
+    return return_map;
+}
+
 // Returns a TH1D whose bins are f1/f2 in the range xmin to xmax
 TH1D* divideTF1s(TF1* f1, TF1* f2, float xmin, float xmax){
     int nsteps = 1000;
@@ -126,7 +242,11 @@ void makePlot(TString sys, vector<WCPoint> pts_vect, vector<WCPoint> pts_vect_Wg
     float max_y_u = fit_u->Eval(x_max);
     float min_y_u = fit_u->Eval(0);
     fit_u->Draw("same");
-    legend->AddEntry(fit_u,sys+" UP","l");
+    if ( sys=="muRmuF_evnelope" or sys=="quad_sum"){
+        legend->AddEntry(fit_u,sys+" HIGH","l");
+    } else {
+        legend->AddEntry(fit_u,sys+" UP","l");
+    }
     for (int i = 0; i < pts_vect_WgtU.size(); i++) {
         WCPoint ref_pt_u = pts_vect_WgtU.at(i);
         TGraph* ref_pt_gr_u = new TGraph(1);
@@ -147,7 +267,11 @@ void makePlot(TString sys, vector<WCPoint> pts_vect, vector<WCPoint> pts_vect_Wg
     float max_y_d = fit_d->Eval(x_max);
     float min_y_d = fit_d->Eval(0);
     fit_d->Draw("same");
-    legend->AddEntry(fit_d,sys+" DOWN","l");
+    if ( sys=="muRmuF_evnelope" or sys=="quad_sum"){
+        legend->AddEntry(fit_d,sys+" LOW","l");
+    } else {
+        legend->AddEntry(fit_d,sys+" DOWN","l");
+    }
     for (int i = 0; i < pts_vect_WgtD.size(); i++) {
         WCPoint ref_pt_d = pts_vect_WgtD.at(i);
         TGraph* ref_pt_gr_d = new TGraph(1);
@@ -184,6 +308,8 @@ void makePlot(TString sys, vector<WCPoint> pts_vect, vector<WCPoint> pts_vect_Wg
         float ratio_y_lim = max( abs(u_ratio_hist->GetBinContent(1)-1), abs(d_ratio_hist->GetBinContent(1)-1) );
         u_ratio_hist->SetMaximum(1.1*(1+ratio_y_lim));
         u_ratio_hist->SetMinimum(0.9*(1-ratio_y_lim));
+        //u_ratio_hist->SetMaximum(1.025);
+        //u_ratio_hist->SetMinimum(0.975);
 
         pad1->cd();
     }
@@ -195,7 +321,6 @@ void makePlot(TString sys, vector<WCPoint> pts_vect, vector<WCPoint> pts_vect_Wg
     fit->SetMinimum(min_val*.95);
     legend->Draw();
     c1->Print(save_name,"png");
-    //c1->Print("TEST.png","png");
     delete legend;
     delete c1;
 }
@@ -297,7 +422,7 @@ std::vector<std::map<std::string,std::vector<WCPoint>>> get_WCpt_syst_maps(TStri
         int last_entry = chain_entries;
         if (chain_entries > 100000) { // 100k != 10min for some reason
             std::cout << "Chain_entries: " << chain_entries << std::endl;
-            last_entry = 100000;
+            //last_entry = 100000;
         }
         //last_entry = 100; // For testing
         std::cout << "Last_entry: " << last_entry << std::endl;
@@ -421,10 +546,10 @@ std::vector<std::map<std::string,std::vector<WCPoint>>> get_WCpt_syst_maps(TStri
                 }
 
                 // Normalize
-                //wcpt_systs_U_map[sys].scale(1/sm_norm_NOM); // Norm up to nominal at 0
-                //wcpt_systs_D_map[sys].scale(1/sm_norm_NOM); // Norm down to nominal at 0
-                wcpt_systs_U_map[sys].scale(1/sm_norm_UP[sys]);   // Norm to up to up at 0
-                wcpt_systs_D_map[sys].scale(1/sm_norm_DOWN[sys]); // Norm down to down at 0
+                wcpt_systs_U_map[sys].scale(1/sm_norm_NOM); // Norm up to nominal at 0
+                wcpt_systs_D_map[sys].scale(1/sm_norm_NOM); // Norm down to nominal at 0
+                //wcpt_systs_U_map[sys].scale(1/sm_norm_UP[sys]);   // Norm to up to up at 0
+                //wcpt_systs_D_map[sys].scale(1/sm_norm_DOWN[sys]); // Norm down to down at 0
 
                 // Fill the vector of WC points
                 selection_pts_WgtU_map[sys].push_back(wcpt_systs_U_map[sys]);
@@ -441,8 +566,8 @@ std::vector<std::map<std::string,std::vector<WCPoint>>> get_WCpt_syst_maps(TStri
                 throw std::exception();
             }
             //std::cout << " sm_norm_UP[qCut] " << sm_norm_UP["qCut"] << std::endl;
-            wcpt_systs_U_map["qCut"].scale(1/sm_norm_UP["qCut"]); // Norm up to up at 0
-            //wcpt_systs_U_map["qCut"].scale(1/sm_norm_NOM); // Norm up to nominal at 0
+            //wcpt_systs_U_map["qCut"].scale(1/sm_norm_UP["qCut"]); // Norm up to up at 0
+            wcpt_systs_U_map["qCut"].scale(1/sm_norm_NOM); // Norm up to nominal at 0
             selection_pts_WgtU_map["qCut"].push_back(wcpt_systs_U_map["qCut"]);
         } 
         else if (f_type == "qCut_down"){
@@ -453,8 +578,8 @@ std::vector<std::map<std::string,std::vector<WCPoint>>> get_WCpt_syst_maps(TStri
                 throw std::exception();
             }
             //std::cout << " sm_norm_DOWN[qCut] " << sm_norm_DOWN["qCut"] << std::endl;
-            wcpt_systs_D_map["qCut"].scale(1/sm_norm_DOWN["qCut"]); // Norm down to down at 0
-            //wcpt_systs_D_map["qCut"].scale(1/sm_norm_NOM); // Norm down to nominal at 0
+            //wcpt_systs_D_map["qCut"].scale(1/sm_norm_DOWN["qCut"]); // Norm down to down at 0
+            wcpt_systs_D_map["qCut"].scale(1/sm_norm_NOM); // Norm down to nominal at 0
             selection_pts_WgtD_map["qCut"].push_back(wcpt_systs_D_map["qCut"]);
         }
 
@@ -466,6 +591,7 @@ std::vector<std::map<std::string,std::vector<WCPoint>>> get_WCpt_syst_maps(TStri
 void systWCdependenceCheck(TString run_dirs_file, TString run_dirs_qCuts_file) {
     gStyle->SetOptStat(0);
     std::vector<std::string> sys_names {"psISR","psFSR","muR","muF","muRmuF","nnpdf"};
+    //std::vector<std::string> sys_names {"psISR","psFSR"}; // for TESTING
 
     std::vector<std::map<std::string,std::vector<WCPoint>>> systs_pts_vect;
     //systs_pts_vect = get_WCpt_syst_maps(run_dirs_file);
@@ -478,5 +604,24 @@ void systWCdependenceCheck(TString run_dirs_file, TString run_dirs_qCuts_file) {
     for(auto sys : sys_names){
         makePlot(sys,selection_pts_map["nominal"],selection_pts_WgtU_map[sys],selection_pts_WgtD_map[sys]);
     }
+
+    // Get the envelope of muR and muF
+    std::map<std::string,std::vector<WCPoint>> muRmuFenvelope_map;
+    muRmuFenvelope_map = muRmuFenvelope(selection_pts_map["nominal"],selection_pts_WgtU_map,selection_pts_WgtD_map);
+    makePlot("muRmuF_evnelope",selection_pts_map["nominal"],muRmuFenvelope_map["inc"],muRmuFenvelope_map["dec"]);
+    selection_pts_WgtU_map["muRmuFenv"] = muRmuFenvelope_map["inc"]; // Up and down do not hold meaning here
+    selection_pts_WgtD_map["muRmuFenv"] = muRmuFenvelope_map["dec"]; // Up and down do not hold meaning here
     
+    // Add the systematics in quadrature
+    std::vector<std::string> s_to_add_in_quad {"psISR","psFSR","nnpdf","qCut","muRmuFenv"};
+    std::vector<WCPoint> quadSum_vect_incXsec;
+    std::vector<WCPoint> quadSum_vect_decXsec;
+    std::map<std::string,std::vector<WCPoint>> quad_sum_map;
+    quad_sum_map = getQuadSums(s_to_add_in_quad,selection_pts_map,selection_pts_WgtU_map,selection_pts_WgtD_map);
+    quadSum_vect_incXsec = quad_sum_map["inc"];
+    quadSum_vect_decXsec = quad_sum_map["dec"];
+    makePlot("quad_sum",selection_pts_map["nominal"],quadSum_vect_incXsec,quadSum_vect_decXsec);
+
+
+
 }
