@@ -2,7 +2,10 @@ import subprocess
 
 def main():
 
-    f_name = "dirpaths_systCheck.txt" # Right now systWCdependenceCheck.C assumes this dir has the 5 cpt axis scan files in it!!!
-    subprocess.check_call(['root','-b','-l','-q','systWCdependenceCheck.C+(\"%s\")' % (f_name)])
+    # Right now systWCdependenceCheck.C assumes these dirs have the 5 cpt axis scan files in it!!!
+    f_name = "dirpaths_systCheck.txt" 
+    qCut_f_name = "dirpaths_systCheck_qCutDirs.txt"
+
+    subprocess.check_call(['root','-b','-l','-q','systWCdependenceCheck.C+(\"%s\",\"%s")' % (f_name,qCut_f_name)])
 
 main()
