@@ -167,10 +167,12 @@ TH1D* divideTF1s(TString name, TF1* f1, TF1* f2, float xmin, float xmax){
     return ratio_hst;
 }
 
+// Make plots of the up down and nominal
 void makePlot(TString sys, vector<WCPoint> pts_vect, vector<WCPoint> pts_vect_WgtU, vector<WCPoint> pts_vect_WgtD){
 
-    bool include_ratio = true;
+    bool include_ratio = false;
     bool draw_errorband = true;
+    bool draw_updown = false;
     WCFit* wc_fit = new WCFit(pts_vect,"test");
     WCFit* wc_fit_WgtU = new WCFit(pts_vect_WgtU,"test");
     WCFit* wc_fit_WgtD = new WCFit(pts_vect_WgtD,"test");
@@ -246,11 +248,13 @@ void makePlot(TString sys, vector<WCPoint> pts_vect, vector<WCPoint> pts_vect_Wg
     fit_u->SetLineColor(u_clr);
     float max_y_u = fit_u->Eval(x_max);
     float min_y_u = fit_u->Eval(0);
-    fit_u->Draw("same");
-    if ( sys=="muRmuF_evnelope" or sys=="quad_sum"){
-        legend->AddEntry(fit_u,sys+" HIGH","l");
-    } else {
-        legend->AddEntry(fit_u,sys+" UP","l");
+    if (draw_updown){
+        fit_u->Draw("same");
+        if ( sys=="muRmuF_evnelope" or sys=="quad_sum"){
+            legend->AddEntry(fit_u,sys+" HIGH","l");
+        } else {
+            legend->AddEntry(fit_u,sys+" UP","l");
+        }
     }
     for (int i = 0; i < pts_vect_WgtU.size(); i++) {
         WCPoint ref_pt_u = pts_vect_WgtU.at(i);
@@ -258,7 +262,9 @@ void makePlot(TString sys, vector<WCPoint> pts_vect, vector<WCPoint> pts_vect_Wg
         ref_pt_gr_u->SetPoint(0,ref_pt_u.getStrength(wc_name),ref_pt_u.wgt);
         ref_pt_gr_u->SetMarkerStyle(4);
         ref_pt_gr_u->SetMarkerColor(u_clr);
-        ref_pt_gr_u->Draw("P");
+        if (draw_updown) {
+            ref_pt_gr_u->Draw("P");
+        }
     }
     // DOWN //
     double s0_d = wc_fit_WgtD->getCoefficient(wc_fit_WgtD->kSMstr,wc_fit_WgtD->kSMstr);
@@ -271,11 +277,13 @@ void makePlot(TString sys, vector<WCPoint> pts_vect, vector<WCPoint> pts_vect_Wg
     fit_d->SetLineColor(d_clr);
     float max_y_d = fit_d->Eval(x_max);
     float min_y_d = fit_d->Eval(0);
-    fit_d->Draw("same");
-    if ( sys=="muRmuF_evnelope" or sys=="quad_sum"){
-        legend->AddEntry(fit_d,sys+" LOW","l");
-    } else {
-        legend->AddEntry(fit_d,sys+" DOWN","l");
+    if (draw_updown){
+        fit_d->Draw("same");
+        if ( sys=="muRmuF_evnelope" or sys=="quad_sum"){
+            legend->AddEntry(fit_d,sys+" LOW","l");
+        } else {
+            legend->AddEntry(fit_d,sys+" DOWN","l");
+        }
     }
     for (int i = 0; i < pts_vect_WgtD.size(); i++) {
         WCPoint ref_pt_d = pts_vect_WgtD.at(i);
@@ -283,7 +291,9 @@ void makePlot(TString sys, vector<WCPoint> pts_vect, vector<WCPoint> pts_vect_Wg
         ref_pt_gr_d->SetPoint(0,ref_pt_d.getStrength(wc_name),ref_pt_d.wgt);
         ref_pt_gr_d->SetMarkerStyle(4);
         ref_pt_gr_d->SetMarkerColor(d_clr);
-        ref_pt_gr_d->Draw("P");
+        if (draw_updown) {
+            ref_pt_gr_d->Draw("P");
+        }
     }
 
     if (include_ratio){
