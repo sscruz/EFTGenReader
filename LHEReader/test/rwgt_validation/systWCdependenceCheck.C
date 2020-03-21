@@ -34,8 +34,7 @@
 
 // // // //
 // NOTE the following: 
-//    - cpt is hard coded all over this scritp. Probably not a great. If ever want to look at a different WC, should change it to NOT be hard coded.
-//    - if we ever look at a different set of WC values, would need to modify how we associate runs with WC strengths too! 
+//    - if we ever look at a different set of WC values, would need to modify how we associate runs with WC strengths!
 // // // //
 
 // Checks if two vectors of WCPoints are the same size
@@ -47,7 +46,7 @@ void checkVectSizes(std::vector<WCPoint> v1, std::vector<WCPoint> v2){
 }
 
 // Returns a map (for "inc" and "dec") of vectors of WCpoints that are the max and min muR, muF, muRmuF
-std::map<std::string,std::vector<WCPoint>> muRmuFenvelope(std::vector<WCPoint> v_nom, std::map<std::string,std::vector<WCPoint>> m1, std::map<std::string,std::vector<WCPoint>> m2){
+std::map<std::string,std::vector<WCPoint>> muRmuFenvelope(std::string wc_name, std::vector<WCPoint> v_nom, std::map<std::string,std::vector<WCPoint>> m1, std::map<std::string,std::vector<WCPoint>> m2){
 
     std::map<std::string,std::vector<WCPoint>> return_map;
     std::vector<std::string> s_lst {"muR","muF","muRmuF"};
@@ -55,8 +54,10 @@ std::map<std::string,std::vector<WCPoint>> muRmuFenvelope(std::vector<WCPoint> v
     for (int i=0; i<v_nom.size(); i++){
         WCPoint wcpt_inc;
         WCPoint wcpt_dec;
-        wcpt_inc.setStrength("cpt",v_nom.at(i).getStrength("cpt"));
-        wcpt_dec.setStrength("cpt",v_nom.at(i).getStrength("cpt"));
+        //wcpt_inc.setStrength("cpt",v_nom.at(i).getStrength("cpt"));
+        //wcpt_dec.setStrength("cpt",v_nom.at(i).getStrength("cpt"));
+        wcpt_inc.setStrength(wc_name,v_nom.at(i).getStrength(wc_name));
+        wcpt_dec.setStrength(wc_name,v_nom.at(i).getStrength(wc_name));
         wgt_min = 1000;
         wgt_max = 0;
         for (auto sys : s_lst){
@@ -87,7 +88,7 @@ std::map<std::string,std::vector<WCPoint>> muRmuFenvelope(std::vector<WCPoint> v
 
 
 // Returns a map of two vectors of WCPoints, one with all of the systs that inc the xsec added in quad, one wiht all the systs that dec the xsec added in quad
-std::map<std::string,std::vector<WCPoint>> getQuadSums(std::vector<std::string> s_names, std::map<std::string,std::vector<WCPoint>> nom_map, std::map<std::string,std::vector<WCPoint>> up_map, std::map<std::string,std::vector<WCPoint>> down_map){
+std::map<std::string,std::vector<WCPoint>> getQuadSums(std::string wc_name, std::vector<std::string> s_names, std::map<std::string,std::vector<WCPoint>> nom_map, std::map<std::string,std::vector<WCPoint>> up_map, std::map<std::string,std::vector<WCPoint>> down_map){
 
     map<std::string,std::vector<WCPoint>> return_map;
     std::map<std::string,std::vector<WCPoint>> return_map_inc;
@@ -101,8 +102,10 @@ std::map<std::string,std::vector<WCPoint>> getQuadSums(std::vector<std::string> 
         quad_sum_dec = 0;
         WCPoint wcpt_inc;
         WCPoint wcpt_dec;
-        wcpt_inc.setStrength("cpt",nom_map["nominal"].at(i).getStrength("cpt"));
-        wcpt_dec.setStrength("cpt",nom_map["nominal"].at(i).getStrength("cpt"));
+        //wcpt_inc.setStrength("cpt",nom_map["nominal"].at(i).getStrength("cpt"));
+        //wcpt_dec.setStrength("cpt",nom_map["nominal"].at(i).getStrength("cpt"));
+        wcpt_inc.setStrength(wc_name,nom_map["nominal"].at(i).getStrength(wc_name));
+        wcpt_dec.setStrength(wc_name,nom_map["nominal"].at(i).getStrength(wc_name));
 
         n = nom_map["nominal"].at(i).wgt;
         for(auto sys : s_names){
@@ -168,7 +171,7 @@ TH1D* divideTF1s(TString name, TF1* f1, TF1* f2, float xmin, float xmax){
 }
 
 // Make plots of the up down and nominal
-void makePlot(TString sys, vector<WCPoint> pts_vect, vector<WCPoint> pts_vect_WgtU, vector<WCPoint> pts_vect_WgtD){
+void makePlot(std::string wc_name, TString sys, vector<WCPoint> pts_vect, vector<WCPoint> pts_vect_WgtU, vector<WCPoint> pts_vect_WgtD){
 
     bool include_ratio = false;
     bool draw_errorband = true;
@@ -177,7 +180,8 @@ void makePlot(TString sys, vector<WCPoint> pts_vect, vector<WCPoint> pts_vect_Wg
     WCFit* wc_fit_WgtU = new WCFit(pts_vect_WgtU,"test");
     WCFit* wc_fit_WgtD = new WCFit(pts_vect_WgtD,"test");
 
-    std::string wc_name = "cpt"; // Should pass this to makePlot?
+    //std::string wc_name = "cpt"; // Should pass this to makePlot?
+
     TString save_name = sys+".png";
     TString plot_name = "";
     TString x_axis_name = wc_name+" Strength";
@@ -366,11 +370,12 @@ void makePlot(TString sys, vector<WCPoint> pts_vect, vector<WCPoint> pts_vect_Wg
     delete c1;
 }
 
-std::map<string,string> make_wcpt_run_map() {
+std::map<string,string> make_wcpt_run_map(TString wc_name) {
     // Set up the wc point string (depends a lot on the naming scheme!):
     // Right now this is set up for the 5 cpt axis scan files!!!
     std::map<string,string> ref_pts_dict;
-    std::string wcname = "cpt";
+    //std::string wcname = "cpt";
+    TString wcname = wc_name;
     float range_max = 15;
     float npts = 5;
     float step = (range_max*2)/(npts-1);
@@ -385,7 +390,7 @@ std::map<string,string> make_wcpt_run_map() {
 }
 
 // Returns a vector of 3 maps (for nominal, up, down), each map contains a vector of the 5 WCPoints for each systematic
-std::vector<std::map<std::string,std::vector<WCPoint>>> get_WCpt_syst_maps(TString run_dirs_file){
+std::vector<std::map<std::string,std::vector<WCPoint>>> get_WCpt_syst_maps(TString wc_name, TString run_dirs_file){
 
     std::vector<std::string> sys_names {"psISR","psFSR","muR","muF","muRmuF","nnpdf"};
 
@@ -415,7 +420,7 @@ std::vector<std::map<std::string,std::vector<WCPoint>>> get_WCpt_syst_maps(TStri
     int n_pts = all_dirs.size();
     std::cout << "Number of points to plot (number of files provied): " << n_pts << std::endl;
 
-    std::map<string,string> ref_pts_dict = make_wcpt_run_map(); // Very bad, depends very much on naming scheme!)
+    std::map<string,string> ref_pts_dict = make_wcpt_run_map(wc_name); // Very bad, depends very much on naming scheme!)
 
     // Loop over files
     for (int idx=0; idx<all_dirs.size(); idx++){
@@ -629,13 +634,15 @@ std::vector<std::map<std::string,std::vector<WCPoint>>> get_WCpt_syst_maps(TStri
     return return_vect;
 }
 
-void systWCdependenceCheck(TString run_dirs_file, TString run_dirs_qCuts_file) {
+void systWCdependenceCheck(TString wc_name, TString run_dirs_file, TString run_dirs_qCuts_file) {
     gStyle->SetOptStat(0);
+    std::cout << "\nThe WC we scan over in these files: " << wc_name << "\n" << std::endl;
 
+    // Fill the dictionaries of WC points for each syst
     std::vector<std::string> sys_names {"psISR","psFSR","muR","muF","muRmuF","nnpdf"};
     std::vector<std::map<std::string,std::vector<WCPoint>>> systs_pts_vect;
-    //systs_pts_vect = get_WCpt_syst_maps(run_dirs_file); // No qCut variations
-    systs_pts_vect = get_WCpt_syst_maps(run_dirs_qCuts_file); // qCut variations
+    //systs_pts_vect = get_WCpt_syst_maps(wc_name,run_dirs_file); // No qCut variations
+    systs_pts_vect = get_WCpt_syst_maps(wc_name,run_dirs_qCuts_file); // qCut variations
     std::map<std::string,std::vector<WCPoint>> selection_pts_map      = systs_pts_vect.at(0);
     std::map<std::string,std::vector<WCPoint>> selection_pts_WgtU_map = systs_pts_vect.at(1);
     std::map<std::string,std::vector<WCPoint>> selection_pts_WgtD_map = systs_pts_vect.at(2);
@@ -643,22 +650,21 @@ void systWCdependenceCheck(TString run_dirs_file, TString run_dirs_qCuts_file) {
     // Make plots for all of the systematics individually
     sys_names.push_back("qCut"); // If including qCut
     for(auto sys : sys_names){
-        makePlot(sys,selection_pts_map["nominal"],selection_pts_WgtU_map[sys],selection_pts_WgtD_map[sys]);
+        makePlot(string(wc_name),sys,selection_pts_map["nominal"],selection_pts_WgtU_map[sys],selection_pts_WgtD_map[sys]);
     }
 
     // Get the envelope of muR and muF
     std::map<std::string,std::vector<WCPoint>> muRmuFenvelope_map;
-    muRmuFenvelope_map = muRmuFenvelope(selection_pts_map["nominal"],selection_pts_WgtU_map,selection_pts_WgtD_map);
-    makePlot("muRmuF_evnelope",selection_pts_map["nominal"],muRmuFenvelope_map["inc"],muRmuFenvelope_map["dec"]);
+    muRmuFenvelope_map = muRmuFenvelope(string(wc_name),selection_pts_map["nominal"],selection_pts_WgtU_map,selection_pts_WgtD_map);
+    makePlot(string(wc_name),"muRmuF_evnelope",selection_pts_map["nominal"],muRmuFenvelope_map["inc"],muRmuFenvelope_map["dec"]);
     selection_pts_WgtU_map["muRmuFenv"] = muRmuFenvelope_map["inc"]; // Add to map, though up and down do not hold meaning here
     selection_pts_WgtD_map["muRmuFenv"] = muRmuFenvelope_map["dec"]; // Add to map, though up and down do not hold meaning here
     
     // Add the systematics in quadrature
     std::vector<std::string> s_to_add_in_quad {"psISR","psFSR","nnpdf","qCut","muRmuFenv"};
     std::map<std::string,std::vector<WCPoint>> quad_sum_map;
-    quad_sum_map = getQuadSums(s_to_add_in_quad,selection_pts_map,selection_pts_WgtU_map,selection_pts_WgtD_map);
-    makePlot("quad_sum",selection_pts_map["nominal"],quad_sum_map["inc"],quad_sum_map["dec"]);
-
+    quad_sum_map = getQuadSums(string(wc_name),s_to_add_in_quad,selection_pts_map,selection_pts_WgtU_map,selection_pts_WgtD_map);
+    makePlot(string(wc_name),"quad_sum",selection_pts_map["nominal"],quad_sum_map["inc"],quad_sum_map["dec"]);
 
 
 }
