@@ -54,11 +54,9 @@ std::map<std::string,std::vector<WCPoint>> muRmuFenvelope(std::string wc_name, s
     for (int i=0; i<v_nom.size(); i++){
         WCPoint wcpt_inc;
         WCPoint wcpt_dec;
-        //wcpt_inc.setStrength("cpt",v_nom.at(i).getStrength("cpt"));
-        //wcpt_dec.setStrength("cpt",v_nom.at(i).getStrength("cpt"));
         wcpt_inc.setStrength(wc_name,v_nom.at(i).getStrength(wc_name));
         wcpt_dec.setStrength(wc_name,v_nom.at(i).getStrength(wc_name));
-        wgt_min = 1000;
+        wgt_min = 1000000;
         wgt_max = 0;
         for (auto sys : s_lst){
             wgt1 = m1[sys].at(i).wgt;
@@ -102,8 +100,6 @@ std::map<std::string,std::vector<WCPoint>> getQuadSums(std::string wc_name, std:
         quad_sum_dec = 0;
         WCPoint wcpt_inc;
         WCPoint wcpt_dec;
-        //wcpt_inc.setStrength("cpt",nom_map["nominal"].at(i).getStrength("cpt"));
-        //wcpt_dec.setStrength("cpt",nom_map["nominal"].at(i).getStrength("cpt"));
         wcpt_inc.setStrength(wc_name,nom_map["nominal"].at(i).getStrength(wc_name));
         wcpt_dec.setStrength(wc_name,nom_map["nominal"].at(i).getStrength(wc_name));
 
@@ -173,14 +169,12 @@ TH1D* divideTF1s(TString name, TF1* f1, TF1* f2, float xmin, float xmax){
 // Make plots of the up down and nominal
 void makePlot(std::string wc_name, TString sys, vector<WCPoint> pts_vect, vector<WCPoint> pts_vect_WgtU, vector<WCPoint> pts_vect_WgtD){
 
-    bool include_ratio = false;
-    bool draw_errorband = true;
-    bool draw_updown = false;
+    bool include_ratio = true;
+    bool draw_errorband = false;
+    bool draw_updown = true;
     WCFit* wc_fit = new WCFit(pts_vect,"test");
     WCFit* wc_fit_WgtU = new WCFit(pts_vect_WgtU,"test");
     WCFit* wc_fit_WgtD = new WCFit(pts_vect_WgtD,"test");
-
-    //std::string wc_name = "cpt"; // Should pass this to makePlot?
 
     TString save_name = sys+".png";
     TString plot_name = "";
@@ -189,9 +183,16 @@ void makePlot(std::string wc_name, TString sys, vector<WCPoint> pts_vect, vector
     int nom_clr = kBlack;
     int u_clr = kGreen;
     int d_clr = kBlue;
-    int x_min = -20;
-    int x_max = 20;
-    float y_min = .9;
+    float x_min, x_max, y_min;
+    if (wc_name=="cpt"){
+        x_min = -20;
+        x_max = 20;
+        y_min = .9;
+    } else if (wc_name=="ctG"){
+        x_min = -2.5;
+        x_max = 2.5;
+        y_min = 0;
+    }
 
     TCanvas *c1 = new TCanvas("c1","",1200,800);
     TPad *pad1 = new TPad("pad1", "pad1", 0, 0.3, 1, 1.0);
@@ -236,6 +237,7 @@ void makePlot(std::string wc_name, TString sys, vector<WCPoint> pts_vect, vector
         WCPoint ref_pt = pts_vect.at(i);
         TGraph* ref_pt_gr = new TGraph(1);
         ref_pt_gr->SetPoint(0,ref_pt.getStrength(wc_name),ref_pt.wgt);
+        std::cout << "NOMINAL VAL x:" << ref_pt.getStrength(wc_name) << "y: " << ref_pt.wgt << std::endl;
         ref_pt_gr->SetMarkerStyle(4);
         ref_pt_gr->SetMarkerColor(1);
         ref_pt_gr->Draw("P");
@@ -245,7 +247,7 @@ void makePlot(std::string wc_name, TString sys, vector<WCPoint> pts_vect, vector
     double s0_u = wc_fit_WgtU->getCoefficient(wc_fit_WgtU->kSMstr,wc_fit_WgtU->kSMstr);
     double s1_u = wc_fit_WgtU->getCoefficient(wc_fit_WgtU->kSMstr,wc_name);
     double s2_u = wc_fit_WgtU->getCoefficient(wc_name,wc_name);
-    TF1* fit_u = new TF1("fit_u","pol2",-20,20);
+    TF1* fit_u = new TF1("fit_u","pol2",x_min,x_max);
     fit_u->SetParameter(0,s0_u);
     fit_u->SetParameter(1,s1_u);
     fit_u->SetParameter(2,s2_u);
@@ -274,7 +276,7 @@ void makePlot(std::string wc_name, TString sys, vector<WCPoint> pts_vect, vector
     double s0_d = wc_fit_WgtD->getCoefficient(wc_fit_WgtD->kSMstr,wc_fit_WgtD->kSMstr);
     double s1_d = wc_fit_WgtD->getCoefficient(wc_fit_WgtD->kSMstr,wc_name);
     double s2_d = wc_fit_WgtD->getCoefficient(wc_name,wc_name);
-    TF1* fit_d = new TF1("fit_d","pol2",-20,20);
+    TF1* fit_d = new TF1("fit_d","pol2",x_min,x_max);
     fit_d->SetParameter(0,s0_d);
     fit_d->SetParameter(1,s1_d);
     fit_d->SetParameter(2,s2_d);
@@ -363,29 +365,41 @@ void makePlot(std::string wc_name, TString sys, vector<WCPoint> pts_vect, vector
     float max_val = std::max(max_y_u,max_y_d);
     float min_val = std::min(min_y_u,min_y_d);
     fit->SetMaximum(max_val);
-    fit->SetMinimum(min_val*.95);
+    //fit->SetMinimum(min_val*.95);
     legend->Draw();
     c1->Print(save_name,"png");
     delete legend;
     delete c1;
 }
 
+// Very dependent on naming schemes, retruns a dictionary that maps runs to wc values
+// Right now this is set up to only handel the 5 cpt axis scan files or the 7 ctG axis scan files!!!
 std::map<string,string> make_wcpt_run_map(TString wc_name) {
-    // Set up the wc point string (depends a lot on the naming scheme!):
-    // Right now this is set up for the 5 cpt axis scan files!!!
     std::map<string,string> ref_pts_dict;
-    //std::string wcname = "cpt";
     TString wcname = wc_name;
-    float range_max = 15;
-    float npts = 5;
+    float range_max; // Largest WC val in the scan (smallest should be negative of this) 
+    float npts;      // Number of files in the scan
+    int   run;      // Run number of first file in the scan
+    if (wc_name=="cpt"){
+        range_max = 15;
+        npts = 5;
+        run = 0;
+    } else if (wc_name=="ctG"){
+        range_max = 2;
+        npts = 5;
+        run = 1;
+    } else {
+        std::cout << "\nError: Do not know which runs correspond to which wc values for the given wc (" << wc_name << "), exiting.." << std::endl;
+        throw std::exception();
+    }
     float step = (range_max*2)/(npts-1);
     //std::cout << "STEP " << step << std::endl;
-    int run = 0;
     for (float wcval=-range_max; wcval<=range_max; wcval=wcval+step){
         ref_pts_dict["run"+std::to_string(run)] = "wcpt_"+wcname+"_"+std::to_string(wcval);
+        std::cout << "Run: " << run << ", wc val: " << wcval << ", Dict entry: " << "run"+std::to_string(run) << " : " << ref_pts_dict["run"+std::to_string(run)] << std::endl;
         run = run + 1;
-        std::cout << "Run: " << run << " wc val: " << wcval << std::endl;
     }
+    std::cout << "ENTRY: " << ref_pts_dict["run1"] << std::endl;
     return ref_pts_dict;
 }
 
@@ -398,7 +412,15 @@ std::vector<std::map<std::string,std::vector<WCPoint>>> get_WCpt_syst_maps(TStri
     std::map<std::string,std::vector<WCPoint>> selection_pts_WgtU_map;
     std::map<std::string,std::vector<WCPoint>> selection_pts_WgtD_map;
 
-    TString sm_run = "run2"; // Depends very much on the files we loop over!
+    TString sm_run;
+    if (wc_name=="cpt"){
+        sm_run = "run2";
+    } else if (wc_name=="ctG"){
+        sm_run = "run3";
+    } else {
+        std::cout << "\nError: Do not know which runs correspond to which wc values for the given wc (" << wc_name << "), exiting.." << std::endl;
+        throw std::exception();
+    }
     float sm_norm_NOM = 0;
     std::map<std::string,float> sm_norm_UP;
     std::map<std::string,float> sm_norm_DOWN;
@@ -592,10 +614,10 @@ std::vector<std::map<std::string,std::vector<WCPoint>>> get_WCpt_syst_maps(TStri
                 }
 
                 // Normalize
-                wcpt_systs_U_map[sys].scale(1/sm_norm_UP[sys]);   // Norm to up to up at 0
-                wcpt_systs_D_map[sys].scale(1/sm_norm_DOWN[sys]); // Norm down to down at 0
-                //wcpt_systs_U_map[sys].scale(1/sm_norm_NOM); // Norm up to nominal at 0
-                //wcpt_systs_D_map[sys].scale(1/sm_norm_NOM); // Norm down to nominal at 0
+                //wcpt_systs_U_map[sys].scale(1/sm_norm_UP[sys]);   // Norm to up to up at 0
+                //wcpt_systs_D_map[sys].scale(1/sm_norm_DOWN[sys]); // Norm down to down at 0
+                wcpt_systs_U_map[sys].scale(1/sm_norm_NOM); // Norm up to nominal at 0
+                wcpt_systs_D_map[sys].scale(1/sm_norm_NOM); // Norm down to nominal at 0
 
                 // Fill the vector of WC points
                 selection_pts_WgtU_map[sys].push_back(wcpt_systs_U_map[sys]);
@@ -612,8 +634,8 @@ std::vector<std::map<std::string,std::vector<WCPoint>>> get_WCpt_syst_maps(TStri
                 throw std::exception();
             }
             //std::cout << " sm_norm_UP[qCut] " << sm_norm_UP["qCut"] << std::endl;
-            wcpt_systs_U_map["qCut"].scale(1/sm_norm_UP["qCut"]); // Norm up to up at 0
-            //wcpt_systs_U_map["qCut"].scale(1/sm_norm_NOM); // Norm up to nominal at 0
+            //wcpt_systs_U_map["qCut"].scale(1/sm_norm_UP["qCut"]); // Norm up to up at 0
+            wcpt_systs_U_map["qCut"].scale(1/sm_norm_NOM); // Norm up to nominal at 0
             selection_pts_WgtU_map["qCut"].push_back(wcpt_systs_U_map["qCut"]);
         } 
         else if (f_type == "qCut_down"){
@@ -624,8 +646,8 @@ std::vector<std::map<std::string,std::vector<WCPoint>>> get_WCpt_syst_maps(TStri
                 throw std::exception();
             }
             //std::cout << " sm_norm_DOWN[qCut] " << sm_norm_DOWN["qCut"] << std::endl;
-            wcpt_systs_D_map["qCut"].scale(1/sm_norm_DOWN["qCut"]); // Norm down to down at 0
-            //wcpt_systs_D_map["qCut"].scale(1/sm_norm_NOM); // Norm down to nominal at 0
+            //wcpt_systs_D_map["qCut"].scale(1/sm_norm_DOWN["qCut"]); // Norm down to down at 0
+            wcpt_systs_D_map["qCut"].scale(1/sm_norm_NOM); // Norm down to nominal at 0
             selection_pts_WgtD_map["qCut"].push_back(wcpt_systs_D_map["qCut"]);
         }
 
