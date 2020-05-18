@@ -58,7 +58,9 @@ class PlotOptions
 private:
     const int kNColors = 8;
     //const int clr_map[8] = {12,46,9,30,41,4,6,8};
-    const int clr_map[8] = {46,12,9,30,41,4,6,8};
+    //const int clr_map[8] = {46,12,9,30,41,4,6,8};
+    //const int clr_map[8] = {46,4,13,3,46,13}; // Was a good scheme for the cpQM cpQ3 plot NLO comp plot
+    const int clr_map[8] = {46,46,8,8,4,4}; // Want private 0p and 0+1p to have same color, smefit LO and NLO to have same color etc
     int clr_idx = 0;
 public:
     PlotOptions(){};
@@ -363,19 +365,32 @@ double get1DMinimum(WCFit fit,std::string wc_name) {
 }
 
 // Plots the inclusive cross-section as function of a particular WC parameter strength
+// Note: quad_fit_vect is a vector of maps of the form [('name',[s0,s1,s2])]
 void make_1d_xsec_plot(
     PlotOptions plt_ops,
     std::string wc_name,
     std::vector<WCFit> wc_fits,
-    std::vector<WCPoint> ref_pts = {}   // orig_pts
+    std::vector<WCPoint> ref_pts = {},   // orig_pts
+    std::vector<std::pair<std::string,std::vector<double>>> quad_fit_vect = {}
 ) {
 
-    bool include_legend = true;
-    bool include_title = false;
-    bool include_ratio = true;
+    // TMP: for making the private/arxiv/smeft LO vs NLO plots
+    // comment out the plot ops colors for this and also note the colors would be messed up if we tried to plot ratio plots
+    // Also note the error bands colors would be messed up so don't plot those either
+    int arxiv_color = 46;
+    int private_color = 4;
+    int smeft_color = 8;
+    int smeft_LO_comp_color = 3;
 
-    //bool use_smefit_lims = true;
-    bool use_smefit_lims = false;
+    bool include_legend = true;
+    bool include_title = true;
+    bool include_ratio = false;
+    bool include_error_bands = false;
+    bool legend_centered = false;
+    bool plotting_NLO_comp_fits = true;
+
+    bool use_smefit_lims = true;
+    //bool use_smefit_lims = false;
     bool use_asimov_lims = true;
 
     if (wc_fits.size() < 2 and include_ratio == true) {
@@ -603,7 +618,7 @@ void make_1d_xsec_plot(
     //TLegend *legend = new TLegend(left,top,right,bottom);
 
     TLegend *legend;
-    if (include_ratio) {
+    if (include_ratio or legend_centered) {
         //left   = 0.37; // Small
         //right  = 0.63; // Small
         left   = 0.14; // Larger
@@ -636,10 +651,12 @@ void make_1d_xsec_plot(
         fit->SetParameter(0,s0);
         fit->SetParameter(1,s1);
         fit->SetParameter(2,s2);
-        fit->SetLineColor(plt_ops.getColor(i));
+        //fit->SetLineColor(plt_ops.getColor(i)); // TMP!!!!!!
         fit->SetMinimum(plt_ops.y_min);
         //fit->SetMaximum(plt_ops.y_max);
-        fit->SetMaximum(plt_ops.y_max*1.2);
+        if (wc_name != "ctG"){ // ad hoc fix to weird issue where ctG max y value was 10 for some reason
+            fit->SetMaximum(plt_ops.y_max*1.2);
+        }
         fit->GetXaxis()->SetTitle(x_axis_name);
         fit->GetYaxis()->SetTitle(y_axis_name);
         if (include_title){
@@ -679,7 +696,6 @@ void make_1d_xsec_plot(
             y_vals[idx] = wc_fit.evalPoint(&wc_pt);
             xerr_vals[idx] = 0;
             yerr_vals[idx] = wc_fit.evalPointError(&wc_pt);
-            std::cout << "yerr!!! " << yerr_vals[idx] << std::endl;
 
             hist->SetBinContent(idx+1,y_vals[idx]);
         }
@@ -693,6 +709,19 @@ void make_1d_xsec_plot(
         std::string tmp_str = wc_fit.getTag();
         TString leg_str = tmp_str;
 
+        std::cout << "\nThe leg str is: " << leg_str << "\n" << std::endl;
+        if (string(leg_str).find("NLO") != std::string::npos or string(tmp_str).find("0+1p") != std::string::npos){
+           fit->SetLineStyle(7); // Plot the 0+1p lines as dashed 
+        }
+        if (string(leg_str).find("0p") != std::string::npos or string(tmp_str).find("0+1p") != std::string::npos){
+            fit->SetLineColor(private_color);
+        } else if (string(leg_str).find("smeft") != std::string::npos){
+            fit->SetLineColor(smeft_color);
+        } 
+        if (string(leg_str).find("qed=1") != std::string::npos){
+            fit->SetLineColor(smeft_LO_comp_color);
+        }
+
         if (i == 0) {
             fit->Draw();
             //hist->Draw("SAME");
@@ -703,11 +732,15 @@ void make_1d_xsec_plot(
             legend->AddEntry(fit,leg_str,"l");
         }
 
-        err_graph->SetFillColor(plt_ops.getColor(i));
-        //err_graph->SetFillStyle(3003);
-        err_graph->SetFillStyle(3002);
-        err_graph->Draw("3");
-        //err_graph->Draw("SAME");
+        if (include_error_bands){
+            err_graph->SetFillColor(plt_ops.getColor(i));
+            //err_graph->SetFillStyle(3003);
+            err_graph->SetFillStyle(3002);
+            if (string(leg_str).find("cpQM at -cpQ3") == std::string::npos and string(leg_str).find("smeft") == std::string::npos){ // Don't plot the error band for the weird cpQ3 - cpQM plot or the smeft plots from Reza
+                err_graph->Draw("3");
+                //err_graph->Draw("SAME");
+            }
+        }
 
         // Not sure what this was for?
         /*
@@ -755,6 +788,40 @@ void make_1d_xsec_plot(
         }
         */
     }
+
+
+    if (plotting_NLO_comp_fits and quad_fit_vect.size()!=0){
+        std::cout << "Number of extra fits to plot: " << quad_fit_vect.size() << std::endl;
+        double quad_fit_s0, quad_fit_s1, quad_fit_s2;
+        for (int i=0; i<quad_fit_vect.size(); i++){
+            if (quad_fit_vect[i].second.size() != 0){
+                //std::cout << quad_fit_vect[i].first << std::endl;
+                //std::cout << quad_fit_vect[i].second[0] << " " << quad_fit_vect[i].second[1] << " " << quad_fit_vect[i].second[2] << std::endl;
+                TF1* comp_fit = new TF1("fit","pol2",plt_ops.x_min,plt_ops.x_max);
+                comp_fit->SetParameter(0,quad_fit_vect[i].second[0]);
+                comp_fit->SetParameter(1,quad_fit_vect[i].second[1]);
+                comp_fit->SetParameter(2,quad_fit_vect[i].second[2]);
+                //comp_fit->SetLineColor(plt_ops.getColor(i+wc_fits.size()));
+                //comp_fit->SetLineStyle(7);
+                TString leg_str_for_comp_fit = quad_fit_vect[i].first;
+                legend->AddEntry(comp_fit,leg_str_for_comp_fit,"l");
+                comp_fit->SetLineColor(arxiv_color);
+                if (string(leg_str_for_comp_fit).find("NLO") != std::string::npos){
+                    comp_fit->SetLineStyle(7); // NLO as dashed
+                }
+                /*
+                // Specific to plotting NLO and LO comps (depends on knowing if 0p or 0+1p is plotted first):
+                if (quad_fit_vect[i].first.find("NLO") != std::string::npos){
+                   comp_fit->SetLineColor(plt_ops.getColor(0));                    
+                } else {
+                    comp_fit->SetLineColor(plt_ops.getColor(1));
+                }
+                */
+                comp_fit->Draw("same");
+            }
+        }
+    }
+
 
     // Calculate the ratio hists
     if (include_ratio){
