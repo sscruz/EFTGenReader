@@ -614,21 +614,35 @@ ALL_INFO = [
         'version': 'v1',
         #'include': True,
         'include': False,
-        'p_wl': [],
+        'p_wl': ["ttHJet"],
         'c_wl': [],
         'r_wl': [],
     },
-    {## Han model v4 0jet vs 1jet comp
+    {# Han model v4 0jet vs 1jet comp ####### (Use this for 0j vs 1j tests for all but ttZ)! #######
         'tag': 'ttX-ttXJet-HanV4Model-0Jetvs1JetTests_analysisEtaCut-GEN',
         'grp_name': '',
         'version': 'v1',
         #'include': True,
         'include': False,
-        'p_wl': [],
+        #'p_wl': ["ttH","ttHJet","ttlnuJet","ttlnu","ttllNuNuNoHiggs"],
+        'p_wl': ["ttllNuNuNoHiggs"],
         'c_wl': [],
         'r_wl': [],
     },
-    {# Han model v4 vs han origional model comp #########################################
+    {# Han model v4 0jet vs 1jet comp ####### Has ttZJet runs 1,2,3  #######
+        'tag': 'ttX-ttXJet_HanV4_0Jetvs1JetTests_with-ttZjetRun2Run3_analysisEtaCut-GEN',
+        'grp_name': '',
+        'version': 'v1',
+        'include': True,
+        #'include': False,
+        #'p_wl': ["ttH","ttHJet","ttlnuJet","ttlnu","ttllNuNuJetNoHiggs","ttllNuNuNoHiggs"],
+        'p_wl': ["ttH","ttHJet"],
+        #'p_wl': ["ttH","ttHJet","ttllNuNuJetNoHiggs","ttllNuNuNoHiggs"],
+        #'p_wl': ['ttllNuNuJetNoHiggs','ttllNuNuNoHiggs'],
+        'c_wl': [],
+        'r_wl': [],
+    },
+    {# Han model v4 vs han origional model comp
         'tag': 'ttXJet_R5B1-HanV4Model-Comp_analysisEtaCut-mAOD',
         'grp_name': '',
         'version': 'v1',
@@ -678,22 +692,22 @@ ALL_INFO = [
         'c_wl': [],
         'r_wl': [],
     },
-    {# HanModelV4 starting points comp for ttHJet (all runs) and ttWJet (runs 2 and 3)
+    {# HanModelV4 starting points comp for ttHJet (all runs) and ttZJet (runs 2 and 3)
         'tag': 'ttHJet-ttZJet_HanV4ttXJetStartPtChecks-xqcut10qCut19_analysisEtaCut-GEN',
         'grp_name': '',
         'version': 'v1',
         #'include': True,
         'include': False,
-        'p_wl': [],
+        'p_wl': ["ttllNuNuJetNoHiggs"],
         'c_wl': [],
-        'r_wl': [],
+        'r_wl': ["run2"],
     },
     {# HanModelV4 R6B1 starting point ttXJet qCut tests
         'tag': 'ttXJet_HanV4ttXJetStartPtChecks-xqcut10qCutTests_analysisEtaCut-GEN',
         'grp_name': '',
         'version': 'v2',
-        'include': True,
-        #'include': False,
+        #'include': True,
+        'include': False,
         'p_wl': ["ttHJet"], ##### Use this version of tthJet for the comparison to dedicated gridpacks #####
         'c_wl': ["HanV4ttXJetStartPtChecksqCut19"],
         'r_wl': [],
@@ -718,17 +732,21 @@ ALL_INFO = [
         'c_wl': [],
         'r_wl': ["run0"],
     },
-    {# HanModelV4 Round 6 batch 1 (or batch 2, depending on HADOOP_BASE_PATH) FP ttXjet samples:
-        'tag': 'ttXjet-mAOD',
+    {# HanModelV4 Round 6, (batch depends on HADOOP_BASE_PATH) FP samples:
+        #'tag': 'ttXjet-mAOD', # Batch1 (ttZ, ttW)
+        #'tag': 'tHq4f-mAOD', # Batch3 (tHq)
+        'tag': 'tZq4f-mAOD', # Batch4 (tZq)
+        #'tag': 'ttHjet-mAOD', # Batch7 (ttH good start pt)
         'grp_name': '',
         'version': 'v1',
         #'include': True,
         'include': False,
+        #'p_wl': ["ttllNuNuJetNoHiggs","ttlnuJet"], # ttH from batch 1 had the bad start pt
         'p_wl': [],
         'c_wl': [],
         'r_wl': [],
     },
-    {# HanModelV4 ttHJet dedicated ctG=[-3,3] axis scan
+    {# HanModelV4 ttHJet dedicated ctG=[-3,3] axis scan ####### AXIS SCAN #######
         'tag': 'ttHJet_HanV4ctGAxisScan_analysisEtaCut-GEN',
         'grp_name': '',
         'version': 'v1',
@@ -738,6 +756,17 @@ ALL_INFO = [
         'c_wl': [],
         'r_wl': [],
     },
+    {# HanModelV4 ttHJet dedicated ctW=[-4,4] axis scan (for smeft comp, qed1, qcd2, dim6=2) ####### AXIS SCAN #######
+        'tag': 'ttHJet_HanV4_cbW-AxisScan-withRwgt_smeftComp_QED1_QCD2_DIM62-GEN',
+        'grp_name': '',
+        'version': 'v1',
+        #'include': True,
+        'include': False,
+        'p_wl': [],
+        'c_wl': [],
+        'r_wl': [],
+        'basepath' : "/hadoop/store/user/kmohrman/summaryTree_LHE/2020_03_03_addPSweights/",
+    },
     {# HanModelV4 ttHJet xqcut and qcut scan (12 samples in all)
         'tag': 'ttHJet_HanV4xqcutTests_analysisEtaCut-GEN',
         'grp_name': '',
@@ -745,8 +774,32 @@ ALL_INFO = [
         #'include': True,
         'include': False,
         'p_wl': ["ttHJet"],
+        'c_wl': ["HanV4ttXjetxqcut10qCut19"],
+        'r_wl': [],
+    },
+    {# HanModelV4 ttXJet comp with SMEFT (in proc card: QED=1, QCD=2, DIM6=2, and ttZ not ttll, ttW not ttlnu)
+        # NOTE: This is a bad comparison! DIM6 should NOT be 2 for this comparison (NP=2 in smeft NLO is more or less DIM6=1, not DIM6=2 in dim6Top)
+        'tag': 'ttXJet_HanV4_semftComp_QED1_QCD2_DIM62-GEN',
+        'grp_name': '',
+        'version': 'v1',
+        #'include': True,
+        'include': False,
+        #'p_wl': ["ttHJetSMEFTcomp","ttWJetSMEFTcomp","ttZJetSMEFTcomp"],
+        'p_wl': ["ttHJetSMEFTcomp"],
         'c_wl': [],
         'r_wl': [],
+        'basepath' : "/hadoop/store/user/kmohrman/summaryTree_LHE/2020_03_03_addPSweights/",
+    },
+    {# HanModelV4 ttHJet, comp with NLO, so QED=1, QCD=2 (and DIM6=1)
+        'tag': 'ttHJet_HanV4_withRwgt_smeftComp_QED1_QCD2_DIM61-GEN',
+        'grp_name': '',
+        'version': 'v1',
+        'include': True,
+        #'include': False,
+        'p_wl': [],
+        'c_wl': [],
+        'r_wl': [],
+        'basepath' : "/hadoop/store/user/kmohrman/summaryTree_LHE/2020_03_03_addPSweights",
     },
 ]
 
@@ -761,7 +814,6 @@ REF_TAGS = [
     #'tllqRefCheck',
     #'ttbarRefCheck',
     #'tllqCloserLook',
-    
     #'FullReference',
     #'tHqRefScans',
     #'tHlnuRefScans',
@@ -770,22 +822,22 @@ REF_TAGS = [
     #'ttlnuRefAll4Quark',
     #'ttllRefAll4Quark',
     #'tllqRefAll4Quark',
-
     #'tHqAndtHlnuRefAll4Quark',
-
     #'AlexanderDecayChainCheck'
     #'HighResNoDim6Decays'
-
     #'ttH-tllq4f-tHq4f-ttlnu-GEN'
 
-    'ttHJet_HanV4ctGAxisScan_analysisEtaCut-GEN'
+    # Axis scans (don't need to include as "True" in ALL_INFO)
+    #'ttHJet_HanV4ctGAxisScan_analysisEtaCut-GEN'
+    #'ttHJet_HanV4_cbW-AxisScan-withRwgt_smeftComp_QED1_QCD2_DIM62-GEN'
 ]
 
 # Dictionary to map certain MG processes to another for use in finding reference samples
 REF_PROCESS_MAP = {
     #'tllq4fMatchedNoHiggs': 'tllq',
     #'ttHJet': 'ttH',
-    'ttH': 'ttHJet',
+    #'ttH': 'ttHJet',
+    'ttH': 'ttHJetSMEFTcomp'
     #'ttlnuJet': 'ttlnu',
     #'tHq4fMatched': 'tHq',
     #'ttllNuNuJetNoHiggs': 'ttll'
@@ -798,8 +850,13 @@ REF_PROCESS_MAP = {
 #HADOOP_BASE_PATH = "/afs/crc.nd.edu/user/k/kmohrman/CMSSW_Releases/CMSSW_9_4_6/src/EFTGenReader/LHEReader/test/rwgt_validation/root_files_from_hadoop/"
 #HADOOP_BASE_PATH = "/hadoop/store/user/kmohrman/summaryTree_LHE/2019_04_19/"
 HADOOP_BASE_PATH = "/hadoop/store/user/kmohrman/summaryTree_LHE/2019_08_14_addPtBranches/" ###
+#HADOOP_BASE_PATH = "/hadoop/store/user/kmohrman/summaryTree_LHE/2020_03_03_addPSweights/"
+
 #HADOOP_BASE_PATH = "/hadoop/store/user/kmohrman/summaryTree_LHE/FP/Round5/Batch1/"
-#HADOOP_BASE_PATH = "/hadoop/store/user/kmohrman/summaryTree_LHE/FP/Round6/Batch2/"
+#HADOOP_BASE_PATH = "/hadoop/store/user/kmohrman/summaryTree_LHE/FP/Round6/Batch1/"
+#HADOOP_BASE_PATH = "/hadoop/store/user/kmohrman/summaryTree_LHE/FP/Round6/Batch3/"
+#HADOOP_BASE_PATH = "/hadoop/store/user/kmohrman/summaryTree_LHE/FP/Round6/Batch4/"
+#HADOOP_BASE_PATH = "/hadoop/store/user/kmohrman/summaryTree_LHE/FP/Round6/Batch7/"
 
 def runByProcess():
     #file_dirs = groupByProcess(HADOOP_PATH,grp_tag,process_whitelist,coeff_whitelist,run_whitelist)
@@ -807,52 +864,82 @@ def runByProcess():
 
     #NOTE: The output name could be duplicated and overwrite a previous run
     file_dirs = {}
+    all_grouped_file_dirs_dict = {}
     spacing = 0
     for idx,info in enumerate(ALL_INFO):
         if not info['include']:
             continue
-        #HADOOP_BASE_PATH = info['basepath'] # TEST !!!
-        path = os.path.join(HADOOP_BASE_PATH,info['tag'],info['version'])
+        # TEST for multiple base paths!
+        if "basepath" in info.keys():
+            path = os.path.join(info['basepath'],info['tag'],info['version'])
+        else:
+            path = os.path.join(HADOOP_BASE_PATH,info['tag'],info['version'])
+        #path = os.path.join(HADOOP_BASE_PATH,info['tag'],info['version'])
         #grouped_dirs = groupByProcess(path,info['tag'],info['grp_name'],info['p_wl'],info['c_wl'],info['r_wl'])
         grouped_dirs = groupByProcess(path,info['tag'],'',info['p_wl'],info['c_wl'],info['r_wl'])
+        print "\nThe current grouped dirs are:" , grouped_dirs , "\n"
         for tup,dirs in grouped_dirs.iteritems():
-            if not file_dirs.has_key(tup):
-                file_dirs[tup] = []
-            file_dirs[tup].extend(dirs)
-        #file_dirs.update(grouped_dirs)
-        for k in file_dirs.keys():
-            if len(k[2]) > 0:
-                spacing = max([spacing,len("%s_%s" % (k[1],k[2]))])
+            if "ttH" in tup[1]:
+                proc = "ttH"
+            elif "ttlnu" in tup[1] or "ttW" in tup[1]:
+                proc = "ttW"
+            elif "ttll" in tup[1] or "ttZ" in tup[1]:
+                proc = "ttZ"
             else:
-                spacing = max([spacing,len("%s" % (k[1]))])
+                print "\nError: Unknown process" , tup[1] , "exiting"
+                raise BaseException
+            if not all_grouped_file_dirs_dict.has_key(proc):
+                all_grouped_file_dirs_dict[proc] = []
+            all_grouped_file_dirs_dict[proc].extend(dirs)
+            #if not file_dirs.has_key(tup):
+            #    file_dirs[tup] = []
+            #file_dirs[tup].extend(dirs)
+        #file_dirs.update(grouped_dirs)
+        #for k in file_dirs.keys():
+        #    if len(k[2]) > 0:
+        #        spacing = max([spacing,len("%s_%s" % (k[1],k[2]))])
+        #    else:
+        #        spacing = max([spacing,len("%s" % (k[1]))])
 
     # Run root macro once per process
     count = 0
-    for tup,fdirs in file_dirs.iteritems():
-        if len(tup) != 3:
-            print "[WARNING] Unknown file tuple,",tup
-            continue
-        process = tup[1]
-        grp_name = tup[2]
-        if len(grp_name) > 0:
-            output_name = process + "_" + grp_name
-        else:
-            output_name = process
+    #for tup,fdirs in file_dirs.iteritems():
+    #    if len(tup) != 3:
+    #        print "[WARNING] Unknown file tuple,",tup
+    #        continue
+    #    process = tup[1]
+    #    grp_name = tup[2]
+    #    if len(grp_name) > 0:
+    #        output_name = process + "_" + grp_name
+    #    else:
+    #        output_name = process
+    print "ALL GRP DIRS !!!!" , all_grouped_file_dirs_dict
+    for proc,fdirs in all_grouped_file_dirs_dict.iteritems():
+        output_name = proc
 
         ref_dirs = []
         for rtag in REF_TAGS:
             info_list = getInfoByTag(ALL_INFO,rtag)
             for info in info_list:
-                ref_path = os.path.join(HADOOP_BASE_PATH,info['tag'],info['version'])
-                search_proc = process
-                if REF_PROCESS_MAP.has_key(process):
-                    search_proc = REF_PROCESS_MAP[process]
+                if "basepath" in info.keys():
+                    ref_path = os.path.join(info['basepath'],info['tag'],info['version'])
+                else:
+                    ref_path = os.path.join(HADOOP_BASE_PATH,info['tag'],info['version'])
+                #ref_path = os.path.join(HADOOP_BASE_PATH,info['tag'],info['version'])
+                #search_proc = process
+                search_proc = proc
+                #if REF_PROCESS_MAP.has_key(process):
+                print "proc: " , proc , REF_PROCESS_MAP.keys()
+                if REF_PROCESS_MAP.has_key(proc):
+                    #search_proc = REF_PROCESS_MAP[process]
+                    search_proc = REF_PROCESS_MAP[proc]
                 ref_dirs += getDirectories(ref_path,
                     p_wl=[search_proc],
                     c_wl=[],#'cQeiRefV1AxisScan'],
                     r_wl=[]
                 )
         #ref_dirs = []
+        print "REF DIRS !!! " , ref_dirs
 
         print tup
         for x in fdirs:
@@ -870,11 +957,14 @@ def runByProcess():
                 l = "%s\n" % (fd)
                 f.write(l)
 
-        print "[%d/%d] %s (dirs %d, ref %d):" % (count+1,len(file_dirs.keys()),output_name.ljust(spacing),len(fdirs),len(ref_dirs))
+        print "info given to rungridpackvalidation: " , "out name: " , output_name , "dir_inputs:", dir_inputs , "ref_inputs:" , ref_inputs
+        #print "[%d/%d] %s (dirs %d, ref %d):" % (count+1,len(file_dirs.keys()),output_name.ljust(spacing),len(fdirs),len(ref_dirs))
+        print "[%d/%d] %s (dirs %d, ref %d):" % (count+1,len(all_grouped_file_dirs_dict.keys()),output_name.ljust(spacing),len(fdirs),len(ref_dirs))
         #subprocess.check_call(['root','-b','-l','-q','readLHEOutputTree.C+(\"%s\",\"%s\",\"%s\")' % (output_name,dir_inputs,grp_name)])
         #subprocess.check_call(['root','-b','-l','-q','rwgtDistributions.C+(\"%s_limit_fit\",\"%s\",\"%s\")' % (process,dir_inputs,"")])
         #subprocess.check_call(['root','-b','-l','-q','runXsec.C+(\"%s\",\"%s\",\"%s\")' % (process,dir_inputs,grp_name)])
-        subprocess.check_call(['root','-b','-l','-q','runGridpackValidation.C+(\"%s\",\"%s\",\"%s\",\"%s\")' % (output_name,dir_inputs,ref_inputs,grp_name)])
+        #subprocess.check_call(['root','-b','-l','-q','runGridpackValidation.C+(\"%s\",\"%s\",\"%s\",\"%s\")' % (output_name,dir_inputs,ref_inputs,grp_name)])
+        subprocess.check_call(['root','-b','-l','-q','runGridpackValidation.C+(\"%s\",\"%s\",\"%s\")' % (output_name,dir_inputs,ref_inputs)])
         #subprocess.check_call(['root','-b','-l','-q','run2DComparison.C+(\"%s\",\"%s\",\"%s\")' % (output_name,dir_inputs,grp_name)])
         count += 1
 
