@@ -41,10 +41,15 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
 
+#include "FWCore/Framework/interface/Run.h"
+
 // Physics
+#include "LHAPDF/LHAPDF.h"
 #include "Math/LorentzVector.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 
 //#include "EFTGenReader/GenReader/interface/WCPoint.h"
 //#include "EFTGenReader/GenReader/interface/WCFit.h"
@@ -96,6 +101,8 @@ class EFTLHEReader: public edm::EDAnalyzer
         edm::EDGetTokenT<std::vector<reco::GenParticle> > genParticles_token_;
         edm::EDGetTokenT<std::vector<reco::GenJet> > genJets_token_;
 
+        std::map<int,int> pdfIdMap_;
+
         // declare the tree
         TTree * summaryTree;
 
@@ -110,6 +117,18 @@ class EFTLHEReader: public edm::EDAnalyzer
         int nMEpartonsFiltered_intree;
         double genWgt_intree;
 
+        double preshowerISRweightUp_intree;
+        double preshowerFSRweightUp_intree;
+        double preshowerISRweightDown_intree;
+        double preshowerFSRweightDown_intree;
+
+        double muRWeightUp_intree;
+        double muRWeightDown_intree;
+        double muFWeightUp_intree;
+        double muFWeightDown_intree;
+        double muRmuFWeightUp_intree;
+        double muRmuFWeightDown_intree;
+
         double genLep_pt1_intree;
         double genLep_pt2_intree;
         double genLep_pt3_intree;
@@ -118,6 +137,9 @@ class EFTLHEReader: public edm::EDAnalyzer
         double genJet_pt2_intree;
         double genJet_pt3_intree;
         double genJet_pt4_intree;
+
+        double nnpdfWeightUp_intree;
+        double nnpdfWeightDown_intree;
 
         std::vector<double> djrvalues_intree; // Variabel to store the info we are getting from the module 
 
@@ -128,6 +150,8 @@ class EFTLHEReader: public edm::EDAnalyzer
         double min_pt_lep;
         double max_eta_jet;
         double max_eta_lep;
+
+        bool is_4f_scheme;
 
 };
 
@@ -155,6 +179,21 @@ void EFTLHEReader::tree_add_branches()
     summaryTree->Branch("genJet_pt2",&genJet_pt2_intree);
     summaryTree->Branch("genJet_pt3",&genJet_pt3_intree);
     summaryTree->Branch("genJet_pt4",&genJet_pt4_intree);
+
+    summaryTree->Branch("psISRweightUp",&preshowerISRweightUp_intree);
+    summaryTree->Branch("psFSRweightUp",&preshowerFSRweightUp_intree);
+    summaryTree->Branch("psISRweightDown",&preshowerISRweightDown_intree);
+    summaryTree->Branch("psFSRweightDown",&preshowerFSRweightDown_intree);
+
+    summaryTree->Branch("muRWeightUp",&muRWeightUp_intree);
+    summaryTree->Branch("muRWeightDown",&muRWeightDown_intree);
+    summaryTree->Branch("muFWeightUp",&muFWeightUp_intree);
+    summaryTree->Branch("muFWeightDown",&muFWeightDown_intree);
+    summaryTree->Branch("muRmuFWeightUp",&muRmuFWeightUp_intree);
+    summaryTree->Branch("muRmuFWeightDown",&muRmuFWeightDown_intree);
+
+    summaryTree->Branch("nnpdfWeightUp",&nnpdfWeightUp_intree);
+    summaryTree->Branch("nnpdfWeightDown",&nnpdfWeightDown_intree);
 
 }
 

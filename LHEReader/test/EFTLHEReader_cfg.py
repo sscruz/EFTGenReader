@@ -31,6 +31,7 @@ process.source = cms.Source("PoolSource",
         #"file:///hadoop/store/user/awightma/LHE_step/2019_04_19/ValidationHanModelPlusJet/v1/lhe_step_ttHJet_HanModel16DttllScanpoints_run1/HIG-RunIIFall17wmLHE-00000ND_7023.root"
         #"file:///hadoop/store/user/awightma/postLHE_step/2019_04_19/ValidationHanModelPlusJet/v1/mAOD_step_ttHJet_HanModel16DttllScanpoints_run1/HIG-RunIIFall17MiniAOD-00821ND_74026.root"
         "file:///hadoop/store/user/kmohrman/genOnly_step/2019_04_19/ttHJet-xqcutStudies-xqcut10qCutTests/v1/gen_step_ttHJet_HanModel16DttllScanpointsqCut19_run1/GEN-00000_967.root"
+        #"file:////hadoop/store/user/kmohrman/genOnly_step/2019_04_19/ttHJet-HanV4cptAxisScan-withPSweights/v2"
     )
 )
 
@@ -39,6 +40,7 @@ process.EFTLHEReader.min_pt_jet  = cms.double(-1)
 process.EFTLHEReader.min_pt_lep  = cms.double(-1)
 process.EFTLHEReader.max_eta_jet = cms.double(2.5)
 process.EFTLHEReader.max_eta_lep = cms.double(2.5)
+process.EFTLHEReader.is4fScheme = cms.bool(False)
 
 if options.datatier == "GEN":
     process.EFTLHEReader.GenParticles = cms.InputTag("genParticles")
