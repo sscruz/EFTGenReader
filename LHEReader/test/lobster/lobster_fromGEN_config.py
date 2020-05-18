@@ -17,12 +17,13 @@ username = "kmohrman"
 #RUN_SETUP = 'full_production'
 RUN_SETUP = 'mg_studies'
 
-input_version  = "v1"
+input_version  = ""
 output_version = "v1"
 #grp_tag  = "2019_04_19/ttHJet-xqcutStudies-xqcut10qCutTests"
 grp_tag  = "" #"2019_04_19/ttX-ttXJet-HanV4Model-0Jetvs1JetTests"
-#out_tag  = "2019_08_14_addPtBranches/ttXJet_HanV4ttXJetStartPtChecks-xqcut10qCutTests_analysisEtaCut"
-out_tag  = "2019_08_14_addPtBranches/tllq4fNoSchanWNoHiggs0p_HanV4tZqStartPtChecks-allRunsMatchOff_analysisEtaCut"
+#out_tag  = "2020_03_03_addPSweights/ttHJet-HanV4cptAxisScan-withPSweights_anaEtaCut"
+#out_tag  = "2020_03_03_addPSweights/ttHJet-HanV4ctGAxisScan-withPSweights_anaEtaCut"
+out_tag  = "2020_03_03_addPSweights/ttHJet_HanV4_withRwgt_smeftComp_QED1_QCD2_DIM61"
 test_tag = "lobster_20180505_1440"      # If the input LHE files were also produced in 'local' running
 prod_tag = "Round1/Batch1"
 
@@ -60,10 +61,15 @@ input_path_full = "/hadoop" + input_path
 dir_list = [
             #os.path.join(input_path_full,"kmohrman/genOnly_step/2019_04_19/ttX-ttXJet-HanV4Model-0Jetvs1JetTests/v1"),
             #os.path.join(input_path_full,"kmohrman/genOnly_step/2019_04_19/ttHJet-ttWJet_HanV4ttXJetStartPtChecks-xqcut10qCut19/v1"),
-            #os.path.join(input_path_full,"kmohrman/genOnly_step/2019_04_19/ttHJet-ttZJet_HanV4ttXJetStartPtChecks-xqcut10qCut19/v1"),
+            #os.path.join(input_path_full,"kmohrman/genOnly_step/2019_04_19/ttHJet-ttZJet_HanV4ttXJetStartPtChecks-xqcut10qCut19/v1"), # Has ttZjet run2,3
             #os.path.join(input_path_full,"kmohrman/genOnly_step/2019_04_19/ttXJet_HanV4ttXJetStartPtChecks-xqcut10qCutTests/v1"),
             #os.path.join(input_path_full,"kmohrman/genOnly_step/2019_04_19/tHq4f_HanV4tHqStartPtChecks-allRuns/v1"),
-            os.path.join(input_path_full,"kmohrman/genOnly_step/2019_04_19/tllq4fNoSchanWNoHiggs0p_HanV4tHqStartPtChecks-allRuns/v1"),
+            #os.path.join(input_path_full,"kmohrman/genOnly_step/2019_04_19/tllq4fNoSchanWNoHiggs0p_HanV4tHqStartPtChecks-allRuns/v1"),
+            #os.path.join(input_path_full,"kmohrman/genOnly_step/2019_04_19/ttHJet_HanV4xqcutTests/v1"),
+            #os.path.join(input_path_full,"kmohrman/genOnly_step/2019_04_19/ttHJet-HanV4cptAxisScan-withPSweights/v3"),
+            #os.path.join(input_path_full,"kmohrman/genOnly_step/2019_04_19/ttHJet-HanV4ctGAxisScan-withPSweights/v2"),
+            #os.path.join(input_path_full,"kmohrman/genOnly_step/2019_04_19/ttXJet_HanV4_semftComp_QED1_QCD2_DIM62/v4"),
+            os.path.join(input_path_full,"kmohrman/genOnly_step/2019_04_19/ttHJet_HanV4_withRwgt_smeftComp_QED1_QCD2_DIM61/v1"),
         ]
 
 storage = StorageConfiguration(
@@ -147,6 +153,7 @@ config = Config(
     storage=storage,
     workflows=wf,
     advanced=AdvancedOptions(
+        dashboard = False,
         bad_exit_codes=[127, 160],
         log_level=1,
     )
