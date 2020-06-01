@@ -377,15 +377,18 @@ void make_1d_xsec_plot(
     // TMP: for making the private/arxiv/smeft LO vs NLO plots
     // comment out the plot ops colors for this and also note the colors would be messed up if we tried to plot ratio plots
     // Also note the error bands colors would be messed up so don't plot those either
-    int arxiv_color = 46;
-    int private_color = 4;
-    int smeft_color = 8;
-    int smeft_LO_comp_color = 3;
+    int arxiv_color = 46;          // Dark red
+    int private_color = 1;         // Black
+    int smeft_color = 2;           // Red
+    int QEDorder_comp_color = 3;   // Bright green
+    int dim6TopvMay2020_color = 2; // Red
+    int ttWttZ_color = 4;          // Green
 
     bool include_legend = true;
     bool include_title = true;
     bool include_ratio = false;
     bool include_error_bands = false;
+    //bool include_error_bands = true;
     bool legend_centered = false;
     bool plotting_NLO_comp_fits = true;
 
@@ -709,17 +712,25 @@ void make_1d_xsec_plot(
         std::string tmp_str = wc_fit.getTag();
         TString leg_str = tmp_str;
 
-        std::cout << "\nThe leg str is: " << leg_str << "\n" << std::endl;
-        if (string(leg_str).find("NLO") != std::string::npos or string(tmp_str).find("0+1p") != std::string::npos){
+        //std::cout << "\nThe leg str is: " << leg_str << "\n" << std::endl;
+        if (string(leg_str).find("Jet") != std::string::npos or string(leg_str).find("NLO") != std::string::npos or string(tmp_str).find("0+1p") != std::string::npos){
            fit->SetLineStyle(7); // Plot the 0+1p lines as dashed 
         }
-        if (string(leg_str).find("0p") != std::string::npos or string(tmp_str).find("0+1p") != std::string::npos){
+        if (string(leg_str).find("0p") != std::string::npos or string(tmp_str).find("0+1p") != std::string::npos){ // Private samples usually indicated this way
             fit->SetLineColor(private_color);
-        } else if (string(leg_str).find("smeft") != std::string::npos){
+        //} else if (string(leg_str).find("ttlnu") != std::string::npos or string(leg_str).find("ttll") != std::string::npos or string(leg_str).find("ttH") != std::string::npos){ // If it's ttll or ttlnu, probably private
+        } else if (string(leg_str).find("ttlnu") != std::string::npos or string(leg_str).find("ttll") != std::string::npos ){ // If it's ttll or ttlnu, probably private
+            fit->SetLineColor(private_color);
+        } else if (string(leg_str).find("smeft") != std::string::npos){ // Reza's samples
             fit->SetLineColor(smeft_color);
-        } 
-        if (string(leg_str).find("qed=1") != std::string::npos){
-            fit->SetLineColor(smeft_LO_comp_color);
+        } else if (string(leg_str).find("ttW") != std::string::npos or string(leg_str).find("ttZ") != std::string::npos or string(leg_str).find("ttH") != std::string::npos){ // New ttW, ttZ private samples for comp with Reza's NLO
+            fit->SetLineColor(ttWttZ_color);
+        }
+        if (string(leg_str).find("qed=1") != std::string::npos){ // If it's a QED order constrained sample, override any previous color and color specifically for this
+            fit->SetLineColor(QEDorder_comp_color);
+        }
+        if (string(leg_str).find("dim6TopvMay2020") != std::string::npos){ // The newly updated dim6TOp modle
+            fit->SetLineColor(dim6TopvMay2020_color);
         }
 
         if (i == 0) {
@@ -733,7 +744,8 @@ void make_1d_xsec_plot(
         }
 
         if (include_error_bands){
-            err_graph->SetFillColor(plt_ops.getColor(i));
+            //err_graph->SetFillColor(plt_ops.getColor(i));
+            err_graph->SetFillColor(fit->GetLineColor());
             //err_graph->SetFillStyle(3003);
             err_graph->SetFillStyle(3002);
             if (string(leg_str).find("cpQM at -cpQ3") == std::string::npos and string(leg_str).find("smeft") == std::string::npos){ // Don't plot the error band for the weird cpQ3 - cpQM plot or the smeft plots from Reza

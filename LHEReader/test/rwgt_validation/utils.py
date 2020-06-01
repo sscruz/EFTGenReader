@@ -70,16 +70,10 @@ def groupByProcess(path,tag,grp='',p_wl=[],c_wl=[],r_wl=[]):
         #elif len(regex_match([r],r_wl)) == 0:
         #    continue
 
-        # If we want to compare 0j and 1j sampels on the same plot
-        partonComp = True # If we want to group together 0jet/1jet samples
-        if partonComp and "Jet" in p:
-            p = p.replace("Jet","")
-
         key = (tag,p,grp)
         if not grp_dirs.has_key(key):
             grp_dirs[key] = []
         grp_dirs[key].append(os.path.join(path,fd))
-    print 'grp dirs from utils !!!' , grp_dirs
     return grp_dirs
 
 # Group the directories based on process and coeff tags

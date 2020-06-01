@@ -113,66 +113,45 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
     // Make custom WCFits to pass to the plot maker
     std::map<std::string,std::map<std::string,std::vector<WCFit>>> custom_fits_map; // e.g. {"ttH":{"ctG":[wcfit_lo,wcfit_nlo]}}
     std::map<std::string,std::map<std::string,std::vector<std::pair<double,double>>>> ptsMap; // e.g. {"ttH":{"ctG_lo":[(0,1),(1,2)]}}
-    std::vector<std::string> custom_fits_wc_lst {"cpQ3","cpQM","cpt","ctG","ctW","ctZ","ctp"};
+    std::vector<std::string> custom_fits_wc_lst {"ctG","ctp","cpQM","cpt","ctZ","ctW"};
 
     // ttH
-    double sm_ttH_lo = 0.376066491228;
-    double sm_ttH_nlo = 0.403819951423;
-    // cpQ3
-    ptsMap["ttH"]["cpQ3_lo"]  = { {-10,0.376066491228} , {-5,0.376066491228} , {0,sm_ttH_lo} , {5,0.376066491228}, {10,0.376066491228} };
-    ptsMap["ttH"]["cpQ3_nlo"] = { {-10,0.403819951423} , {-5,0.403819951423} , {0,sm_ttH_nlo} , {5,0.403819951423}, {10,0.403819951423} };
-    // cpQM
-    ptsMap["ttH"]["cpQM_lo"]  = { {-10,0.376066491228} , {-5,0.376066491228} , {0,sm_ttH_lo} , {5,0.376066491228}, {10,0.376066491228} };
-    ptsMap["ttH"]["cpQM_nlo"] = { {-10,0.403819951423} , {-5,0.403819951423} , {0,sm_ttH_nlo} , {5,0.403819951423}, {10,0.403819951423} };
-    // cpt
-    ptsMap["ttH"]["cpt_lo"]  = { {-10,0.376066491228} , {-5,0.376066491228} , {0,sm_ttH_lo} , {5,0.376066491228}, {10,0.376066491228} };
-    ptsMap["ttH"]["cpt_nlo"] = { {-10,0.403819951423} , {-5,0.403819951423} , {0,sm_ttH_nlo} , {5,0.403819951423}, {10,0.403819951423} };
-    // ctG
-    ptsMap["ttH"]["ctG_lo"]  = { {-2,1.4268332613} , {-1,0.448444441121} , {0,sm_ttH_lo} , {1,1.20969826974}, {2,2.94934091853} };
-    ptsMap["ttH"]["ctG_nlo"] = { {-2,1.65563899702} , {-1,0.509151427166} , {0,sm_ttH_nlo} , {1,1.33964332405}, {2,3.31662279078} };
-    // ctW
-    ptsMap["ttH"]["ctW_lo"]  = { {-10,0.376066491228} , {-5,0.376066491228} , {0,sm_ttH_lo} , {5,0.376066491228}, {10,0.376066491228} };
-    ptsMap["ttH"]["ctW_nlo"] = { {-10,0.403819951423} , {-5,0.403819951423} , {0,sm_ttH_nlo} , {5,0.403819951423}, {10,0.403819951423} };
-    // ctZ
-    ptsMap["ttH"]["ctZ_lo"]  = { {-10,0.376066491228} , {-5,0.376066491228} , {0,sm_ttH_lo} , {5,0.376066491228}, {10,0.376066491228} };
-    ptsMap["ttH"]["ctZ_nlo"] = { {-10,0.403819951423} , {-5,0.403819951423} , {0,sm_ttH_nlo} , {5,0.403819951423}, {10,0.403819951423} };
-    // ctp
-    ptsMap["ttH"]["ctp_lo"]  = { {-10,0.977062845621} , {-5,0.641366756802} , {0,sm_ttH_lo} , {5,0.181162186961}, {10,0.0566537059391} };
-    ptsMap["ttH"]["ctp_nlo"] = { {-10,1.04916863041} , {-5,0.688698873557} , {0,sm_ttH_nlo} , {5,0.194532012258}, {10,0.0608349078132} };
-
+    double sm_ttH_nlo = 0.4521;
+    ptsMap["ttH"]["ctG_nlo"] = { {-1,0.5731} , {0,sm_ttH_nlo} , {1,1.482} };
+    ptsMap["ttH"]["ctp_nlo"] = { {-5,0.7925} , {0,sm_ttH_nlo} , {5,0.2051} };
+    // ttW
+    double sm_ttW_nlo = 0.5591;
+    ptsMap["ttW"]["ctG_nlo"] = { {-1,0.4192} , {0,sm_ttW_nlo} , {5,0.7272} };
     // ttZ
-    double sm_ttZ_lo = 0.498278936097;
-    double sm_ttZ_nlo = 0.734911314604;
-    // cpQ3
-    ptsMap["ttZ"]["cpQ3_lo"]  = { {-10,0.495824895905} , {-5,0.496311280773} , {0,sm_ttZ_lo} , {5,0.501727860249}, {10,0.506658054855} };
-    ptsMap["ttZ"]["cpQ3_nlo"]  = { {-10,0.733438549267} , {-5,0.733468093613} , {0,sm_ttZ_nlo} , {5,0.737768210948}, {10,0.742038783938} };
-    // cpQM
-    ptsMap["ttZ"]["cpQM_lo"]  = { {-10,1.17694875755} , {-5,0.789818339491} , {0,sm_ttZ_lo} , {5,0.302330693615}, {10,0.201973465801} };
-    ptsMap["ttZ"]["cpQM_nlo"]  = { {-10,1.82544242406} , {-5,1.20270809118} , {0,sm_ttZ_nlo} , {5,0.422052328512}, {10,0.264130898712} };
-    // cpt
-    ptsMap["ttZ"]["cpt_lo"]  = { {-10,0.367941201994} , {-5,0.379898800678} , {0,sm_ttZ_lo} , {5,0.723081505296}, {10,1.05430661123} };
-    ptsMap["ttZ"]["cpt_nlo"]  = { {-10,0.543810498302} , {-5,0.562039106166} , {0,sm_ttZ_nlo} , {5,1.0624269735}, {10,1.54458623297} };
-    // ctG
-    ptsMap["ttZ"]["ctG_lo"]  = { {-2,0.718196680663} , {-1,0.459829035534} , {0,sm_ttZ_lo} , {1,0.833545821773}, {2,1.46563025314} };
-    ptsMap["ttZ"]["ctG_nlo"]  = { {-2,0.943153724366} , {-1,0.654140304251} , {0,sm_ttZ_nlo} , {1,1.18546595843}, {2,2.00580503273} };
-    // ctW
-    ptsMap["ttZ"]["ctW_lo"]  = { {-10,0.498278936097} , {-5,0.498278936097} , {0,sm_ttZ_lo} , {5,0.498278936097}, {10,0.498278936097} };
-    ptsMap["ttZ"]["ctW_nlo"]  = { {-10,0.734911314604} , {-5,0.734911314604} , {0,sm_ttZ_nlo} , {5,0.734911314604}, {10,0.734911314604} };
-    // ctZ
-    ptsMap["ttZ"]["ctZ_lo"]  = { {-10,4.66672266959} , {-5,1.53303316498} , {0,sm_ttZ_lo} , {5,1.56245997412}, {10,4.72557628789} };
-    ptsMap["ttZ"]["ctZ_nlo"]  = { {-10,6.60709185218} , {-5,2.20924580043} , {0,sm_ttZ_nlo} , {5,2.18408840225}, {10,6.55677705581} };
-    // ctp
-    ptsMap["ttZ"]["ctp_lo"]  = { {-10,0.498278936097} , {-5,0.498278936097} , {0,sm_ttZ_lo} , {5,0.498278936097}, {10,0.498278936097} };
-    ptsMap["ttZ"]["ctp_nlo"]  = { {-10,0.734911314604} , {-5,0.734911314604} , {0,sm_ttZ_nlo} , {5,0.734911314604}, {10,0.734911314604} };
+    double sm_ttZ_nlo = 0.7441;
+    ptsMap["ttZ"]["ctG_nlo"]   = { {-1,0.6725} , {0,sm_ttZ_nlo} , {1,1.206} };
+    ptsMap["ttZ"]["cpQM_nlo"]  = { {-5,1.208}  , {0,sm_ttZ_nlo} , {5,0.4392} };
+    ptsMap["ttZ"]["cpt_nlo"]   = { {-5,0.5757} , {0,sm_ttZ_nlo} , {5,1.068} };
+    ptsMap["ttZ"]["ctZ_nlo"]   = { {-5,2.261}  , {0,sm_ttZ_nlo} , {5,2.238} };
+
+    double sm_ttZ_lo = 0.5841;
+    ptsMap["ttZ"]["cpt_lo"]   = { {-5,0.4395}  , {0,sm_ttZ_lo} , {5,0.8523} };
+    ptsMap["ttZ"]["ctp_lo"]   = { {-5,0.5855}  , {0,sm_ttZ_lo} , {5,0.586} };
+    ptsMap["ttZ"]["ctZ_lo"]   = { {-5,1.903}  , {0,sm_ttZ_lo} , {5,1.896} };
+    ptsMap["ttZ"]["ctW_lo"]   = { {-5,0.5842}  , {0,sm_ttZ_lo} , {5,0.5846} };
 
     // Make the WCFits
     for (auto wc : custom_fits_wc_lst){
-        //custom_fits_map["ttH"][wc].push_back(make_WCFit(wc,"Reza smeft LO",ptsMap["ttH"][wc+"_lo"],sm_ttH_lo));
-        //custom_fits_map["ttH"][wc].push_back(make_WCFit(wc,"Reza smeft NLO",ptsMap["ttH"][wc+"_nlo"],sm_ttH_nlo));
-        //custom_fits_map["ttZ"][wc].push_back(make_WCFit(wc,"Reza smeft LO",ptsMap["ttZ"][wc+"_lo"],sm_ttZ_lo));
-        //custom_fits_map["ttZ"][wc].push_back(make_WCFit(wc,"Reza smeft NLO",ptsMap["ttZ"][wc+"_nlo"],sm_ttZ_nlo));
+        if ( ptsMap["ttH"].find(wc+"_nlo") != ptsMap["ttH"].end() ){
+            custom_fits_map["ttH"][wc].push_back(make_WCFit(wc,"Reza smeft NLO",ptsMap["ttH"][wc+"_nlo"],sm_ttH_nlo));
+        }
+        if ( ptsMap["ttW"].find(wc+"_nlo") != ptsMap["ttW"].end() ){
+            custom_fits_map["ttW"][wc].push_back(make_WCFit(wc,"Reza smeft NLO",ptsMap["ttW"][wc+"_nlo"],sm_ttW_nlo));
+        }
+        if ( ptsMap["ttZ"].find(wc+"_nlo") != ptsMap["ttZ"].end() ){
+            custom_fits_map["ttZ"][wc].push_back(make_WCFit(wc,"Reza smeft NLO",ptsMap["ttZ"][wc+"_nlo"],sm_ttZ_nlo));
+        }
+        if (ptsMap["ttZ"].find(wc+"_lo") != ptsMap["ttZ"].end() ){
+            custom_fits_map["ttZ"][wc].push_back(make_WCFit(wc,"Reza smeft LO",ptsMap["ttZ"][wc+"_lo"],sm_ttZ_lo));
+        }
     }
     //ptsMap["ttH"]["_lo"]  = { {-10,} , {-5,} , {0,sm_ttH_lo} , {5,}, {10,} };
+    //ptsMap["ttH"]["_nlo"] = { {-5,} , {0,sm_ttH_nlo} , {5,} };
 
 
     WCPoint sm_pt("smpt");
@@ -261,7 +240,7 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
             std::cout << "Chain_entries: " << chain_entries << std::endl;
             last_entry = 100000;
         }
-        //last_entry = 100; // For testing
+        last_entry = 100; // For testing
         std::cout << "Last_entry: " << last_entry << std::endl;
 
         int first_entry = 0;
@@ -350,7 +329,7 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
 
         //std::cout << "\nAfter all norm!!! incl SM xsec: " << inclusive_fit.evalPoint(&sm_pt) << " selection SM xsec: " << selection_fit.evalPoint(&sm_pt) << std::endl;
 
-        ///* // Dump the fit functions
+        /* // Dump the fit functions
         //std::vector<std::string> list_of_WC = {"ctG","ctW"};
         std::vector<std::string> list_of_WC = {"ctp","cpQM","ctW","ctZ","ctG","cbW","cpQ3","cptb","cpt","cQl3i","cQlMi","cQei","ctli","ctei","ctlSi","ctlTi"};
         std::cout << " " << std:: endl;
@@ -359,7 +338,7 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
             //selection_fit.dump(false,153,WC);
             std::cout << " " << std:: endl;
         }
-        //*/
+        */
 
         // Normalize ref pt and add to list
         std::cout << "Is ref? " << is_ref << std::endl;
@@ -371,16 +350,17 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
 
         if (is_tar) {
 
-            std::cout << "group tag: " << grp_tag << std::endl;
+            std::cout << "Group tag: " << grp_tag << std::endl;
             std::string leg_tag;
             TString process_TStr = process;
             TString tmp_tag = grp_tag;
 
             // This will set up the names in the legend
-            TString comp_type = "0p1pComp";
+            //TString comp_type = "0p1pComp";
             //TString comp_type = "qCutScan";
             //TString comp_type = "matchScaleScan";
             //TString comp_type = "startPtComp";
+            TString comp_type = "ttWttZchecks";
 
             // Get cleaned up version of process name
             if (process_TStr.Index("ttH") != -1){
@@ -390,11 +370,11 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
             } else if (process_TStr.Index("ttlnu") != -1) {
                 leg_tag = "ttW";
             } else {
-                std::cout << "Warning: process " << process << " is not ttH, ttll, or ttlnu" << std::endl;
+                std::cout << "Note: process " << process << " is not ttH, ttll, or ttlnu. Not cleaning up process name." << std::endl;
             }
             if (comp_type == "0p1pComp"){
-                if (tmp_tag.Index("NoJets") != -1) {
-                    leg_tag = leg_tag + " 0p";
+                if (tmp_tag.Index("NoJets") != -1 or process_TStr.Index("Jet") == -1) {
+                    leg_tag = leg_tag + " 0p ";
                 } else {
                     leg_tag = leg_tag + " 0+1p  ";
                 }
@@ -404,12 +384,24 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
                 leg_tag = leg_tag + " 0+1p: " + tmp_tag(tmp_tag.Index("xqcut"),100);
             } else if (comp_type == "startPtComp"){
                 leg_tag = tmp_tag + " " + run_label;
+            } else if (comp_type == "ttWttZchecks"){
+                leg_tag = process;
+                if (tmp_tag.Index("QED1QCD2") != -1){
+                    leg_tag = leg_tag + " qed=1 qcd=2";
+                }
             }
 
-            //std::cout << "TMP TAG: " << tmp_tag << std::endl;
-            if (tmp_tag.Index("SMEFTcomp") != -1 or tmp_tag.Index("QED1QCD2") != -1){
-                leg_tag = leg_tag + "qed=1,qcd=2,dim6=1";
+            /* Misc legend settings
+            std::cout << "TMP TAG: " << tmp_tag << std::endl;
+            //if (tmp_tag.Index("SMEFTcomp") != -1 or tmp_tag.Index("QED1QCD2") != -1){
+            if (tmp_tag.Index("dim6TopvMay2020") != -1){
+                leg_tag = leg_tag + "dim6TopvMay2020";
             }
+            if (tmp_tag.Index("HanV4") != -1){
+                leg_tag = leg_tag + "HanV4";
+            }
+            */
+
             inclusive_fit.setTag(leg_tag); // If passing inclusive fit!!!
             target_fits.push_back(inclusive_fit);
             //selection_fit.setTag(leg_tag); // If passing selection fit!!!
@@ -530,13 +522,23 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
                 NLO_pair.second = {1,-0.123,0.0037};
             }
             for (auto wc : custom_fits_wc_lst){
-                if (wc == wc_name){
+                if (wc == wc_name and custom_fits_map["ttH"].find(wc_name) != custom_fits_map["ttH"].end() ){
                     for (auto fit : custom_fits_map["ttH"][wc_name]){
-                        //subset_fits.push_back(fit);
+                        subset_fits.push_back(fit);
                     }
                 }
             }
-        } else if (curr_process.find("ttll") != std::string::npos){
+        } else if (curr_process.find("ttlnu") != std::string::npos or curr_process.find("ttW") != std::string::npos){
+            std::cout << "Current proc is ttW:" << curr_process << std::endl;
+            for (auto wc : custom_fits_wc_lst){
+                //if (wc == wc_name and custom_fits_map["ttW"].find(wc_name) != custom_fits_map["ttW"].end() ){
+                if (wc == wc_name ){
+                    for (auto fit : custom_fits_map["ttW"][wc_name]){
+                        subset_fits.push_back(fit);
+                    }
+                }
+            }
+        } else if (curr_process.find("ttll") != std::string::npos or curr_process.find("ttZ") != std::string::npos){
             std::cout << "Current proc is ttZ: " << curr_process << std::endl;
             LO_pair.first  = "1601.08193 LO";
             NLO_pair.first = "1601.08193 NLO";
@@ -564,9 +566,9 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
                 //NLO_pair.second = {1,-0.00112,0.0227}; // ttmu+mu- (Tab 6)
             }
             for (auto wc : custom_fits_wc_lst){
-                if (wc == wc_name){
+                if (wc == wc_name and custom_fits_map["ttZ"].find(wc_name) != custom_fits_map["ttZ"].end()){
                     for (auto fit : custom_fits_map["ttZ"][wc_name]){
-                        //subset_fits.push_back(fit);
+                        subset_fits.push_back(fit);
                     }
                 }
             }

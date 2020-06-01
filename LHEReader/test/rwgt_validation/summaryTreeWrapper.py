@@ -637,6 +637,7 @@ ALL_INFO = [
         #'include': False,
         #'p_wl': ["ttH","ttHJet","ttlnuJet","ttlnu","ttllNuNuJetNoHiggs","ttllNuNuNoHiggs"],
         'p_wl': ["ttH","ttHJet"],
+        #'p_wl': ["ttlnu","ttlnuJet","ttllNuNuNoHiggs","ttllNuNuJetNoHiggs"],
         #'p_wl': ["ttH","ttHJet","ttllNuNuJetNoHiggs","ttllNuNuNoHiggs"],
         #'p_wl': ['ttllNuNuJetNoHiggs','ttllNuNuNoHiggs'],
         'c_wl': [],
@@ -778,11 +779,10 @@ ALL_INFO = [
         'r_wl': [],
     },
     {# HanModelV4 ttXJet comp with SMEFT (in proc card: QED=1, QCD=2, DIM6=2, and ttZ not ttll, ttW not ttlnu)
-        # NOTE: This is a bad comparison! DIM6 should NOT be 2 for this comparison (NP=2 in smeft NLO is more or less DIM6=1, not DIM6=2 in dim6Top)
+        # NOTE: This is a bad comparison! DIM6 should NOT be 2 for this comparison (NP=2 in smeft NLO is more or less DIM6=1, not DIM6=2 in dim6Top). Do not use!
         'tag': 'ttXJet_HanV4_semftComp_QED1_QCD2_DIM62-GEN',
         'grp_name': '',
         'version': 'v1',
-        #'include': True,
         'include': False,
         #'p_wl': ["ttHJetSMEFTcomp","ttWJetSMEFTcomp","ttZJetSMEFTcomp"],
         'p_wl': ["ttHJetSMEFTcomp"],
@@ -790,13 +790,64 @@ ALL_INFO = [
         'r_wl': [],
         'basepath' : "/hadoop/store/user/kmohrman/summaryTree_LHE/2020_03_03_addPSweights/",
     },
-    {# HanModelV4 ttHJet, comp with NLO, so QED=1, QCD=2 (and DIM6=1)
+    {# HanModelV4 ttHJet, comp with NLO, so QED=1, QCD=2 (and DIM6=1) (Reza's NLO have NP=2, but this is NOT equivalent to DIM6=2!, so this DIM6=1 is ok)
+     # NOTE: maching should be off, so this sample is actully NOT ok since matching was on! Do not use!
         'tag': 'ttHJet_HanV4_withRwgt_smeftComp_QED1_QCD2_DIM61-GEN',
+        'grp_name': '',
+        'version': 'v1',
+        'include': False,
+        'p_wl': [],
+        'c_wl': [],
+        'r_wl': [],
+        'basepath' : "/hadoop/store/user/kmohrman/summaryTree_LHE/2020_03_03_addPSweights",
+    },
+    {# dim6Top May 19 2020 update version, ttH, ttHJet (for comp with HanV4)
+        'tag': 'ttH-ttHJet_dim6Top-vMay2020-normChromoTrue-GEN',
+        'grp_name': '',
+        'version': 'v1',
+        #'include': True,
+        'include': False,
+        'p_wl': [],
+        'c_wl': [],
+        'r_wl': [],
+        'basepath' : "/hadoop/store/user/kmohrman/summaryTree_LHE/2020_03_03_addPSweights",
+    },
+    {# HanV4 ttW ttWJet ttZ ttZJet (i.e. NOT ttlnu!) for no order constraints and for QED=1,QCD=2 for comp to Reza's NLO ttW, ttZ
+        # NOTE: The ttWJet and ttZJet here are actually ONLY Jet (i.e. only +1p, not 0+1p), so don't use them for the comparison
+        # So in effect this is a ttW, ttZ sample with and without QED=1,QCCD=2
+        'tag': 'ttW-ttWJet-ttZ-ttZJet_QED-QCD-order-tests-GEN',
+        'grp_name': '',
+        'version': 'v1',
+        ##'include': True,
+        'include': False,
+        'p_wl': ["ttW","ttZ"], # Don't use ttWJet, ttZJet #
+        'c_wl': ["HanV4withRwgt"], # Skipping the QED1,QCD2 ones since same as QED1,QCD jet
+        'r_wl': [],
+        'basepath' : "/hadoop/store/user/kmohrman/summaryTree_LHE/2020_03_03_addPSweights",
+    },
+    {# HanV4 ttWJet ttZJet (i.e. NOT ttlnu!) with no order constraints and with QED=1,QCD=2 
+        # NOTE: The ttWJet and ttZJet should actually be 0+1p (unlike in "ttW-ttWJet-ttZ-ttZJet_QED-QCD-order-tests-GEN"), but matching was on
+        # and it should not be (since there is no extra jet) so don't use the QED=1, QCD=2 ones
+        # So in effect this is a ttWJet, ttZJet no order constraints sample
+        'tag': 'ttWJet-ttZJet_HanV4-0plus1p-QCDQED-OrderChecks-GEN',
+        'grp_name': '',
+        'version': 'v1',
+        ##'include': True,
+        'include': False,
+        'p_wl': [],
+        'c_wl': ["HanV40plus1pwithRwgt"], # Don't use "HanV40plus1pQED1QCD2withRwgt" as it wrongly has matching on
+        'r_wl': [],
+        'basepath' : "/hadoop/store/user/kmohrman/summaryTree_LHE/2020_03_03_addPSweights",
+    },
+    {# HanV4 ttHJet, ttWJet, ttZJet all with QED=1, QCD=2, and matching off (since no extra parton), also ttH with QED=1, QCD=2 
+        'tag': 'ttH-ttXJet_HanV4-0pttH-0plus1pttXJet-noMatching-QCDQED-OrderChecks-GEN',
         'grp_name': '',
         'version': 'v1',
         'include': True,
         #'include': False,
-        'p_wl': [],
+        #'p_wl': ["ttHJet","ttWJet","ttZJet","ttH"], # ttH is sort of annoyingly stuck in withe these ttXJet samples
+        'p_wl': ["ttHJet","ttWJet","ttZJet"], # ttH is sort of annoyingly stuck in withe these ttXJet samples
+        #'p_wl': ["ttHJet"], # ttH is sort of annoyingly stuck in withe these ttXJet samples
         'c_wl': [],
         'r_wl': [],
         'basepath' : "/hadoop/store/user/kmohrman/summaryTree_LHE/2020_03_03_addPSweights",
@@ -837,7 +888,7 @@ REF_PROCESS_MAP = {
     #'tllq4fMatchedNoHiggs': 'tllq',
     #'ttHJet': 'ttH',
     #'ttH': 'ttHJet',
-    'ttH': 'ttHJetSMEFTcomp'
+    #'ttH': 'ttHJetSMEFTcomp'
     #'ttlnuJet': 'ttlnu',
     #'tHq4fMatched': 'tHq',
     #'ttllNuNuJetNoHiggs': 'ttll'
@@ -877,7 +928,7 @@ def runByProcess():
         #path = os.path.join(HADOOP_BASE_PATH,info['tag'],info['version'])
         #grouped_dirs = groupByProcess(path,info['tag'],info['grp_name'],info['p_wl'],info['c_wl'],info['r_wl'])
         grouped_dirs = groupByProcess(path,info['tag'],'',info['p_wl'],info['c_wl'],info['r_wl'])
-        print "\nThe current grouped dirs are:" , grouped_dirs , "\n"
+        #print "\nThe current grouped dirs are:" , grouped_dirs , "\n"
         for tup,dirs in grouped_dirs.iteritems():
             if "ttH" in tup[1]:
                 proc = "ttH"
@@ -913,7 +964,7 @@ def runByProcess():
     #        output_name = process + "_" + grp_name
     #    else:
     #        output_name = process
-    print "ALL GRP DIRS !!!!" , all_grouped_file_dirs_dict
+    print "\nAll grouped dirs:" , all_grouped_file_dirs_dict
     for proc,fdirs in all_grouped_file_dirs_dict.iteritems():
         output_name = proc
 
@@ -938,12 +989,11 @@ def runByProcess():
                     c_wl=[],#'cQeiRefV1AxisScan'],
                     r_wl=[]
                 )
-        #ref_dirs = []
-        print "REF DIRS !!! " , ref_dirs
-
-        print tup
+        print "\nFile dirs:"
         for x in fdirs:
             print "\t{}".format(x)
+        #ref_dirs = []
+        print "\nRef dirs:" , ref_dirs , "\n"
 
         dir_inputs = 'dirpaths.txt'
         ref_inputs = 'refpaths.txt'
@@ -957,7 +1007,7 @@ def runByProcess():
                 l = "%s\n" % (fd)
                 f.write(l)
 
-        print "info given to rungridpackvalidation: " , "out name: " , output_name , "dir_inputs:", dir_inputs , "ref_inputs:" , ref_inputs
+        print ""
         #print "[%d/%d] %s (dirs %d, ref %d):" % (count+1,len(file_dirs.keys()),output_name.ljust(spacing),len(fdirs),len(ref_dirs))
         print "[%d/%d] %s (dirs %d, ref %d):" % (count+1,len(all_grouped_file_dirs_dict.keys()),output_name.ljust(spacing),len(fdirs),len(ref_dirs))
         #subprocess.check_call(['root','-b','-l','-q','readLHEOutputTree.C+(\"%s\",\"%s\",\"%s\")' % (output_name,dir_inputs,grp_name)])
