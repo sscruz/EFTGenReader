@@ -846,8 +846,8 @@ ALL_INFO = [
         'include': True,
         #'include': False,
         #'p_wl': ["ttHJet","ttWJet","ttZJet","ttH"], # ttH is sort of annoyingly stuck in withe these ttXJet samples
-        'p_wl': ["ttHJet","ttWJet","ttZJet"], # ttH is sort of annoyingly stuck in withe these ttXJet samples
-        #'p_wl': ["ttHJet"], # ttH is sort of annoyingly stuck in withe these ttXJet samples
+        #'p_wl': ["ttHJet","ttWJet","ttZJet"], # ttH is sort of annoyingly stuck in withe these ttXJet samples
+        'p_wl': ["ttHJet"], # ttH is sort of annoyingly stuck in withe these ttXJet samples
         'c_wl': [],
         'r_wl': [],
         'basepath' : "/hadoop/store/user/kmohrman/summaryTree_LHE/2020_03_03_addPSweights",
@@ -880,15 +880,15 @@ REF_TAGS = [
 
     # Axis scans (don't need to include as "True" in ALL_INFO)
     #'ttHJet_HanV4ctGAxisScan_analysisEtaCut-GEN'
-    #'ttHJet_HanV4_cbW-AxisScan-withRwgt_smeftComp_QED1_QCD2_DIM62-GEN'
+    'ttHJet_HanV4_cbW-AxisScan-withRwgt_smeftComp_QED1_QCD2_DIM62-GEN' # Note, the proc name is ttHJetSMEFTcomp, might need to take care of this in REF_PROCESS_MAP
 ]
 
 # Dictionary to map certain MG processes to another for use in finding reference samples
 REF_PROCESS_MAP = {
     #'tllq4fMatchedNoHiggs': 'tllq',
-    #'ttHJet': 'ttH',
-    #'ttH': 'ttHJet',
-    #'ttH': 'ttHJetSMEFTcomp'
+    'ttHJet': 'ttH',
+    'ttH': 'ttHJet',
+    'ttH': 'ttHJetSMEFTcomp'
     #'ttlnuJet': 'ttlnu',
     #'tHq4fMatched': 'tHq',
     #'ttllNuNuJetNoHiggs': 'ttll'
@@ -910,8 +910,6 @@ HADOOP_BASE_PATH = "/hadoop/store/user/kmohrman/summaryTree_LHE/2019_08_14_addPt
 #HADOOP_BASE_PATH = "/hadoop/store/user/kmohrman/summaryTree_LHE/FP/Round6/Batch7/"
 
 def runByProcess():
-    #file_dirs = groupByProcess(HADOOP_PATH,grp_tag,process_whitelist,coeff_whitelist,run_whitelist)
-    #file_dirs = groupByCoefficient(HADOOP_PATH,grp_tag,process_whitelist,coeff_whitelist,run_whitelist)
 
     #NOTE: The output name could be duplicated and overwrite a previous run
     file_dirs = {}
@@ -920,13 +918,11 @@ def runByProcess():
     for idx,info in enumerate(ALL_INFO):
         if not info['include']:
             continue
-        # TEST for multiple base paths!
+        # For multiple base paths:
         if "basepath" in info.keys():
             path = os.path.join(info['basepath'],info['tag'],info['version'])
         else:
             path = os.path.join(HADOOP_BASE_PATH,info['tag'],info['version'])
-        #path = os.path.join(HADOOP_BASE_PATH,info['tag'],info['version'])
-        #grouped_dirs = groupByProcess(path,info['tag'],info['grp_name'],info['p_wl'],info['c_wl'],info['r_wl'])
         grouped_dirs = groupByProcess(path,info['tag'],'',info['p_wl'],info['c_wl'],info['r_wl'])
         #print "\nThe current grouped dirs are:" , grouped_dirs , "\n"
         for tup,dirs in grouped_dirs.iteritems():
@@ -942,15 +938,6 @@ def runByProcess():
             if not all_grouped_file_dirs_dict.has_key(proc):
                 all_grouped_file_dirs_dict[proc] = []
             all_grouped_file_dirs_dict[proc].extend(dirs)
-            #if not file_dirs.has_key(tup):
-            #    file_dirs[tup] = []
-            #file_dirs[tup].extend(dirs)
-        #file_dirs.update(grouped_dirs)
-        #for k in file_dirs.keys():
-        #    if len(k[2]) > 0:
-        #        spacing = max([spacing,len("%s_%s" % (k[1],k[2]))])
-        #    else:
-        #        spacing = max([spacing,len("%s" % (k[1]))])
 
     # Run root macro once per process
     count = 0
@@ -976,23 +963,19 @@ def runByProcess():
                     ref_path = os.path.join(info['basepath'],info['tag'],info['version'])
                 else:
                     ref_path = os.path.join(HADOOP_BASE_PATH,info['tag'],info['version'])
-                #ref_path = os.path.join(HADOOP_BASE_PATH,info['tag'],info['version'])
-                #search_proc = process
                 search_proc = proc
-                #if REF_PROCESS_MAP.has_key(process):
-                print "proc: " , proc , REF_PROCESS_MAP.keys()
+                #print "proc: " , proc , REF_PROCESS_MAP.keys()
                 if REF_PROCESS_MAP.has_key(proc):
                     #search_proc = REF_PROCESS_MAP[process]
                     search_proc = REF_PROCESS_MAP[proc]
                 ref_dirs += getDirectories(ref_path,
                     p_wl=[search_proc],
-                    c_wl=[],#'cQeiRefV1AxisScan'],
+                    c_wl=[],
                     r_wl=[]
                 )
         print "\nFile dirs:"
         for x in fdirs:
             print "\t{}".format(x)
-        #ref_dirs = []
         print "\nRef dirs:" , ref_dirs , "\n"
 
         dir_inputs = 'dirpaths.txt'
@@ -1039,8 +1022,6 @@ def runByCoeff(tags,runs):
                 f.write(l)
         subprocess.check_call(['root','-b','-l','-q','runLayeredPlots.C+(\"%s\")' % (dir_inputs)])
     return
-
-
 
 runByProcess()
 
