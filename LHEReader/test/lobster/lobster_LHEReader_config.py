@@ -124,6 +124,7 @@ config = Config(
     storage=storage,
     workflows=wf,
     advanced=AdvancedOptions(
+        dashboard = False,
         bad_exit_codes=[127, 160],
         log_level=1,
     )

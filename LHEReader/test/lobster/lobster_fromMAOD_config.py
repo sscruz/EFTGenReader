@@ -25,9 +25,9 @@ grp_tag  = ""
 #out_tag  = "tllq4f_t-channelMatched_pythia-JetMax1_b2"
 #out_tag  = "2019_08_14_addPtBranches/ttXJet_R5B1-HanV2ModelNOttggh-HanV4Model-Comp_analysisEtaCut"
 #out_tag  = "2019_08_14_addPtBranches/ttX-ttXJet_R5B1-HanModel-0Jetvs1JetTests_analysisEtaCut"
-out_tag  = "ttXjet"
+out_tag  = "tZq4f"
 test_tag = "lobster_20180505_1440"      # If the input LHE files were also produced in 'local' running
-prod_tag = "Round6/Batch2"
+prod_tag = "Round6/Batch4"
 
 # Only run over gridpacks from specific processes/coeffs/runs (i.e. MG starting points)
 #process_whitelist = ["ttlnuJet","ttllNuNuJetNoHiggs","ttHJet"]
@@ -71,7 +71,10 @@ dir_list = [
             #os.path.join(input_path_full,"kmohrman/postLHE_step/2019_04_19/ttZJet-HanV2ModelNOttgghCheck-xqcut10qCut19/v1"),
             #os.path.join(input_path_full,"/hadoop/store/user/kmohrman/postLHE_step/2019_04_19/ttX-HanModel/v1"),
             #os.path.join(input_path_full,"kmohrman/FullProduction/Round6/Batch1/postLHE_step/v1"), # FP: R6B1 ttXjet
-            os.path.join(input_path_full,"kmohrman/FullProduction/Round6/Batch2/postLHE_step/v1"), # FP: R6B2 ttXjet
+            #os.path.join(input_path_full,"kmohrman/FullProduction/Round6/Batch2/postLHE_step/v1"), # FP: R6B2 ttXjet
+            #os.path.join(input_path_full,"kmohrman/FullProduction/Round6/Batch3/postLHE_step/v1"), # FP: R6B3 tHq
+            os.path.join(input_path_full,"kmohrman/FullProduction/Round6/Batch4/postLHE_step/v1"), # FP: R6B4 tZq
+            #os.path.join(input_path_full,"kmohrman/FullProduction/Round6/Batch7/postLHE_step/v2"), # FP: R6B3 ttH good start pt
         ]
 
 storage = StorageConfiguration(
@@ -156,6 +159,7 @@ config = Config(
     storage=storage,
     workflows=wf,
     advanced=AdvancedOptions(
+        dashboard = False,
         bad_exit_codes=[127, 160],
         log_level=1,
     )
