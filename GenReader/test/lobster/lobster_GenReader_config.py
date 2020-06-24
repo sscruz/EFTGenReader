@@ -17,26 +17,15 @@ timestamp_tag = datetime.datetime.now().strftime('%Y%m%d_%H%M')
 input_path = "/store/user/"
 
 out_ver = "v1"
-#tag = 'central_tZq_noCuts'
-#tag = 'central_tZq_ptEtaCuts'
-#tag = 'ttXJet_HanV4StartPtsR6B1-xqcut10qCutTests_EtaCuts'
-#tag = 'central_tZq_with-e-mu-hists_ptEtaCuts'
-#tag = 'central_tZq_with-e-mu-tau-hists_ptEtaCuts'
-#tag = 'tllq4fMatchedNoSchanW_nJetMaxStudies_noCuts'
-#tag = 'tllq4fMatchedNoSchanW_nJetMaxStudies_ptEtaCuts'
-#tag = 'tllq4fMatchedNoSchanW_fromMAODnJetMaxStudies_with-e-mu-hists_ptEtaCuts'
-#tag = 'tllq4fMatchedNoHiggs_fromMAOD_with-e-mu-hists_ptEtaCuts'
-#tag = 'tllq4fMatchedPrivate_fromMAOD_with-e-mu-tau-hists_ptEtaCuts'
-#tag = 'ttHJet_HanV2Model-xqcut10qcutTests_ptEtaCuts'
-#tag = 'ttXJet-HanV4Model-xqcut10qCutTests_ptEtaCuts'
-#tag = 'ttXJet_R6_B1-B2_ptEtaCuts'
-tag = 'tllq4fNoSchanWNoHiggs0p_7p5mil_checks_ptEtaCuts'
+tag = 'ttX-ttXJet_HanV4_nJets3orMoreLep_lepPt10-jetPt30_lepEta-jetEta_genOnly'
+#tag = 'tllq4fNoSchanWNoHiggs0p_7p5mil_checks_ptEtaCuts'
 
 #master_label = 'EFT_LHE_{tstamp}'.format(tstamp=timestamp_tag)
 master_label = 'EFT_T3_{tstamp}'.format(tstamp=timestamp_tag)
+#master_label = 'EFT_other_T3_{tstamp}'.format(tstamp=timestamp_tag)
 
-#RUN_MODE = 'testing'
-RUN_MODE = 'mg_studies'
+RUN_MODE = 'testing'
+#RUN_MODE = 'mg_studies'
 
 #output_path = "/store/user/$USER/KinematicGenHists/{tag}/{ver}".format(tag=tag,ver=out_ver)
 if RUN_MODE == 'testing':
@@ -86,15 +75,15 @@ samples = [
     #'ttHJet_HanV2Model-xqcut10qcut15',
     #'ttHJet_HanV2Model-xqcut10qcut19',
     #'ttHJet_HanV2Model-xqcut10qcut25',
-    #'ttHJet_HanV4Model-xqcut10qcut15',
-    #'ttHJet_HanV4Model-xqcut10qcut19',
-    #'ttHJet_HanV4Model-xqcut10qcut25',
-    #'ttllNuNuJetNoHiggs_HanV4Model-xqcut10qcut15',
-    #'ttllNuNuJetNoHiggs_HanV4Model-xqcut10qcut19',
-    #'ttllNuNuJetNoHiggs_HanV4Model-xqcut10qcut25',
-    #'ttlnuJet_HanV4Model-xqcut10qcut15',
-    #'ttlnuJet_HanV4Model-xqcut10qcut19',
-    #'ttlnuJet_HanV4Model-xqcut10qcut25',
+    'ttHJet_HanV4Model-xqcut10qcut15',
+    'ttHJet_HanV4Model-xqcut10qcut19',
+    'ttHJet_HanV4Model-xqcut10qcut25',
+    'ttllNuNuJetNoHiggs_HanV4Model-xqcut10qcut15',
+    'ttllNuNuJetNoHiggs_HanV4Model-xqcut10qcut19',
+    'ttllNuNuJetNoHiggs_HanV4Model-xqcut10qcut25',
+    'ttlnuJet_HanV4Model-xqcut10qcut15',
+    'ttlnuJet_HanV4Model-xqcut10qcut19',
+    'ttlnuJet_HanV4Model-xqcut10qcut25',
     #'ttHJet_HanModel16DttllScanpointsxqcut10-qCut15',
     #'ttHJet_HanModel16DttllScanpointsxqcut10-qCut19',
     #'ttHJet_HanModel16DttllScanpointsxqcut10-qCut25',
@@ -109,16 +98,50 @@ samples = [
     #'ttlnuJet_HanV4StartPtRun1-xqcut10qcut25',
     #'ttHJet_FP_R6B1',
     #'ttHJet_FP_R6B2',
+    #'ttHJet_FP_R6B5',
     #'ttllNuNuJetNoHiggs_FP_R6B1',
     #'ttllNuNuJetNoHiggs_FP_R6B2',
+    #'ttllNuNuJetNoHiggs_FP_R6B5',
     #'ttlnuJet_FP_R6B1',
     #'ttlnuJet_FP_R6B2',
+    #'ttlnuJet_FP_R6B5',
     #'ttHJet_FP_R5B1',
     #'ttlnuJet_FP_R5B1',
     #'ttllNuNuJetNoHiggs_FP_R5B1',
-    'tllq4fNoSchanWNoHiggs0p_B1_fromMAOD', # Andrew's 500 k
-    'tllq4fNoSchanWNoHiggs0p_B2_fromMAOD', # Andrew's 2 mil
-    'tllq4fNoSchanWNoHiggs0p_B3_fromMAOD', # Andrew's 5 mil
+    #'tllq4fNoSchanWNoHiggs0p_B1_fromMAOD', # Andrew's 500 k
+    #'tllq4fNoSchanWNoHiggs0p_B2_fromMAOD', # Andrew's 2 mil
+    #'tllq4fNoSchanWNoHiggs0p_B3_fromMAOD', # Andrew's 5 mil
+    #'tllq4fNoSchanWNoHiggs0p_FP_R6B4',     # My 5 mil extra
+    #'tHq4f_HanV4SMCheck-fromMAOD',                      # SM checks for tHq
+    #'tHq4f_HanV4SMCheck-b2-fromMAOD',
+    #'tllq4fNoSchanWNoHiggs0p_HanV4SMCheck-fromMAOD',    # SM checks for tllq
+    #'tllq4fNoSchanWNoHiggs0p_HanV4SMCheck-b2-fromMAOD',
+    #'ttHJet_HanV4SMCheck-fromMAOD',                     # dim6=0 check for ttH
+    #'ttHJet_HanV4SMCheck-b2-fromMAOD',
+    #'ttHJet_HanModelOrigSMCheck-fromMAOD',
+    #'ttlnuJet_HanV4SMCheck-fromMAOD',                   # dim6=0 check for ttW
+    #'ttlnuJet_HanV4SMCheck-b2-fromMAOD',
+    #'ttlnuJet_HanModelOrigSMCheck-fromMAOD',
+    #'ttllNuNuJetNoHiggs_HanV4SMCheck-fromMAOD',         # dim6=0 check for ttZ
+    #'ttllNuNuJetNoHiggs_HanV4SMCheck-b2-fromMAOD',
+    #'ttllNuNuJetNoHiggs_HanModelOrigSMCheck-fromMAOD',
+    #'ttHJet_HanV4_startPtChecksRun0',                   # Start point checks
+    #'ttHJet_HanV4_startPtChecksRun1',
+    #'ttHJet_HanV4_startPtChecksRun2',
+    #'ttHJet_HanV4_startPtChecksRun3',
+    #'ttllNuNuJetNoHiggs_HanV4_startPtChecksRun2',
+    #'ttllNuNuJetNoHiggs_HanV4_startPtChecksRun3',
+    #'ttlnuJet_HanV4_startPtChecksRun0',
+    #'ttlnuJet_HanV4_startPtChecksRun1',
+    #'ttlnuJet_HanV4_startPtChecksRun2',
+    #'ttlnuJet_HanV4_startPtChecksRun3',
+    #'tllq4fNoSchanWNoHiggs0p_HanV4_startPtChecksRun0',
+    #'tllq4fNoSchanWNoHiggs0p_HanV4_startPtChecksRun1',
+    #'tllq4fNoSchanWNoHiggs0p_HanV4_startPtChecksRun2',
+    #'tllq4fNoSchanWNoHiggs0p_HanV4_startPtChecksRun3',
+    'ttH_HanV4ModelNoJets',                             # HanV4 no jet samples
+    'ttlnu_HanV4ModelNoJets',
+    'ttllNuNuNoHiggs_HanV4ModelNoJets',
 ]
 
 das_mode = False
@@ -185,8 +208,10 @@ for idx,sample_name in enumerate(samples):
     cms_cmd = ['cmsRun','lobsterized_EFTGenReader_cfg.py']
     cms_cmd.extend([
         'datatier={tier}'.format(tier=ds_helper.getData(sample_name,'datatier')),
+        'minPtLep=10',
         'minPtJet=30.0',
-        'maxEtaJet=2.5'
+        'maxEtaJet=2.5',
+        'maxEtaLep=2.5'
     ])
     if not is_eft:
         cms_cmd.extend(['iseft=False'])
@@ -215,6 +240,7 @@ config = Config(
     storage=storage,
     workflows=wf,
     advanced=AdvancedOptions(
+        dashboard=False,
         bad_exit_codes=[127, 160],
         log_level=1,
         #xrootd_servers=['ndcms.crc.nd.edu',
