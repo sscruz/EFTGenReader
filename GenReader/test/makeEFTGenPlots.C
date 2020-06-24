@@ -101,12 +101,15 @@ TH1D* makeRatioHistogram(TString name,T* h1,T* h2) {
 //void makeEFTGenPlots(TString output_fname,std::vector<TString> input_fnames) {
 void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
 
-    bool only_njets = false;
+    // Set up the type of plots we want to make
+    bool only_njets = false; //true;
+    bool only_jetPt_lepPt = true;
     bool only_SM = false;
     bool include_ratio = true;
+    std::string norm_type = "unit_norm";
+    std::string plot_type = "0p_vs_1p_comp";
 
     std::vector<TFile*> files;
-
     TH1::SetDefaultSumw2();
 
     /*
@@ -138,8 +141,10 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
     // TLegend parameters
     double left,right,top,bottom,scale_factor,minimum;
     if (include_ratio) {
-        left         = 0.75;
-        right        = 0.95;
+        //left         = 0.75-0.13; // SetRightMargin is 0.13
+        //right        = 0.95-0.13; // SetRightMargin is 0.13
+        left         = 0.74;
+        right        = 0.94;
         scale_factor = 0.08;
         top          = 0.89;
     } else {
@@ -205,9 +210,22 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
                     h1->SetBinContent(bin_idx,wcfit_bin_val);
                 }
             }
-            //h1->Scale(1.0/eventsum_SM1);
-            if (s1 != "h_SMwgt_norm") {
-                h1->Scale(1.0/eventsum_SM1);
+            // SM norm
+            if (norm_type == "SM_norm"){
+                if (s1 != "h_SMwgt_norm") {
+                    h1->Scale(1.0/eventsum_SM1);
+                }
+            }
+            // Unit norm
+            if (norm_type == "unit_norm") {
+                if (s1 != "h_SMwgt_norm") {
+                    Int_t nbins = h1->GetNbinsX();
+                    Double_t intg = h1->Integral(0,nbins+1);
+                    if (intg > 1.0) {
+                        h1->Scale(1./intg);
+                        h1->Scale(1./h1->GetBinWidth(1)); // Scale by bin width
+                    }
+                }
             }
 
             // Fill the dictionary:
@@ -231,7 +249,7 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
         f->Print();
 
         TString fname = f->GetName();
-        cout << "name of the file !!! " << fname << std::endl;
+        //cout << "name of the file !!! " << fname << std::endl;
         TString sub_str;
         Ssiz_t idx = fname.First('/');
         //cout << "idx !!! " << idx << std::endl;
@@ -252,12 +270,14 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
         //cout << " this is the sub str now !!!!!!!!!! " << sub_str << std::endl;
 
         // Hard code for  making no jets vs jets plots!
-        if (sub_str.Index("NoJets") != -1){
-            std::cout << "th no jets sub str! " << sub_str << std::endl;
-            sub_str = "ttW 0 partons";
-        } else {
-            std::cout << "th plus jets sub str! " << sub_str << std::endl;
-            sub_str = "ttW 0+1 partons";
+        if (plot_type == "0p_vs_1p_comp") {
+            if (sub_str.Index("NoJets") != -1){
+                std::cout << "the no jets sub str! " << sub_str << std::endl;
+                sub_str = "ttH 0 partons";
+            } else {
+                std::cout << "the plus jets sub str! " << sub_str << std::endl;
+                sub_str = "ttH 0+1 partons";
+            }
         }
 
         TDirectory* td = f->GetDirectory("EFTGenReader");
@@ -279,6 +299,11 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
             }
             if(only_njets){ // For only plotting njets plots
                 if (s.Index("njets") == -1) {
+                    continue;
+                }
+            }
+            if(only_jetPt_lepPt){
+                if (s.Index("lep1_pt")==-1 and s.Index("lep2_pt")==-1 and s.Index("jet1_pt")==-1 and s.Index("jet2_pt")==-1){
                     continue;
                 }
             }
@@ -309,12 +334,13 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
             int c_idx = findCanvasIndex(key->GetName(),canvs);
 
             TString canv_str = (TString)f->GetName() + "-" + (TString)key->GetName();
-            std::cout << "\nthe canvas info!!! " << canv_str << "\n" << std::endl;
+            //std::cout << "\nthe canvas info!!! " << canv_str << "\n" << std::endl;
 
             bool is_new = !c;
             if (is_new) {
-                std::cout << "is new !!!!" << std::endl;
-                c = new TCanvas(canv_str,key->GetName(),1280,720);
+                //std::cout << "is new !!!!" << std::endl;
+                //c = new TCanvas(canv_str,key->GetName(),1280,720);
+                c = new TCanvas(canv_str,key->GetName(),1100,800);
 
                 if (include_ratio) {
                     Float_t small = .04;
@@ -373,24 +399,32 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
                 }
             }
             // SM norm
-            //h->Scale(1.0/eventsum_SM);
-            //h->GetYaxis()->SetRangeUser(0.0,1.2*maxYvals_dict[string(s)]);
-            if (s != "h_SMwgt_norm") {
-                h->Scale(1.0/eventsum_SM);
-                h->GetYaxis()->SetRangeUser(0.0,1.2*maxYvals_dict[string(s)]);
-            } else {
-                std::cout << "\nNot normalizing this histogram: " << s << "\n" << std::endl;
-                h->GetYaxis()->SetRangeUser(0.1,2*maxYvals_dict[string(s)]);
+            if (norm_type == "SM_norm"){
+                //h->Scale(1.0/eventsum_SM);
+                //h->GetYaxis()->SetRangeUser(0.0,1.2*maxYvals_dict[string(s)]);
+                if (s != "h_SMwgt_norm") {
+                    h->Scale(1.0/eventsum_SM);
+                    h->GetYaxis()->SetRangeUser(0.0,1.2*maxYvals_dict[string(s)]);
+                } else {
+                    std::cout << "\nNot normalizing this histogram: " << s << "\n" << std::endl;
+                    h->GetYaxis()->SetRangeUser(0.1,2*maxYvals_dict[string(s)]);
+                }
             }
-
-            /*
             // Unit norm
-            Int_t nbins = h->GetNbinsX();
-            Double_t intg = h->Integral(0,nbins+1);
-            if (intg > 1.0) {
-               h->Scale(1./intg);
+            if (norm_type == "unit_norm"){
+                if (s != "h_SMwgt_norm") {
+                    Int_t nbins = h->GetNbinsX();
+                    Double_t intg = h->Integral(0,nbins+1);
+                    if (intg > 1.0) {
+                        h->Scale(1./intg);
+                        h->Scale(1./h->GetBinWidth(1)); // Scale by bin width
+                        h->GetYaxis()->SetRangeUser(0.0,1.2*maxYvals_dict[string(s)]);
+                    }
+                } else {
+                    std::cout << "\nNot normalizing this histogram: " << s << "\n" << std::endl;
+                    h->GetYaxis()->SetRangeUser(0.1,2*maxYvals_dict[string(s)]);
+                }
             }
-            */
 
             if (is_new) {
                 //h->Draw("E PLC PMC");
@@ -415,7 +449,7 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
     // Get ratio hists and put them in a dictionary (format of hist_dict: {"hist name": [h1,h2]})
     TH1D* ratio_hist;
     std::map<std::string,std::vector<TH1D*>> ratio_hist_dict;
-    std::cout << "\n the length !!! " << hist_dict.size() << "\n" << std::endl;
+    //std::cout << "\n the length !!! " << hist_dict.size() << "\n" << std::endl;
     for (auto it = hist_dict.begin(); it != hist_dict.end(); it++ ){
         std::cout << " it->first " << it->first << std:: endl;
         std::cout << "hist_dict[it->first].size()" << hist_dict[it->first].size() << std::endl;
@@ -470,9 +504,9 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
                     r_hist->Draw("e2");
                     //r_hist->SetMaximum(1.2*max_ratio);
                     //r_hist->SetMinimum(0.4*min_ratio);
-                    // Hard code max,min: 0p vs 1p ttH_ctW2: 3,0; qCut comp ttH_ctG2: 1.75,.25
-                    r_hist->SetMaximum(4); // Hard code max
-                    r_hist->SetMinimum(0);  // Hard code min
+                    // Hard code max,min: 0p vs 1p: 4,0; qCut comp ttH_ctG2: 1.75,.25
+                    r_hist->SetMaximum(1.75); // Hard code max
+                    r_hist->SetMinimum(.25);  // Hard code min
                     if (only_njets) {
                         r_hist->GetXaxis()->SetTitle("N jets");
                     }
