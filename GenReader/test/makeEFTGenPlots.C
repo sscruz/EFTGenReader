@@ -563,6 +563,7 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
         // No need to uniquely name the images, since they will be placed in a dedicated directory
         TString s = (TString)c->GetTitle() + ".png";
         c->Print(s,"png");
+        c->Print(s.ReplaceAll("png","pdf"),"pdf");
     }
 
     //// Print maxYvals dictionary:
