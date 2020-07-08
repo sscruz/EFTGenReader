@@ -195,6 +195,7 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
         }
     }
     std::map<string,float> maxYvals_dict;
+    std::map<std::string,TH1D*> histSM_dict;
     for (auto f1: files1) {
         TDirectory* td1 = f1->GetDirectory("EFTGenReader");
         TKey* key1;
@@ -208,6 +209,19 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
                 for (Int_t bin_idx = 0; bin_idx <= h1->GetNbinsX()+1; bin_idx++) {
                     double wcfit_bin_val = h1->GetBinFit(bin_idx).evalPoint(wc_pt);
                     h1->SetBinContent(bin_idx,wcfit_bin_val);
+                }
+            }
+            // SM rel
+            if (norm_type == "SM_rel"){
+                if (s1 != "h_SMwgt_norm" && s1.Contains("EFT")) {
+                    auto tmps = s1;
+                    std::cout << tmps << " " << tmps.ReplaceAll("EFT","SM") << std::endl;
+                    auto hsm = (TH1D*)f1->Get("EFTGenReader/"+tmps);
+                    std::cout << "EFTGenReader/"+tmps << std::endl;
+                    if(hsm != nullptr) {
+                    hsm->SetDirectory(0);
+                    histSM_dict[tmps.Data()]=hsm;
+                    }
                 }
             }
             // SM norm
@@ -396,6 +410,24 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
                     double wcfit_bin_err = h->GetBinFit(bin_idx).evalPointError(wc_pt);
                     h->SetBinContent(bin_idx,wcfit_bin_val);
                     h->SetBinError(bin_idx,wcfit_bin_err);
+                }
+            }
+            // SM rel
+            if (norm_type == "SM_rel"){
+                if (s.Index("EFT") != -1) {
+                    auto tmps = s;
+                    tmps.ReplaceAll("EFT","SM");
+                    std::cout << "Looking for:" << tmps << std::endl;
+                    TH1D* h_sm = (TH1D*)histSM_dict[tmps.Data()];
+                    for (Int_t bin_idx = 0; bin_idx <= h->GetNbinsX()+1; bin_idx++) {
+                        double wcfit_bin_val = h->GetBinFit(bin_idx).evalPoint(wc_pt);
+                        double wcfit_bin_err = h->GetBinFit(bin_idx).evalPointError(wc_pt);
+                        wcfit_bin_val *= 1/h_sm->GetBinContent(bin_idx);
+                        wcfit_bin_err = sqrt(pow(wcfit_bin_err,2) + pow(h_sm->GetBinError(bin_idx),2));
+                        std::cout << "Ratio over SM=" << wcfit_bin_val << " +/- " << wcfit_bin_err << std::endl;
+                        h->SetBinContent(bin_idx,wcfit_bin_val);
+                        h->SetBinError(bin_idx,wcfit_bin_err);
+                    }
                 }
             }
             // SM norm
