@@ -124,6 +124,8 @@ def main():
 
     imgs = get_files('.',targets=["^h_.*\.png$"])
     move_files(files=imgs,target=output_dir)
+    imgs = get_files('.',targets=["^h_.*\.pdf$"])
+    move_files(files=imgs,target=output_dir)
     make_html(output_dir)
 
 if __name__ == "__main__":
