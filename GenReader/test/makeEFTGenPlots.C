@@ -106,7 +106,7 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
     bool only_jetPt_lepPt = true;
     bool only_SM = false;
     bool include_ratio = true;
-    std::string norm_type = "unit_norm";
+    std::string norm_type = "SM_rel"; //"unit_norm";
     std::string plot_type = "0p_vs_1p_comp";
 
     std::vector<TFile*> files;
@@ -417,17 +417,25 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
                 if (s.Index("EFT") != -1) {
                     auto tmps = s;
                     tmps.ReplaceAll("EFT","SM");
-                    std::cout << "Looking for:" << tmps << std::endl;
                     TH1D* h_sm = (TH1D*)histSM_dict[tmps.Data()];
                     for (Int_t bin_idx = 0; bin_idx <= h->GetNbinsX()+1; bin_idx++) {
                         double wcfit_bin_val = h->GetBinFit(bin_idx).evalPoint(wc_pt);
                         double wcfit_bin_err = h->GetBinFit(bin_idx).evalPointError(wc_pt);
                         wcfit_bin_val *= 1/h_sm->GetBinContent(bin_idx);
                         wcfit_bin_err = sqrt(pow(wcfit_bin_err,2) + pow(h_sm->GetBinError(bin_idx),2));
-                        std::cout << "Ratio over SM=" << wcfit_bin_val << " +/- " << wcfit_bin_err << std::endl;
                         h->SetBinContent(bin_idx,wcfit_bin_val);
                         h->SetBinError(bin_idx,wcfit_bin_err);
                     }
+                    tmps.ReplaceAll("SM","EFToSM");
+                    h->SetTitle(tmps);
+                    h->Fit("pol1", "FSMEQW");
+                    float chi = 0.;
+                    for (Int_t bin_idx = 1; bin_idx <= h->GetNbinsX()+1; bin_idx++) {
+                        double bin = h->GetBinCenter(bin_idx);
+                        double bin_val = h->GetBinContent(bin_idx);
+                        chi += pow(h->GetFunction("pol1")->Eval(bin) - bin_val, 2) / bin_val;
+                    }
+                    //std::cout << "Fit chi^2 for " << tmps << " = " << chi << std::endl;
                 }
             }
             // SM norm
