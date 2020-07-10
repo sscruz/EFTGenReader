@@ -425,17 +425,23 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
                         h->Scale(normH);
                         h_sm->Scale(normHsm);
                     }
-                    std::cout << h->Integral() << std::endl;
                     for (Int_t bin_idx = 1; bin_idx <= h->GetNbinsX(); bin_idx++) {
+                        double sm_bin_val = h_sm->GetBinContent(bin_idx);
+                        double sm_bin_err = h_sm->GetBinContent(bin_idx);
                         double wcfit_bin_val = h->GetBinFit(bin_idx).evalPoint(wc_pt);
                         double wcfit_bin_err = h->GetBinFit(bin_idx).evalPointError(wc_pt);
+                        if(bin_idx == h->GetNbinsX()) {
+                            sm_bin_val += h_sm->GetBinContent(bin_idx+1);
+                            sm_bin_err = sqrt(pow(sm_bin_err,2) + pow(h_sm->GetBinError(bin_idx+1),2));
+                            wcfit_bin_val += h->GetBinFit(bin_idx+1).evalPoint(wc_pt);
+                            wcfit_bin_err = sqrt(pow(wcfit_bin_err,2) + pow(h->GetBinFit(bin_idx+1).evalPointError(wc_pt),2));
+                        }
                         if(TString(norm_type).Contains("norm")) {
                             wcfit_bin_val *= 1 / h->Integral();
                             wcfit_bin_err *= 1 / h->Integral();
                         }
-                        wcfit_bin_err = wcfit_bin_val/h_sm->GetBinContent(bin_idx) * sqrt(wcfit_bin_err/wcfit_bin_val + h_sm->GetBinError(bin_idx)/h_sm->GetBinContent(bin_idx));
+                        wcfit_bin_err = wcfit_bin_val/sm_bin_val * sqrt(wcfit_bin_err/wcfit_bin_val + sm_bin_err/sm_bin_val);
                         wcfit_bin_val *= 1/h_sm->GetBinContent(bin_idx);
-                        wcfit_bin_err *= 1/h_sm->GetBinContent(bin_idx);
                         h->SetBinContent(bin_idx,wcfit_bin_val);
                         h->SetBinError(bin_idx,wcfit_bin_err);
                     }
