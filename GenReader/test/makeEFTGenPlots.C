@@ -106,7 +106,7 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
     bool only_jetPt_lepPt = true;
     bool only_SM = false;
     bool include_ratio = false;
-    std::string norm_type = "";//"SM_rel_norm"; //"unit_norm";
+    std::string norm_type = "SM_rel_norm"; //"unit_norm";
     std::string plot_type = "0p_vs_1p_comp";
 
     std::vector<TFile*> files;
@@ -423,24 +423,13 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
                     if(TString(norm_type).Contains("norm")) {
                         double normH = 1./h->Integral();
                         double normHsm = 1./h_sm->Integral();
+                        h->Scale(normH);
+                        h_sm->Scale(normHsm);
                     }
-                    h->Divide(h,h_sm,normH,normHsm);
-                    /*
-                        if(TString(norm_type).Contains("norm")) {
-                            wcfit_bin_val *= h_sm->Integral() / h->Integral();
-                            wcfit_bin_err *= h_sm->Integral() / h->Integral();
-                        }
-                    for (Int_t bin_idx = 0; bin_idx <= h->GetNbinsX()+1; bin_idx++) {
-                        double wcfit_bin_val = h->GetBinFit(bin_idx).evalPoint(wc_pt);
-                        double wcfit_bin_err = h->GetBinFit(bin_idx).evalPointError(wc_pt);
-                        wcfit_bin_val *= 1/h_sm->GetBinContent(bin_idx);
-                        wcfit_bin_err = sqrt(pow(wcfit_bin_err,2) + pow(h_sm->GetBinError(bin_idx),2));
-                        h->SetBinContent(bin_idx,wcfit_bin_val);
-                        h->SetBinError(bin_idx,wcfit_bin_err);
-                    }
-                    */
+                    h->Divide(h,h_sm);
                     if(TString(norm_type).Contains("norm")) tmps.ReplaceAll("SM","SM_norm");
                     tmps.ReplaceAll("SM","EFToSM");
+                    h->SetName(tmps);
                     h->SetTitle(tmps);
                     h->Fit("pol1", "FSMEQW");
                     float chi = 0.;
@@ -450,18 +439,6 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
                         chi += pow(h->GetFunction("pol1")->Eval(bin) - bin_val, 2) / bin_val;
                     }
                     //std::cout << "Fit chi^2 for " << tmps << " = " << chi << std::endl;
-                }
-            }
-            // SM norm
-            if (norm_type == "SM_norm"){
-                //h->Scale(1.0/eventsum_SM);
-                //h->GetYaxis()->SetRangeUser(0.0,1.2*maxYvals_dict[string(s)]);
-                if (s != "h_SMwgt_norm") {
-                    h->Scale(1.0/eventsum_SM);
-                    h->GetYaxis()->SetRangeUser(0.0,1.2*maxYvals_dict[string(s)]);
-                } else {
-                    std::cout << "\nNot normalizing this histogram: " << s << "\n" << std::endl;
-                    h->GetYaxis()->SetRangeUser(0.1,2*maxYvals_dict[string(s)]);
                 }
             }
             // Unit norm
@@ -584,6 +561,8 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
         //TString s = (TString)c->GetTitle() + "_" + output_fname + ".png";
         // No need to uniquely name the images, since they will be placed in a dedicated directory
         TString s = (TString)c->GetTitle() + ".png";
+        if(norm_type == "SM_rel") s.ReplaceAll("EFT","EFToSM");
+        if(norm_type == "SM_rel_norm") s.ReplaceAll("EFT","EFToSMnorm");
         c->Print(s,"png");
         c->Print(s.ReplaceAll("png","pdf"),"pdf");
     }
