@@ -212,10 +212,10 @@ class EFTGenReader: public edm::EDAnalyzer
         int lumiBlock_intree;
         int runNumber_intree;
 
-        double eft_wgt_intree;
+        WCFit eft_wgt_intree;
         double sm_wgt_intree;
-        int n_jet_intree;
-        int n_bjet_intree;
+        int n_jets_intree;
+        int n_bjets_intree;
 
         // Misc. counters
         int total_ls;
