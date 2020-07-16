@@ -212,6 +212,11 @@ class EFTGenReader: public edm::EDAnalyzer
         int lumiBlock_intree;
         int runNumber_intree;
 
+        double eft_wgt_intree;
+        double sm_wgt_intree;
+        int n_jet_intree;
+        int n_bjet_intree;
+
         // Misc. counters
         int total_ls;
         int total_events;
@@ -225,6 +230,11 @@ void EFTGenReader::tree_add_branches()
     summaryTree->Branch("eventnum",&eventnum_intree);
     summaryTree->Branch("lumiBlock",&lumiBlock_intree);
     summaryTree->Branch("runNumber",&runNumber_intree);
+
+    summaryTree->Branch("eft_wgt",&eft_wgt_intree);
+    summaryTree->Branch("sm_wgt",&sm_wgt_intree);
+    summaryTree->Branch("n_jets",&n_jets_intree);
+    summaryTree->Branch("n_bjets",&n_bjets_intree);
 }
 
 void EFTGenReader::initialize_variables()
