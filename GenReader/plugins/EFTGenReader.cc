@@ -257,6 +257,7 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
     }
 
     reco::GenParticleCollection gen_leptons = GetGenLeptons(*prunedParticles);
+    reco::GenParticleCollection gen_b = GetGenParticlesSubset(*prunedParticles, 5);
     std::vector<reco::GenJet> gen_jets = GetGenJets(*genJets);
 	reco::GenParticleCollection gen_subset = GetGenParticlesSubset(*prunedParticles,5);
 
@@ -430,34 +431,34 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
             }
         }
 		
-}
-	//identifying b-tagged jets and storing them
-		
-		
-	std::vector<reco::GenJet> bJets;							//stores b-tagged jets
-	bool *jet_mask = new bool[gen_jets.size()];
+    }
 
-	for(size_t i = 0; i<gen_subset.size();i++){	
-		for(size_t j = 0; j<gen_jets.size();j++){
-			if(jet_mask[j]) continue; 			//No need to recheck already matched jets
-				const reco::GenParticle& p1 = gen_subset.at(i);
-				const reco::GenJet& p2 = gen_jets.at(j);
-				double dR = getdR(p1,p2);
-				if(dR<0.1)
-			{
-				bJets.push_back(p2);
-				jet_mask[j] = true;
-				break; 						//Break out of loop since b quark i has now been matched
-			}
-		
-	}
+    //identifying b-tagged jets and storing them
+    std::vector<reco::GenJet> bJets; //stores b-tagged jets
+    bool *jet_mask = new bool[gen_jets.size()];
+    
+    for(size_t i = 0; i<gen_subset.size();i++){    
+        for(size_t j = 0; j<gen_jets.size();j++){
+            if(jet_mask[j]) continue; //No need to recheck already matched jets
+            const reco::GenParticle& p1 = gen_subset.at(i);
+            const reco::GenJet& p2 = gen_jets.at(j);
+            double dR = getdR(p1,p2);
+            if(dR<0.1)
+            {
+                bJets.push_back(p2);
+                jet_mask[j] = true;
+                break; //Break out of loop since b quark i has now been matched
+            }
+        
+        } //end loop over jets
+    	
+    } //end loop over b quarks
 
-	n_jet_intree = gen_jets.size();
-	n_bjet_intree = bJets.size();
-	eft_wgt_intree = eft_fit;
-	sm_wgt_intree = sm_wgt;
-		
-}
+    n_jet_intree = gen_jets.size();
+    n_bjet_intree = bJets.size();
+    eft_wgt_intree = eft_fit;
+    sm_wgt_intree = sm_wgt;
+
     h_deltaREFT->Fill(min_dR,1.0,eft_fit); h_deltaRSM->Fill(min_dR,sm_wgt);
 
     h_prompt_electronsEFT->Fill(n_prompt_electrons,1.0,eft_fit); h_prompt_electronsSM->Fill(n_prompt_electrons,sm_wgt);
@@ -500,6 +501,8 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
     eventnum_intree = event.id().event();
     lumiBlock_intree = event.id().luminosityBlock();
     runNumber_intree = event.id().run();
+
+    summaryTree->Fill();
 
 }
 

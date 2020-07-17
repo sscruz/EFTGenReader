@@ -215,8 +215,8 @@ class EFTGenReader: public edm::EDAnalyzer
 
         WCFit eft_wgt_intree;
         double sm_wgt_intree;
-        int n_jets_intree;
-        int n_bjets_intree;
+        int n_jet_intree;
+        int n_bjet_intree;
 
         // Misc. counters
         int total_ls;
@@ -391,6 +391,18 @@ reco::GenParticleCollection EFTGenReader::GetGenLeptons(const reco::GenParticleC
     return gen_leptons;
 }
 
+reco::GenParticleCollection EFTGenReader::GetGenParticlesSubset(const reco::GenParticleCollection& gen_particles, int pdg_id) {
+    reco::GenParticleCollection gen_subset;
+    for (size_t i = 0; i < gen_particles.size(); i++) {
+        const reco::GenParticle& p = gen_particles.at(i);
+        int id = p.pdgId();
+        if (abs(id) == pdg_id){
+            gen_subset.push_back(p);
+        }
+    }
+    return gen_subset;
+}
+
 std::vector<reco::GenJet> EFTGenReader::GetGenJets(const std::vector<reco::GenJet>& inputs) {
     std::vector<reco::GenJet> ret;
     for (size_t i = 0; i < inputs.size(); i++) {
@@ -404,18 +416,6 @@ std::vector<reco::GenJet> EFTGenReader::GetGenJets(const std::vector<reco::GenJe
     }
     std::sort(ret.begin(),ret.end(), [] (reco::GenJet a, reco::GenJet b) { return a.p4().Pt() > b.p4().Pt();});
     return ret;
-}
-
-reco::GenParticleCollection EFTGenReader::GetGenParticlesSubset(const reco::GenParticleCollection& gen_particles, int pdg_id) {
-    reco::GenParticleCollection gen_subset;
-    for (size_t i = 0; i < gen_particles.size(); i++) {
-        const reco::GenParticle& p = gen_particles.at(i);
-        int id = p.pdgId();
-        if (abs(id) == pdg_id){
-            gen_subset.push_back(p);
-        }
-    }
-    return gen_subset;
 }
 
 ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>> EFTGenReader::getSumTLV(reco::GenParticleCollection col) {
