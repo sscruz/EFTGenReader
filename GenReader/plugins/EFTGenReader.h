@@ -83,15 +83,16 @@ class EFTGenReader: public edm::EDAnalyzer
         virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
         virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
-        void tree_add_branches();
+	    void tree_add_branches();
         void initialize_variables();
         void parse_params();
         void dumpParticles(const reco::GenParticleCollection& particles);
         void dumpJets(const std::vector<reco::GenJet>& jets);
         const reco::Candidate* GetGenMotherNoFsr(const reco::Candidate* p);
         std::pair<const reco::Candidate*, const reco::Candidate*> GetGenDaughterNoFsr(const reco::Candidate* p);
-
+		
         reco::GenParticleCollection GetGenLeptons(const reco::GenParticleCollection& gen_particles);
+	reco::GenParticleCollection GetGenParticlesSubset(const reco::GenParticleCollection& gen_particles, int pdg_id);
         std::vector<reco::GenJet> GetGenJets(const std::vector<reco::GenJet>& inputs);
         ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>> getSumTLV(reco::GenParticleCollection col);
         double getdPhi(reco::GenParticle p1, reco::GenParticle p2);
@@ -233,8 +234,8 @@ void EFTGenReader::tree_add_branches()
 
     summaryTree->Branch("eft_wgt",&eft_wgt_intree);
     summaryTree->Branch("sm_wgt",&sm_wgt_intree);
-    summaryTree->Branch("n_jets",&n_jets_intree);
-    summaryTree->Branch("n_bjets",&n_bjets_intree);
+    summaryTree->Branch("n_jets",&n_jet_intree);
+    summaryTree->Branch("n_bjets",&n_bjet_intree);
 }
 
 void EFTGenReader::initialize_variables()
@@ -403,6 +404,18 @@ std::vector<reco::GenJet> EFTGenReader::GetGenJets(const std::vector<reco::GenJe
     }
     std::sort(ret.begin(),ret.end(), [] (reco::GenJet a, reco::GenJet b) { return a.p4().Pt() > b.p4().Pt();});
     return ret;
+}
+
+reco::GenParticleCollection EFTGenReader::GetGenParticlesSubset(const reco::GenParticleCollection& gen_particles, int pdg_id) {
+    reco::GenParticleCollection gen_subset;
+    for (size_t i = 0; i < gen_particles.size(); i++) {
+        const reco::GenParticle& p = gen_particles.at(i);
+        int id = p.pdgId();
+        if (abs(id) == pdg_id){
+            gen_subset.push_back(p);
+        }
+    }
+    return gen_subset;
 }
 
 ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>> EFTGenReader::getSumTLV(reco::GenParticleCollection col) {
