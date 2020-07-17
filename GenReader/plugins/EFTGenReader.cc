@@ -259,7 +259,6 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
     reco::GenParticleCollection gen_leptons = GetGenLeptons(*prunedParticles);
     reco::GenParticleCollection gen_b = GetGenParticlesSubset(*prunedParticles, 5);
     std::vector<reco::GenJet> gen_jets = GetGenJets(*genJets);
-	reco::GenParticleCollection gen_subset = GetGenParticlesSubset(*prunedParticles,5);
 
     originalXWGTUP_intree = LHEInfo->originalXWGTUP();  // original cross-section
     double sm_wgt = 0.;
@@ -437,10 +436,10 @@ void EFTGenReader::analyze(const edm::Event& event, const edm::EventSetup& evset
     std::vector<reco::GenJet> bJets; //stores b-tagged jets
     bool *jet_mask = new bool[gen_jets.size()];
     
-    for(size_t i = 0; i<gen_subset.size();i++){    
+    for(size_t i = 0; i<gen_b.size();i++){    
         for(size_t j = 0; j<gen_jets.size();j++){
             if(jet_mask[j]) continue; //No need to recheck already matched jets
-            const reco::GenParticle& p1 = gen_subset.at(i);
+            const reco::GenParticle& p1 = gen_b.at(i);
             const reco::GenJet& p2 = gen_jets.at(j);
             double dR = getdR(p1,p2);
             if(dR<0.1)
