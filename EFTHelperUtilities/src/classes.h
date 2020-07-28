@@ -4,6 +4,7 @@
 #include "EFTGenReader/EFTHelperUtilities/interface/WCPoint.h"
 #include "EFTGenReader/EFTHelperUtilities/interface/WCFit.h"
 #include "EFTGenReader/EFTHelperUtilities/interface/TH1EFT.h"
+#include "EFTGenReader/EFTHelperUtilities/interface/TH2EFT.h"
 
 #ifndef EFTGENREADER_DUMMY_OBJS
 #define EFTGENREADER_DUMMY_OBJS
