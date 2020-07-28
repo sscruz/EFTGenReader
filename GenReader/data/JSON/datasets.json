@@ -999,6 +999,76 @@
     "loc": "/hadoop/store/user/awightma/postLHE_step/2019_04_19/4ProcNoDim6/v1/mAOD_step_ttH_NoDim6_run0/", 
     "on_das": false
   }, 
+  "ttH_SM-SMEFTNLO-fromReza": {
+    "central_xsec": 0, 
+    "dataset": "", 
+    "datatier": "GEN", 
+    "description": "", 
+    "files_per_task": 5, 
+    "is_eft": false, 
+    "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/ttX-NLO_SM-SMEFTNLO-fromReza/v4/gen_step_ttH_SMSMEFTNLO_slc7", 
+    "on_das": false
+  }, 
+  "ttWJet_HanV4": {
+    "central_xsec": 0, 
+    "dataset": "", 
+    "datatier": "GEN", 
+    "description": "", 
+    "files_per_task": 5, 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/ttWJet-ttZJet_HanV4-0plus1p-QCDQED-OrderChecks/v1/gen_step_ttWJet_HanV40plus1pwithRwgt_run1", 
+    "on_das": false
+  }, 
+  "ttW_HanV4": {
+    "central_xsec": 0, 
+    "dataset": "", 
+    "datatier": "GEN", 
+    "description": "", 
+    "files_per_task": 5, 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/ttW-ttWJet-ttZ-ttZJet_QED-QCD-order-tests/v2/gen_step_ttW_HanV4withRwgt_run1", 
+    "on_das": false
+  }, 
+  "ttW_SM-SMEFTNLO-fromReza": {
+    "central_xsec": 0, 
+    "dataset": "", 
+    "datatier": "GEN", 
+    "description": "", 
+    "files_per_task": 5, 
+    "is_eft": false, 
+    "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/ttX-NLO_SM-SMEFTNLO-fromReza/v4/gen_step_ttW_SMSMEFTNLO_slc7", 
+    "on_das": false
+  }, 
+  "ttZJet_HanV4": {
+    "central_xsec": 0, 
+    "dataset": "", 
+    "datatier": "GEN", 
+    "description": "", 
+    "files_per_task": 5, 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/ttWJet-ttZJet_HanV4-0plus1p-QCDQED-OrderChecks/v1/gen_step_ttZJet_HanV40plus1pwithRwgt_run1", 
+    "on_das": false
+  }, 
+  "ttZ_HanV4": {
+    "central_xsec": 0, 
+    "dataset": "", 
+    "datatier": "GEN", 
+    "description": "", 
+    "files_per_task": 5, 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/ttW-ttWJet-ttZ-ttZJet_QED-QCD-order-tests/v2/gen_step_ttZ_HanV4withRwgt_run1", 
+    "on_das": false
+  }, 
+  "ttZ_SM-SMEFTNLO-fromReza": {
+    "central_xsec": 0, 
+    "dataset": "", 
+    "datatier": "GEN", 
+    "description": "", 
+    "files_per_task": 5, 
+    "is_eft": false, 
+    "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/ttX-NLO_SM-SMEFTNLO-fromReza/v4/gen_step_ttZ_SMSMEFTNLO_slc7", 
+    "on_das": false
+  }, 
   "ttllNoHiggs_EFT": {
     "central_xsec": 0.244109, 
     "dataset": "", 
