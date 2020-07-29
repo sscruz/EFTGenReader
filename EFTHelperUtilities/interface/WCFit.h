@@ -396,10 +396,15 @@ public:
         this->dump(append);
     }
 
-    void dump(bool append=false,uint max_cols=13) {
+    void dump(bool append=false,uint max_cols=13,std::string WC_name="") {
         std::stringstream ss1,ss2;  // Header,row info
         std::string n1,n2;
         std::pair<int,int> idx_pair;
+
+        //std::string check_str = "sm_";
+        //if (WC_name != ""){
+            //check_str = check_str+WC_name;
+        //}
 
         ss1 << std::setw(kPad) << "";
         ss2 << std::setw(kPad) << this->tag;
@@ -413,8 +418,21 @@ public:
             n1 = this->names.at(idx_pair.first);
             n2 = this->names.at(idx_pair.second);
 
-            ss1 << std::setw(kPad) << n1+"*"+n2;
-            ss2 << std::setw(kPad) << std::to_string(this->coeffs.at(i));
+            //std::cout << "n1 and n1: " << n1 << " " << n2 << std::endl;
+            //ss1 << std::setw(kPad) << n1+"*"+n2;
+            //ss2 << std::setw(kPad) << std::to_string(this->coeffs.at(i));
+
+            if (WC_name == ""){
+                ss1 << std::setw(kPad) << n1+"*"+n2;
+                ss2 << std::setw(kPad) << std::to_string(this->coeffs.at(i));
+            } else if (WC_name != ""){
+                //if ( (check_str.find(n1) != std::string::npos) and (check_str.find(n2) != std::string::npos) ){ // n1 and n2 is "sm" or WC_name
+                if ( (n1 == WC_name or n1 == "sm") and (n2 == WC_name or n2 == "sm") ){
+                    ss1 << std::setw(kPad) << n1+"*"+n2;
+                    ss2 << std::setw(kPad) << std::to_string(this->coeffs.at(i));
+                }
+            }
+
         }
 
         if (!append) {
