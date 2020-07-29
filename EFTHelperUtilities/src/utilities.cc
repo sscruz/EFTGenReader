@@ -1,14 +1,6 @@
-#ifndef UTILITIES_H_
-#define UTILITIES_H_
+//#include "../interface/utilities.h"
+#include "EFTGenReader/EFTHelperUtilities/interface/utilities.h"
 
-#include "TH1D.h"
-#include "TAxis.h"
-#include "TMath.h"
-
-// Reformats a TH1D histogram to have equal bin width on log scale
-void binLogX(TH1D*);
-
-/*
 void binLogX(TH1D* hist) {
     TAxis* axis = hist->GetXaxis();
     int bins = axis->GetNbins();
@@ -24,7 +16,3 @@ void binLogX(TH1D* hist) {
     axis->Set(bins,new_bins);
     delete[] new_bins;
 }
-*/
-
-#endif
-/* UTILITIES */
