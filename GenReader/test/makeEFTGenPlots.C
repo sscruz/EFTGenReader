@@ -102,8 +102,8 @@ TH1D* makeRatioHistogram(TString name,T* h1,T* h2) {
 void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
 
     // Set up the type of plots we want to make
-    bool only_njets = false; //true;
-    bool only_jetPt_lepPt = true;
+    bool only_njets = false;
+    bool only_jetPt_lepPt = false;
     bool only_SM = false;
     bool include_ratio = false;
     std::string norm_type = "SM_rel_norm"; //"unit_norm";
@@ -197,7 +197,11 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
     std::map<string,float> maxYvals_dict;
     std::map<std::string,TH1D*> histSM_dict;
     for (auto f1: files1) {
-        TDirectory* td1 = f1->GetDirectory("EFTGenReader");
+        TDirectory* td1;
+        td1 = f1->GetDirectory("EFTGenReader");
+        if (td1 == 0){
+            td1 = f1->GetDirectory("EFTGenHistsWithCuts"); // In case we are using files produced by the  EFTGenHistsWithCuts analyzer
+        }
         TKey* key1;
         TIter next(td1->GetListOfKeys());
         while ((key1 = (TKey*)next())) {
@@ -273,7 +277,7 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
             sub_str = fname(idx+1,fname.Length());
         }
 
-
+        /*
         //TString marker = "output_";
         TString marker = "HanV4Model";
         //TString marker = "0p_";
@@ -293,8 +297,57 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
                 sub_str = "ttH 0+1 partons";
             }
         }
+        */
 
-        TDirectory* td = f->GetDirectory("EFTGenReader");
+        TString marker = "output_";
+        //TString marker = "HanV4Model";
+        //TString marker = "0p_";
+        //idx_begin = sub_str.Index(marker)+marker.Length();
+        //idx_end = sub_str.Index("fromMAOD.root");
+        //idx_end = sub_str.Index(".root");
+        //sub_str = sub_str(idx_begin,idx_end-idx_begin);
+        //cout << "\ntThis is the sub str now !!!!!!!!!!\n" << sub_str << std::endl;
+
+        // This legend string stuff is very specific to the names of the files and is just leftover 
+        // from the last thing I used this code for, i.e. this is very ad hoc and will probably not 
+        // work great for situations besides the specific one I was using it for (sorry)
+        //sub_str = "ttH";
+        std::string leg_str;
+        if (sub_str.Index("ttH") != -1){
+            leg_str = "ttH ";
+        } else if (sub_str.Index("ttW") != -1){
+            leg_str = "ttW ";
+        } else if (sub_str.Index("ttWZ") != -1){
+            leg_str = "ttZ ";
+        } else if (sub_str.Index("ttlnu") != -1){
+            leg_str = "ttlnu ";
+        } else if (sub_str.Index("ttll") != -1){
+            leg_str = "ttll ";
+        }
+        if (plot_type == "0p_vs_1p_comp") {
+            if (sub_str.Index("NoJets") != -1){
+                //std::cout << "the no jets sub str! " << sub_str << std::endl;
+                sub_str = leg_str+"0 partons";
+            } else if (sub_str.Index("NLO") != -1){
+                //std::cout << "the NLO sub str! " << sub_str << std::endl;
+                sub_str = leg_str+"NLO";
+            } else if (sub_str.Index("central") != -1){
+                //std::cout << "The NLO sub str! " << sub_str << std::endl;
+                sub_str = leg_str+"central";
+            } else if (sub_str.Index("Jet") != -1) {
+                //std::cout << "the plus jets sub str! " << sub_str << std::endl;
+                sub_str = leg_str+"0+1 partons";
+            } else {
+                //std::cout << "the 0 jets sub str also! " << sub_str << std::endl;
+                sub_str = leg_str+"0 partons";
+            }
+        }
+
+        TDirectory* td;
+        td = f->GetDirectory("EFTGenReader");
+        if (td == 0){
+            td = f->GetDirectory("EFTGenHistsWithCuts"); // In case we are using files produced by the  EFTGenHistsWithCuts analyzer
+        }
 
         TH1EFT* h_eventsumEFT = (TH1EFT*)td->Get("h_eventsumEFT");
         double eventsum_SM = h_eventsumEFT->GetBinFit(1).evalPoint(sm_pt);
@@ -500,17 +553,17 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
     std::map<std::string,std::vector<TH1D*>> ratio_hist_dict;
     //std::cout << "\n the length !!! " << hist_dict.size() << "\n" << std::endl;
     for (auto it = hist_dict.begin(); it != hist_dict.end(); it++ ){
-        std::cout << " it->first " << it->first << std:: endl;
-        std::cout << "hist_dict[it->first].size()" << hist_dict[it->first].size() << std::endl;
+        //std::cout << " it->first " << it->first << std:: endl;
+        //std::cout << "hist_dict[it->first].size()" << hist_dict[it->first].size() << std::endl;
         for(int i=0; i<hist_dict[it->first].size(); i++){
             ratio_hist = makeRatioHistogram(it->first,hist_dict[it->first].at(i), hist_dict[it->first].at(0));
             ratio_hist_dict[string(it->first)].push_back(ratio_hist);
             // Print the hists
             for(int k=0; k<=hist_dict[it->first].at(i)->GetNbinsX(); k++){
-                std::cout << "hist " << i << " bin " << k << ": " << hist_dict[it->first].at(i)->GetBinContent(k) << std::endl;
+                //std::cout << "hist " << i << " bin " << k << ": " << hist_dict[it->first].at(i)->GetBinContent(k) << std::endl;
             }
             for(int k=0; k<=ratio_hist->GetNbinsX(); k++){
-                std::cout << "h" << i << "/h0 bin " << k << ": " << ratio_hist->GetBinContent(k) << std::endl;
+                //std::cout << "h" << i << "/h0 bin " << k << ": " << ratio_hist->GetBinContent(k) << std::endl;
             }
         }
     }
@@ -541,8 +594,8 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
                     min_ratio = ratio_low;
                 }
             }
-            std::cout << "max for " << c->GetTitle() << " " << max_ratio << std::endl;
-            std::cout << "min for " << c->GetTitle() << " " << min_ratio << std::endl;
+            //std::cout << "max for " << c->GetTitle() << " " << max_ratio << std::endl;
+            //std::cout << "min for " << c->GetTitle() << " " << min_ratio << std::endl;
 
             // Plot the hists
             clr_idx = 0;
@@ -566,7 +619,7 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
                 } else {
                     r_hist->Draw("e2 same");
                 }
-                std::cout << "color idx " << clr_idx << std::endl;
+                //std::cout << "color idx " << clr_idx << std::endl;
                 r_hist->SetLineColor(clrs.at(clr_idx));
                 clr_idx = clr_idx + 1;
             }

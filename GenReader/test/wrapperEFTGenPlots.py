@@ -104,6 +104,8 @@ def main():
             for fn in os.listdir(fpath):
                 if not ".root" in fn:
                     continue
+                if "EDMiii" in fn:
+                    continue # Skip the EDMiii.root files added by Reza for particle level stuff (these are useful for doing edmDumpEventContent but are not the hist files)
                 to_merge.append(os.path.join(fpath,fn))
             if len(to_merge):
                 hadd_cmd = ['hadd',merged_output] + to_merge
