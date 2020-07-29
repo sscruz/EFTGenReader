@@ -17,7 +17,8 @@ timestamp_tag = datetime.datetime.now().strftime('%Y%m%d_%H%M')
 input_path = "/store/user/"
 
 out_ver = "v1"
-tag = 'ttX-ttXJet_HanV4_nJets3orMoreLep_lepPt10-jetPt30_lepEta-jetEta_genOnly'
+#tag = 'ttX-ttXJet_HanV4_nJets3orMoreLep_lepPt10-jetPt30_lepEta-jetEta_genOnly'
+tag = 'testing_nJets_plots_July27_2020/ttX_central_cutsComp-nJets_test_lepPt10-jetPt30_lepEta-jetEta'
 #tag = 'tllq4fNoSchanWNoHiggs0p_7p5mil_checks_ptEtaCuts'
 
 #master_label = 'EFT_LHE_{tstamp}'.format(tstamp=timestamp_tag)
@@ -54,7 +55,8 @@ processing = Category(
     cores=1,
     memory=1200,
     #disk=1000
-    disk=2900
+    #disk=2900
+    disk=4000
 )
 
 wf = []
@@ -66,6 +68,9 @@ width = 1
 samples = [
     #'central_tZq',
     #'central_tZq_new_pmx_v2',
+    #'central_ttH',
+    #'central_ttW',
+    #'central_ttZ',
     #'tllq4fMatchedNoSchanW_fromMAOD_nJetMax1',
     #'tllq4fMatchedNoSchanW_fromGEN_nJetMax1',
     #'tllq4fMatchedNoSchanW_fromGEN_nJetMax2',
@@ -75,15 +80,15 @@ samples = [
     #'ttHJet_HanV2Model-xqcut10qcut15',
     #'ttHJet_HanV2Model-xqcut10qcut19',
     #'ttHJet_HanV2Model-xqcut10qcut25',
-    'ttHJet_HanV4Model-xqcut10qcut15',
+    ##'ttHJet_HanV4Model-xqcut10qcut15',
     'ttHJet_HanV4Model-xqcut10qcut19',
-    'ttHJet_HanV4Model-xqcut10qcut25',
-    'ttllNuNuJetNoHiggs_HanV4Model-xqcut10qcut15',
-    'ttllNuNuJetNoHiggs_HanV4Model-xqcut10qcut19',
-    'ttllNuNuJetNoHiggs_HanV4Model-xqcut10qcut25',
-    'ttlnuJet_HanV4Model-xqcut10qcut15',
-    'ttlnuJet_HanV4Model-xqcut10qcut19',
-    'ttlnuJet_HanV4Model-xqcut10qcut25',
+    ##'ttHJet_HanV4Model-xqcut10qcut25',
+    ##'ttllNuNuJetNoHiggs_HanV4Model-xqcut10qcut15',
+    ##'ttllNuNuJetNoHiggs_HanV4Model-xqcut10qcut19',
+    ##'ttllNuNuJetNoHiggs_HanV4Model-xqcut10qcut25',
+    ##'ttlnuJet_HanV4Model-xqcut10qcut15',
+    ##'ttlnuJet_HanV4Model-xqcut10qcut19',
+    ##'ttlnuJet_HanV4Model-xqcut10qcut25',
     #'ttHJet_HanModel16DttllScanpointsxqcut10-qCut15',
     #'ttHJet_HanModel16DttllScanpointsxqcut10-qCut19',
     #'ttHJet_HanModel16DttllScanpointsxqcut10-qCut25',
@@ -139,9 +144,16 @@ samples = [
     #'tllq4fNoSchanWNoHiggs0p_HanV4_startPtChecksRun1',
     #'tllq4fNoSchanWNoHiggs0p_HanV4_startPtChecksRun2',
     #'tllq4fNoSchanWNoHiggs0p_HanV4_startPtChecksRun3',
-    'ttH_HanV4ModelNoJets',                             # HanV4 no jet samples
-    'ttlnu_HanV4ModelNoJets',
-    'ttllNuNuNoHiggs_HanV4ModelNoJets',
+    #'ttH_HanV4ModelNoJets',             # HanV4 no jet samples
+    #'ttlnu_HanV4ModelNoJets',           # HanV4 no jet samples
+    #'ttllNuNuNoHiggs_HanV4ModelNoJets', # HanV4 no jet samples
+    #'ttH_SM-SMEFTNLO-fromReza', # Reza's SM NLO sampels
+    #'ttW_SM-SMEFTNLO-fromReza', # Reza's SM NLO sampels
+    #'ttZ_SM-SMEFTNLO-fromReza', # Reza's SM NLO sampels
+    #'ttWJet_HanV4', # (Private ttWJet NOT ttlnu!)
+    #'ttZJet_HanV4', # (Private ttZJet NOT ttll!)
+    #'ttW_HanV4',    # (Private ttW NOT ttlnu!)
+    #'ttZ_HanV4',    # (Private ttZ NOT ttll!)
 ]
 
 das_mode = False
@@ -205,7 +217,8 @@ for idx,sample_name in enumerate(samples):
         merge_size = '512K'     # non-EFT sample sizes are O(40K)
         #merge_size = -1
 
-    cms_cmd = ['cmsRun','lobsterized_EFTGenReader_cfg.py']
+    cms_cmd = ['cmsRun','lobsterized_EFTGenReader_cfg.py'] # Uncomment this if want to run EFTGenReader not EFTGenHistsWithCuts
+    #cms_cmd = ['cmsRun','lobsterized_EFTGenHistsWithCuts_cfg.py'] # Uncomment this if want to run EFTGenHistsWithCuts not EFTGenReader
     cms_cmd.extend([
         'datatier={tier}'.format(tier=ds_helper.getData(sample_name,'datatier')),
         'minPtLep=10',
