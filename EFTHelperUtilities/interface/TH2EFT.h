@@ -40,6 +40,7 @@ class TH2EFT : public TH2D
         
         void SetBins(Int_t nx, Double_t xmin, Double_t xmax, Int_t ny, Double_t ymin, Double_t ymax);  // overriding virtual function from TH2
         Bool_t Add(const TH2 *h1, Double_t c1=1); // overriding virtual function from TH2
+        Bool_t NormalizeTo(const TH2D *h1, Double_t c1=0.5);
         Long64_t Merge(TCollection* list);
 
         ClassDef(TH2EFT,1); // ROOT needs this here

@@ -65,6 +65,41 @@ Bool_t TH2EFT::Add(const TH2 *h1, Double_t c1)
     return TH2::Add(h1,c1); // I think this should work
 }
 
+Bool_t TH2EFT::NormalizeTo(const TH2D *h1, Double_t c1)
+{
+    // check whether the object pointed to inherits from (or is a) TH2EFT:
+    if (h1->IsA()->InheritsFrom(TH2EFT::Class())) {
+        if ((this->hist_fitsx.size() == ((TH2EFT*)h1)->hist_fitsx.size()) && (this->hist_fitsy.size() == ((TH2EFT*)h1)->hist_fitsy.size())) {
+            //Do nothing, just check
+        } else { 
+            std::cout << "Attempt to add 2 TH2EFTs with different # of fits!" << std::endl;
+            std::cout << this->hist_fitsx.size() << ", " << ((TH2EFT*)h1)->hist_fitsx.size() << std::endl;
+            std::cout << this->hist_fitsy.size() << ", " << ((TH2EFT*)h1)->hist_fitsy.size() << std::endl;
+        }
+    }
+
+    //First take a difference between this histogram and h1
+    bool add = TH2::Add(h1,-1);
+    if(!add) return add;
+
+    //Loop over all bins, and divide by h1->GetBinContent ^ c1 (sqrt by default)
+    for(int i = 1; i < this->GetNbinsX(); i++) {
+        for(int j = 1; j < this->GetNbinsY(); j++) {
+            int bin = this->FindBin(i,j); //Find the corresonding bin
+            //Get bin contents and errors from this and h1
+            double thisbin = this->GetBinContent(bin);
+            double thisbinerror = this->GetBinError(bin);
+            double h1bin = h1->GetBinContent(bin);
+            double h1binerror = h1->GetBinError(bin);
+            h1bin = pow(h1bin, c1); //Scale content from h1 (sqrt by default)
+            h1binerror = sqrt(h1binerror*h1binerror + thisbinerror*thisbinerror); //Add errors in quadrature
+            this->SetBinContent(bin, thisbin / h1bin); //Set this bin to this / pow(h1, c1) (this / sqrt(h1) by default)
+            this->SetBinError(bin, h1binerror); //Set this bin error to quad sum
+        }
+    }
+    return add;
+}
+
 // Custom merge function for using hadd
 Long64_t TH2EFT::Merge(TCollection* list)
 {
