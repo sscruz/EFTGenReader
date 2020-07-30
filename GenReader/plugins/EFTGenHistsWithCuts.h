@@ -55,7 +55,10 @@
 #include "EFTGenReader/EFTHelperUtilities/interface/WCPoint.h"
 #include "EFTGenReader/EFTHelperUtilities/interface/WCFit.h"
 #include "EFTGenReader/EFTHelperUtilities/interface/TH1EFT.h"
+#include "EFTGenReader/EFTHelperUtilities/interface/TH2EFT.h"
 #include "EFTGenReader/EFTHelperUtilities/interface/utilities.h"
+
+#define IS_BHADRON_PDGID(id) ( ((abs(id)/100)%10 == 5) || (abs(id) >= 5000 && abs(id) <= 5999) )
 
 // end includes
 // -----------------------------------------------
@@ -83,6 +86,7 @@ class EFTGenHistsWithCuts: public edm::EDAnalyzer
         reco::GenParticleCollection GetGenLeptons(const reco::GenParticleCollection& gen_particles);
         reco::GenParticleCollection GetGenParticlesSubset(const reco::GenParticleCollection& gen_particles, int pdg_id);
         std::vector<reco::GenJet> GetGenJets(const std::vector<reco::GenJet>& inputs);
+        std::vector<reco::GenJet> GetGenBJets(const std::vector<reco::GenJet>& inputs);
         std::vector<reco::GenJet> CleanGenJets(const std::vector<reco::GenJet>& gen_jets, const reco::GenParticleCollection& gen_leptons);
         std::vector<reco::GenJet> MakePtEtaCuts(const std::vector<reco::GenJet>& inputs, std::string input_type);
 
@@ -137,6 +141,10 @@ class EFTGenHistsWithCuts: public edm::EDAnalyzer
         // Particle level jets hists
         TH1EFT* h_pl_nJets_EFT; TH1D* h_pl_nJets_SM;
         TH1EFT* h_pl_nJets_3Lep_EFT; TH1D* h_pl_nJets_3Lep_SM;
+        TH2EFT* h_bjet_jetEFT; TH2D* h_bjet_jetSM;
+        TH2EFT* h_bjet_jet2lEFT; TH2D* h_bjet_jet2lSM;
+        TH2EFT* h_bjet_jet3lEFT; TH2D* h_bjet_jet3lSM;
+        TH2EFT* h_bjet_jet4lEFT; TH2D* h_bjet_jet4lSM;
 
         // declare the tree
         TTree * summaryTree;
@@ -375,6 +383,23 @@ std::vector<reco::GenJet> EFTGenHistsWithCuts::GetGenJets(const std::vector<reco
     return ret;
 }
 
+std::vector<reco::GenJet> EFTGenHistsWithCuts::GetGenBJets(const std::vector<reco::GenJet>& inputs) {
+    std::vector<reco::GenJet> gen_bjets; //stores b-tagged jets
+    for(auto &genJet : inputs) {
+        std::vector< const reco::Candidate * > jconst=genJet.getJetConstituentsQuick(); //Loop over all particles in the jet
+        for(size_t ijc=0; ijc <jconst.size(); ijc++) {
+            const reco::Candidate *par=jconst[ijc];
+            if(par->status() != 2) continue; //Status 2 is decayed or fragmented entry (i.e. decayed particle or parton produced in shower.) https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookGenParticleCandidate
+            int absid = abs(par->pdgId()); //Store |pdgId|
+            if(IS_BHADRON_PDGID(absid)) {
+                gen_bjets.push_back(genJet); //Push jet to the gen_bjets vector
+                break; //We found a B meson, meaning this is a b-jet! No need to search further
+            }
+        }
+    }
+    return gen_bjets;
+}
+
 // Pt and eta cuts particles of type std::vector<reco::GenJet>, note if the type is not specified as "jet" or "lep", generic cuts of 2.5 and 10 are used
 std::vector<reco::GenJet> EFTGenHistsWithCuts::MakePtEtaCuts(const std::vector<reco::GenJet>& inputs, std::string input_type) {
     std::vector<reco::GenJet> ret;
@@ -383,11 +408,11 @@ std::vector<reco::GenJet> EFTGenHistsWithCuts::MakePtEtaCuts(const std::vector<r
     if (input_type=="jet"){
         max_eta = max_eta_jet;
         min_pt = min_pt_jet;
-        std::cout << "\nUsing jet pt and eta cuts:" << min_pt << " " << max_eta << "\n" << std::endl;
+        //std::cout << "\nUsing jet pt and eta cuts:" << min_pt << " " << max_eta << "\n" << std::endl;
     } else if (input_type=="lep"){
         max_eta = max_eta_lep;
         min_pt = min_pt_lep;
-        std::cout << "\nUsing lep pt and eta cuts:" << min_pt << " " << max_eta << "\n" << std::endl;
+        //std::cout << "\nUsing lep pt and eta cuts:" << min_pt << " " << max_eta << "\n" << std::endl;
     }
     for (size_t i = 0; i < inputs.size(); i++) {
         const reco::GenJet& p = inputs.at(i);
