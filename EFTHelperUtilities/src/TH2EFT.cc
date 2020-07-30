@@ -88,8 +88,8 @@ Bool_t TH2EFT::NormalizeTo(const TH2D *h1, Double_t c1)
             double thisbinerror = this->GetBinError(bin);
             double h1bin = h1->GetBinContent(bin);
             double h1binerror = h1->GetBinError(bin);
-            h1binerror = thisbin/h1bin * sqrt((h1binerror/h1bin)*(h1binerror/h1bin) + (thisbinerror/thisbin)*(thisbinerror/thisbin));
-            this->SetBinContent(bin, (thisbin - h1bin) / pow(h1bin, c1)); //Set this bin to this / pow(h1, c1) (this / sqrt(h1) by default)
+            h1binerror = (thisbin - h1bin) / pow(h1bin, c1) * sqrt((h1binerror/h1bin)*(h1binerror/h1bin) + (thisbinerror/thisbin)*(thisbinerror/thisbin));
+            this->SetBinContent(bin, (thisbin - h1bin) / pow(h1bin, c1)); //Set this bin to (this - h1) / pow(h1, c1) ((this - h1)) / sqrt(h1) by default)
             this->SetBinError(bin, h1binerror); //Set this bin error to quad sum
         }
     }
