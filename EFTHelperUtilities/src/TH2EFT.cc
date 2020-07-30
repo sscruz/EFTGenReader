@@ -75,12 +75,9 @@ Bool_t TH2EFT::NormalizeTo(const TH2D *h1, Double_t c1)
             std::cout << "Attempt to add 2 TH2EFTs with different # of fits!" << std::endl;
             std::cout << this->hist_fitsx.size() << ", " << ((TH2EFT*)h1)->hist_fitsx.size() << std::endl;
             std::cout << this->hist_fitsy.size() << ", " << ((TH2EFT*)h1)->hist_fitsy.size() << std::endl;
+            return false;
         }
     }
-
-    //First take a difference between this histogram and h1
-    bool add = TH2::Add(h1,-1);
-    if(!add) return add;
 
     //Loop over all bins, and divide by h1->GetBinContent ^ c1 (sqrt by default)
     for(int i = 1; i < this->GetNbinsX(); i++) {
@@ -92,12 +89,11 @@ Bool_t TH2EFT::NormalizeTo(const TH2D *h1, Double_t c1)
             double h1bin = h1->GetBinContent(bin);
             double h1binerror = h1->GetBinError(bin);
             h1binerror = thisbin/h1bin * sqrt((h1binerror/h1bin)*(h1binerror/h1bin) + (thisbinerror/thisbin)*(thisbinerror/thisbin));
-            h1bin = pow(h1bin, c1); //Scale content from h1 (sqrt by default)
-            this->SetBinContent(bin, thisbin / h1bin); //Set this bin to this / pow(h1, c1) (this / sqrt(h1) by default)
+            this->SetBinContent(bin, (thisbin - h1bin) / pow(h1bin, c1)); //Set this bin to this / pow(h1, c1) (this / sqrt(h1) by default)
             this->SetBinError(bin, h1binerror); //Set this bin error to quad sum
         }
     }
-    return add;
+    return true;
 }
 
 // Custom merge function for using hadd
