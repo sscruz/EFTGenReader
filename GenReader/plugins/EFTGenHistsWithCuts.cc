@@ -129,6 +129,12 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
     // Clean jets
     std::vector<reco::GenJet> gen_jets_clean = CleanGenJets(gen_jets,gen_leptons);
 
+    // Make pt, eta cuts on jets (after doing jet cleaning)
+    gen_leptons = MakePtEtaCuts_forGenParticlesCollection(gen_leptons,"lep");
+
+    // Get just charged leptons (recall std::vector<reco::GenParticle>> is an alias for std::vector<reco::GenParticle>>)
+    reco::GenParticleCollection gen_leptons_charged = GetChargedGenParticle(gen_leptons);
+
     originalXWGTUP_intree = LHEInfo->originalXWGTUP();  // original cross-section
     double sm_wgt = 0.;
     std::vector<WCPoint> wc_pts;
@@ -167,13 +173,13 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
     h_pl_nJets_SM->Fill(pl_jets.size(),sm_wgt);
 
     // njets histograms with some basic slection criteria
-    if (gen_leptons.size() >= 3) {
+    if (gen_leptons_charged.size() >= 3) {
         h_nJets_3orMoreLep_EFT->Fill(gen_jets.size(),1.0,eft_fit);
         h_nJets_3orMoreLep_SM->Fill(gen_jets.size(),sm_wgt);
         h_nJets_cleanJets_3orMoreLep_EFT->Fill(gen_jets_clean.size(),1.0,eft_fit);
         h_nJets_cleanJets_3orMoreLep_SM->Fill(gen_jets_clean.size(),sm_wgt);
     }
-    if (gen_leptons.size() == 3) {
+    if (gen_leptons_charged.size() == 3) {
         h_nJets_3Lep_EFT->Fill(gen_jets.size(),1.0,eft_fit);
         h_nJets_3Lep_SM->Fill(gen_jets.size(),sm_wgt);
         h_nJets_cleanJets_3Lep_EFT->Fill(gen_jets_clean.size(),1.0,eft_fit);

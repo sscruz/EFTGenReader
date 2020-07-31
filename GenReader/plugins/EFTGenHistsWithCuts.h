@@ -89,6 +89,9 @@ class EFTGenHistsWithCuts: public edm::EDAnalyzer
         std::vector<reco::GenJet> GetGenBJets(const std::vector<reco::GenJet>& inputs);
         std::vector<reco::GenJet> CleanGenJets(const std::vector<reco::GenJet>& gen_jets, const reco::GenParticleCollection& gen_leptons);
         std::vector<reco::GenJet> MakePtEtaCuts(const std::vector<reco::GenJet>& inputs, std::string input_type);
+        reco::GenParticleCollection MakePtEtaCuts_forGenParticlesCollection(const reco::GenParticleCollection& inputs, std::string input_type);
+        reco::GenParticleCollection GetChargedGenParticle(const reco::GenParticleCollection& inputs);
+
 
         ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>> getSumTLV(reco::GenParticleCollection col);
         double getdPhi(reco::GenParticle p1, reco::GenParticle p2);
@@ -300,12 +303,14 @@ reco::GenParticleCollection EFTGenHistsWithCuts::GetGenLeptons(const reco::GenPa
             continue;
         }
 
+        /*
         // Note: The kinematic cuts could realistically go anywhere in this loop
         if (p.p4().Pt() < min_pt_lep) {
             continue;
         } else if (max_eta_lep > 0.0 && fabs(p.eta()) >= max_eta_lep) {
             continue;
         }
+        */
 
         int mom_id = id;    // If no mother, set to own id
         if (p_mom) mom_id = p_mom->pdgId();
@@ -424,6 +429,40 @@ std::vector<reco::GenJet> EFTGenHistsWithCuts::MakePtEtaCuts(const std::vector<r
         ret.push_back(p);
     }
     std::sort(ret.begin(),ret.end(), [] (reco::GenJet a, reco::GenJet b) { return a.p4().Pt() > b.p4().Pt();});
+    return ret;
+}
+
+// Pt and eta cuts particles of type vector<reco::GenParticle>> (aka reco::GenParticlesCollection)
+reco::GenParticleCollection EFTGenHistsWithCuts::MakePtEtaCuts_forGenParticlesCollection(const reco::GenParticleCollection& inputs, std::string input_type) {
+    reco::GenParticleCollection ret;
+    double max_eta = 2.5;
+    double min_pt = 10;
+    if (input_type=="lep"){ 
+        max_eta = max_eta_lep;
+        min_pt = min_pt_lep;
+    }
+    for (size_t i = 0; i < inputs.size(); i++) {
+        const reco::GenParticle& p = inputs.at(i);
+        if (p.p4().Pt() < min_pt) {
+            continue;
+        } else if (max_eta > 0.0 && fabs(p.eta()) >= max_eta) {
+            continue;
+        }
+        ret.push_back(p);
+    }
+    std::sort(ret.begin(),ret.end(), [] (reco::GenParticle a, reco::GenParticle b) { return a.p4().Pt() > b.p4().Pt();});
+    return ret;
+}
+
+// Returns the charged particles from particles of type reco::GenParticleCollection
+reco::GenParticleCollection EFTGenHistsWithCuts::GetChargedGenParticle(const reco::GenParticleCollection& inputs) {
+    reco::GenParticleCollection ret;
+    for (size_t i = 0; i < inputs.size(); i++) {
+        const reco::GenParticle& p = inputs.at(i);
+        if (p.charge() != 0){
+            ret.push_back(p);
+        }
+    }
     return ret;
 }
 
