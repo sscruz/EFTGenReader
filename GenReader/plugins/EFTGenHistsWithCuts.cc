@@ -123,14 +123,14 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
     edm::Handle<std::vector<reco::GenJet>> particleLevelLeptonsHandle_;
     event.getByToken(particleLevelJetsToken_,particleLevelJetsHandle_);
     event.getByToken(particleLevelLeptonsToken_,particleLevelLeptonsHandle_);
-    std::vector<reco::GenJet> pl_jets    = MakePtEtaCuts(*particleLevelJetsHandle_,"jet");
-    std::vector<reco::GenJet> pl_leptons = MakePtEtaCuts(*particleLevelLeptonsHandle_,"lep");
+    std::vector<reco::GenJet> pl_jets    = MakePtEtaCuts(*particleLevelJetsHandle_,min_pt_jet,max_eta_jet);
+    std::vector<reco::GenJet> pl_leptons = MakePtEtaCuts(*particleLevelLeptonsHandle_,min_pt_lep,max_eta_lep);
 
     // Clean jets
-    std::vector<reco::GenJet> gen_jets_clean = CleanGenJets(gen_jets,gen_leptons);
+    std::vector<reco::GenJet> gen_jets_clean = CleanGenJets(gen_jets,gen_leptons,0.4);
 
     // Make pt, eta cuts on jets (after doing jet cleaning)
-    gen_leptons = MakePtEtaCuts_forGenParticlesCollection(gen_leptons,"lep");
+    gen_leptons = MakePtEtaCuts(gen_leptons,min_pt_lep,max_eta_lep);
 
     // Get just charged leptons (recall std::vector<reco::GenParticle>> is an alias for std::vector<reco::GenParticle>>)
     reco::GenParticleCollection gen_leptons_charged = GetChargedGenParticle(gen_leptons);

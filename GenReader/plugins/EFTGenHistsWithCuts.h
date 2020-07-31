@@ -87,9 +87,6 @@ class EFTGenHistsWithCuts: public edm::EDAnalyzer
         reco::GenParticleCollection GetGenParticlesSubset(const reco::GenParticleCollection& gen_particles, int pdg_id);
         std::vector<reco::GenJet> GetGenJets(const std::vector<reco::GenJet>& inputs);
         std::vector<reco::GenJet> GetGenBJets(const std::vector<reco::GenJet>& inputs);
-        std::vector<reco::GenJet> CleanGenJets(const std::vector<reco::GenJet>& gen_jets, const reco::GenParticleCollection& gen_leptons);
-        std::vector<reco::GenJet> MakePtEtaCuts(const std::vector<reco::GenJet>& inputs, std::string input_type);
-        reco::GenParticleCollection MakePtEtaCuts_forGenParticlesCollection(const reco::GenParticleCollection& inputs, std::string input_type);
         reco::GenParticleCollection GetChargedGenParticle(const reco::GenParticleCollection& inputs);
 
 
@@ -103,6 +100,9 @@ class EFTGenHistsWithCuts: public edm::EDAnalyzer
         ~EFTGenHistsWithCuts();
 
         template <typename T> edm::Handle<T> get_collection(const edm::Event& event, const edm::EDGetTokenT<T>& token);
+        template <typename T> std::vector<T> MakePtEtaCuts(const std::vector<T>& input, double min_pt, double max_eta);
+        template <typename T1, typename T2> std::vector<T1> CleanGenJets(const std::vector<T1>& obj1_vector, const std::vector<T2>& obj2_vector, const double coneSize);
+        template <typename T1, typename T2> double getdR(T1 p1, T2 p2);
 
         std::ofstream fout;
         FILE * ffout;
@@ -168,6 +168,7 @@ class EFTGenHistsWithCuts: public edm::EDAnalyzer
         int total_events;
         double total_orig_xsec;
         double total_sm_xsec;
+
 };
 
 void EFTGenHistsWithCuts::tree_add_branches()
@@ -350,29 +351,6 @@ reco::GenParticleCollection EFTGenHistsWithCuts::GetGenParticlesSubset(const rec
     return gen_subset;
 }
 
-// Clean jets based on how close they are to leptons
-std::vector<reco::GenJet> EFTGenHistsWithCuts::CleanGenJets(const std::vector<reco::GenJet>& gen_jets, const reco::GenParticleCollection& gen_leptons) {
-    std::vector<reco::GenJet> cleanedJets;
-    bool isClean;
-    double coneSize = 0.4;
-    for (size_t i = 0; i < gen_jets.size(); i++){
-        isClean = true;
-        const reco::GenJet& jet = gen_jets.at(i);
-        for (size_t j = 0; j < gen_leptons.size(); j++){
-            const reco::GenParticle& lep = gen_leptons.at(j);
-            //double dR = getdR(jet,lep);
-            if (getdR(jet,lep) <= coneSize){
-                isClean = false;
-                //break;
-            }
-        }
-        if (isClean) {
-            cleanedJets.push_back(jet);
-        }
-    }
-    return cleanedJets;
-}
-
 std::vector<reco::GenJet> EFTGenHistsWithCuts::GetGenJets(const std::vector<reco::GenJet>& inputs) {
     std::vector<reco::GenJet> ret;
     for (size_t i = 0; i < inputs.size(); i++) {
@@ -405,55 +383,6 @@ std::vector<reco::GenJet> EFTGenHistsWithCuts::GetGenBJets(const std::vector<rec
     return gen_bjets;
 }
 
-// Pt and eta cuts particles of type std::vector<reco::GenJet>, note if the type is not specified as "jet" or "lep", generic cuts of 2.5 and 10 are used
-std::vector<reco::GenJet> EFTGenHistsWithCuts::MakePtEtaCuts(const std::vector<reco::GenJet>& inputs, std::string input_type) {
-    std::vector<reco::GenJet> ret;
-    double max_eta = 2.5;
-    double min_pt = 10;
-    if (input_type=="jet"){
-        max_eta = max_eta_jet;
-        min_pt = min_pt_jet;
-        //std::cout << "\nUsing jet pt and eta cuts:" << min_pt << " " << max_eta << "\n" << std::endl;
-    } else if (input_type=="lep"){
-        max_eta = max_eta_lep;
-        min_pt = min_pt_lep;
-        //std::cout << "\nUsing lep pt and eta cuts:" << min_pt << " " << max_eta << "\n" << std::endl;
-    }
-    for (size_t i = 0; i < inputs.size(); i++) {
-        const reco::GenJet& p = inputs.at(i);
-        if (p.p4().Pt() < min_pt) {
-            continue;
-        } else if (max_eta > 0.0 && fabs(p.eta()) >= max_eta) {
-            continue;
-        }
-        ret.push_back(p);
-    }
-    std::sort(ret.begin(),ret.end(), [] (reco::GenJet a, reco::GenJet b) { return a.p4().Pt() > b.p4().Pt();});
-    return ret;
-}
-
-// Pt and eta cuts particles of type vector<reco::GenParticle>> (aka reco::GenParticlesCollection)
-reco::GenParticleCollection EFTGenHistsWithCuts::MakePtEtaCuts_forGenParticlesCollection(const reco::GenParticleCollection& inputs, std::string input_type) {
-    reco::GenParticleCollection ret;
-    double max_eta = 2.5;
-    double min_pt = 10;
-    if (input_type=="lep"){ 
-        max_eta = max_eta_lep;
-        min_pt = min_pt_lep;
-    }
-    for (size_t i = 0; i < inputs.size(); i++) {
-        const reco::GenParticle& p = inputs.at(i);
-        if (p.p4().Pt() < min_pt) {
-            continue;
-        } else if (max_eta > 0.0 && fabs(p.eta()) >= max_eta) {
-            continue;
-        }
-        ret.push_back(p);
-    }
-    std::sort(ret.begin(),ret.end(), [] (reco::GenParticle a, reco::GenParticle b) { return a.p4().Pt() > b.p4().Pt();});
-    return ret;
-}
-
 // Returns the charged particles from particles of type reco::GenParticleCollection
 reco::GenParticleCollection EFTGenHistsWithCuts::GetChargedGenParticle(const reco::GenParticleCollection& inputs) {
     reco::GenParticleCollection ret;
@@ -480,16 +409,56 @@ double EFTGenHistsWithCuts::getdPhi(reco::GenParticle p1, reco::GenParticle p2) 
     return dPhi;
 }
 
-double EFTGenHistsWithCuts::getdR(reco::GenParticle p1, reco::GenParticle p2) {
+double EFTGenHistsWithCuts::getInvMass(reco::GenParticle p1, reco::GenParticle p2) {
+    auto p4vec = p1.p4() + p2.p4();
+    return p4vec.M();
+}
+
+// Template function for making pt and eta cuts
+template <typename T>
+std::vector<T> EFTGenHistsWithCuts::MakePtEtaCuts(const std::vector<T>& input, double min_pt, double max_eta) {
+    std::vector<T> ret;
+    for (size_t i = 0; i < input.size(); i++) {
+        const T& p = input.at(i);
+        if (p.p4().Pt() < min_pt) {
+            continue;
+        } else if (max_eta > 0.0 && fabs(p.eta()) >= max_eta) {
+            continue;
+        }
+        ret.push_back(p);
+    }
+    std::sort(ret.begin(),ret.end(), [] (T a, T b) { return a.p4().Pt() > b.p4().Pt();});
+    return ret;
+}
+
+// Clean objects based on how close they are to other objects
+template <typename T1, typename T2> 
+std::vector<T1> EFTGenHistsWithCuts::CleanGenJets(const std::vector<T1>& obj1_vector, const std::vector<T2>& obj2_vector, const double coneSize) {
+    std::vector<T1> cleaned_obj1_vector;
+    bool isClean;
+    for (size_t i = 0; i < obj1_vector.size(); i++){
+        isClean = true;
+        const T1& obj1 = obj1_vector.at(i);
+        for (size_t j = 0; j < obj2_vector.size(); j++){
+            const T2& obj2 = obj2_vector.at(j);
+            if (getdR(obj1,obj2) <= coneSize){
+                isClean = false;
+            }
+        }
+        if (isClean) {
+            cleaned_obj1_vector.push_back(obj1);
+        }
+    }
+    return cleaned_obj1_vector;
+}
+
+// Get dR between two objects
+template <typename T1, typename T2>
+double EFTGenHistsWithCuts::getdR(T1 p1, T2 p2) {
     double dR = (p1.p4().Eta() - p2.p4().Eta())*(p1.p4().Eta() - p2.p4().Eta());
     dR += (getdPhi(p1,p2)*getdPhi(p1,p2));
     dR = sqrt(dR);
     return dR;
-}
-
-double EFTGenHistsWithCuts::getInvMass(reco::GenParticle p1, reco::GenParticle p2) {
-    auto p4vec = p1.p4() + p2.p4();
-    return p4vec.M();
 }
 
 template<typename T>
