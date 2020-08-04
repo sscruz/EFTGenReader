@@ -43,6 +43,25 @@ void EFTGenHistsWithCuts::beginJob()
     int eta_bins = 10;
     int invmass_bins = 30;
     int deltaR_bins = 10;
+ 
+    //important variables for hists
+    double lep_pt_min = 0;
+    double lep_pt_max = 300;
+    double jet_pt_min = 30;
+    double jet_pt_max = 300;
+    double jetpt_bin_width = (jet_pt_max-jet_pt_min)/pt_bins;
+
+    //bin sizes for 2D jet vs. bjet hist
+    int njet_bins_jetbjet = 8; //number of jet bins 
+    int nbjet_bins_jetbjet = 5; //number of bjet bins
+
+    //2D jets vs. bjets hists for various leptons categories
+    h_2lss_jetbjetEFT = newfs->make<TH2EFT>("h_2lss_jetbjetEFT","h_2lss_jetbjetEFT;N_{jets};N_{bjets}",njet_bins_jetbjet,0,njet_bins_jetbjet,nbjet_bins_jetbjet,0,nbjet_bins_jetbjet);
+    h_2lss_jetbjetSM =	newfs->make<TH2D>("h_2lss_jetbjetSM","h_2lss_jetbjetSM;N_{jets};N_{bjets}",njet_bins_jetbjet,0,njet_bins_jetbjet,nbjet_bins_jetbjet,0,nbjet_bins_jetbjet);
+    h_3l_jetbjetEFT =	newfs->make<TH2EFT>("h_3l_jetbjetEFT","h_3l_jetbjetEFT;N_{jets};N_{bjets}",njet_bins_jetbjet,0,njet_bins_jetbjet,nbjet_bins_jetbjet,0,nbjet_bins_jetbjet);
+    h_3l_jetbjetSM =	newfs->make<TH2D>("h_3l_jetbjetSM","h_3l_jetbjetSM;N_{jets};N_{bjets}",njet_bins_jetbjet,0,njet_bins_jetbjet,nbjet_bins_jetbjet,0,nbjet_bins_jetbjet);
+    h_4l_jetbjetEFT =	newfs->make<TH2EFT>("h_4l_jetbjetEFT","h_4l_jetbjetEFT;N_{jets};N_{bjets}",njet_bins_jetbjet,0,njet_bins_jetbjet,nbjet_bins_jetbjet,0,nbjet_bins_jetbjet);
+    h_4l_jetbjetSM =	newfs->make<TH2D>("h_4l_jetbjetSM","h_4l_jetbjetSM;N_{jets};N_{bjets}",njet_bins_jetbjet,0,njet_bins_jetbjet,nbjet_bins_jetbjet,0,nbjet_bins_jetbjet);
 
     // Book the histograms that we will fill in the event loop
     h_eventsumEFT = newfs->make<TH1EFT>("h_eventsumEFT","h_eventsumEFT",1,0,1);
@@ -117,6 +136,7 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
     reco::GenParticleCollection gen_leptons = GetGenLeptons(*prunedParticles);
     reco::GenParticleCollection gen_b = GetGenParticlesSubset(*prunedParticles, 5);
     std::vector<reco::GenJet> gen_jets = GetGenJets(*genJets);
+    std::vector<reco::GenJet> gen_bjets = GetGenBJets(*genJets);
 
     // Particle level stuff:
     edm::Handle<std::vector<reco::GenJet>> particleLevelJetsHandle_;
@@ -125,6 +145,7 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
     event.getByToken(particleLevelLeptonsToken_,particleLevelLeptonsHandle_);
     std::vector<reco::GenJet> pl_jets    = MakePtEtaCuts(*particleLevelJetsHandle_,"jet");
     std::vector<reco::GenJet> pl_leptons = MakePtEtaCuts(*particleLevelLeptonsHandle_,"lep");
+    std::vector<reco::GenJet> pl_bjets = GetGenBJets(pl_jets);
 
     // Clean jets
     std::vector<reco::GenJet> gen_jets_clean = CleanGenJets(gen_jets,gen_leptons);
@@ -187,6 +208,102 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
         // Particle level
         h_pl_nJets_3Lep_EFT->Fill(pl_jets.size(),1.0,eft_fit);
         h_pl_nJets_3Lep_SM->Fill(pl_jets.size(),sm_wgt);
+    }
+
+    //Filling the 2D hists for jets vs. bjets (different lepton categories). Overblow bins taken care of. 
+
+    double njet_max = 8.0;
+    double nbjet_max = 5.0;
+
+    //lepton categories
+    if(pl_leptons.size() == 2)
+    {
+        const reco::GenParticle& p1 = pl_leptons.at(0);
+        const reco::GenParticle& p2 = pl_leptons.at(1);
+        int id1 = p1.pdgId();
+        int id2 = p2.pdgId();
+        int id_product = id1*id2;
+        if(id_product > 0)
+        {
+           if(pl_jets.size()<njet_max && pl_bjets.size()<nbjet_max)
+        {
+            h_2lss_jetbjetEFT->Fill(pl_jets.size(),pl_bjets.size(),1.0,eft_fit);
+            h_2lss_jetbjetSM->Fill(pl_jets.size(),pl_bjets.size(),sm_wgt);
+        }
+
+	else if(pl_jets.size()<njet_max && pl_bjets.size()>nbjet_max)
+        {
+            h_2lss_jetbjetEFT->Fill(pl_jets.size(),nbjet_max-1,1.0,eft_fit);
+            h_2lss_jetbjetSM->Fill(pl_jets.size(),nbjet_max-1,sm_wgt);
+        }
+
+	else if(pl_jets.size()>njet_max && pl_bjets.size()>nbjet_max)
+        {
+            h_2lss_jetbjetEFT->Fill(njet_max-1,pl_bjets.size(),1.0,eft_fit);
+            h_2lss_jetbjetSM->Fill(njet_max-1,pl_bjets.size(),sm_wgt);
+        }
+
+	else
+	{
+            h_2lss_jetbjetEFT->Fill(njet_max-1,nbjet_max-1,1.0,eft_fit);
+            h_2lss_jetbjetSM->Fill(njet_max-1,nbjet_max-1,sm_wgt);
+        }
+
+        }
+    }
+
+    if(pl_leptons.size() == 3)
+    {
+        if(pl_jets.size()<njet_max && pl_bjets.size()<nbjet_max)
+        {
+            h_3l_jetbjetEFT->Fill(pl_jets.size(),pl_bjets.size(),1.0,eft_fit);
+            h_3l_jetbjetSM->Fill(pl_jets.size(),pl_bjets.size(),sm_wgt);
+        }
+
+	else if(pl_jets.size()<njet_max && pl_bjets.size()>nbjet_max)
+        {
+            h_3l_jetbjetEFT->Fill(pl_jets.size(),nbjet_max-1,1.0,eft_fit);
+            h_3l_jetbjetSM->Fill(pl_jets.size(),nbjet_max-1,sm_wgt);
+        }
+
+	else if(pl_jets.size()>njet_max && pl_bjets.size()>nbjet_max)
+        {
+            h_3l_jetbjetEFT->Fill(njet_max-1,pl_bjets.size(),1.0,eft_fit);
+            h_3l_jetbjetSM->Fill(njet_max-1,pl_bjets.size(),sm_wgt);
+        }
+
+	else
+	{
+            h_3l_jetbjetEFT->Fill(njet_max-1,nbjet_max-1,1.0,eft_fit);
+            h_3l_jetbjetSM->Fill(njet_max-1,nbjet_max-1,sm_wgt);
+        }
+    }
+
+    if(pl_leptons.size() ==4)
+    {
+        if(pl_jets.size()<njet_max && pl_bjets.size()<nbjet_max)
+        {
+            h_4l_jetbjetEFT->Fill(pl_jets.size(),pl_bjets.size(),1.0,eft_fit);
+            h_4l_jetbjetSM->Fill(pl_jets.size(),pl_bjets.size(),sm_wgt);
+        }
+
+	else if(pl_jets.size()<njet_max && pl_bjets.size()>nbjet_max)
+        {
+            h_4l_jetbjetEFT->Fill(pl_jets.size(),nbjet_max-1,1.0,eft_fit);
+            h_4l_jetbjetSM->Fill(pl_jets.size(),nbjet_max-1,sm_wgt);
+        }
+
+	else if(pl_jets.size()>njet_max && pl_bjets.size()>nbjet_max)
+        {
+            h_4l_jetbjetEFT->Fill(njet_max-1,pl_bjets.size(),1.0,eft_fit);
+            h_4l_jetbjetSM->Fill(njet_max-1,pl_bjets.size(),sm_wgt);
+        }
+
+	else
+	{
+            h_4l_jetbjetEFT->Fill(njet_max-1,nbjet_max-1,1.0,eft_fit);
+            h_4l_jetbjetSM->Fill(njet_max-1,nbjet_max-1,sm_wgt);
+        }
     }
 
 
