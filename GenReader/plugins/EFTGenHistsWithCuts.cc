@@ -37,6 +37,25 @@ void EFTGenHistsWithCuts::beginJob()
 
     edm::Service<TFileService> newfs;
 
+    // Automatically declare histograms, store in hist_dict
+    for (size_t i=0; i<lep_cats_vect.size(); i++){
+        TString lep_cat = lep_cats_vect.at(i);
+        for (size_t j=0; j<hist_info_vec.size(); j++){
+            TString h_type = hist_info_vec.at(j).h_type;
+            int     h_bins = hist_info_vec.at(j).h_bins;
+            int     h_min  = hist_info_vec.at(j).h_min;
+            int     h_max  = hist_info_vec.at(j).h_max;
+            size_t  h_no   = abs(hist_info_vec.at(j).h_no);
+            for (size_t k=0; k<h_no; k++){
+                TString hist_name = constructHistName(lep_cat,h_type,k+1);
+                //std::cout << hist_name << std::endl;
+                hist_dict[hist_name] = newfs->make<TH1EFT>(hist_name,hist_name,h_bins,h_min,h_max);
+            }
+        }
+    }
+
+    //// Declare histograms by hand ////
+
     int pdg_bins = 100;
     int njet_bins = 16;
     int pt_bins = 5;
@@ -133,7 +152,8 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
     gen_leptons = MakePtEtaCuts(gen_leptons,min_pt_lep,max_eta_lep);
 
     // Get just charged leptons (recall std::vector<reco::GenParticle>> is an alias for std::vector<reco::GenParticle>>)
-    reco::GenParticleCollection gen_leptons_charged = GetChargedGenParticle(gen_leptons);
+    reco::GenParticleCollection gen_leptons_charged = getChargedParticles(gen_leptons);
+
 
     originalXWGTUP_intree = LHEInfo->originalXWGTUP();  // original cross-section
     double sm_wgt = 0.;
@@ -164,6 +184,41 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
     h_eventsumEFT->Fill(0.5,1,eft_fit);
     h_SMwgt_norm->Fill(sm_wgt);
 
+    // Find what lepton category (if any) this even falls into
+    TString lep_cat = getLepCat(gen_leptons);
+
+    // Loop over jets and fill jet hists automatically
+    double ht=0;
+    for (size_t i = 0; i < gen_jets_clean.size(); i++) {
+        const reco::GenJet& p = gen_jets.at(i);
+        double pt = p.p4().Pt();
+        double eta = p.p4().Eta();
+        TString h_pt_name = constructHistName(lep_cat,"jet_pt",i+1);
+        TString h_eta_name = constructHistName(lep_cat,"jet_eta",i+1);
+        fillHistIfExists(h_pt_name,pt,eft_fit);
+        fillHistIfExists(h_eta_name,eta,eft_fit);
+        ht = ht + pt;
+    }
+
+    // Fill jet hists that include info for all jets in event
+    TString h_ht_name = constructHistName(lep_cat,"ht",1);
+    fillHistIfExists(h_ht_name,ht,eft_fit);
+    TString h_njet_name = constructHistName(lep_cat,"njets",1);
+    fillHistIfExists(h_njet_name,gen_jets_clean.size(),eft_fit);
+
+    // Loop over leptonss and fill hists automatically
+    for (size_t i = 0; i < gen_leptons_charged.size(); i++) {
+        const reco::GenParticle& p = gen_leptons_charged.at(i);
+        double pt = p.p4().Pt();
+        double eta = p.p4().Eta();
+        TString h_pt_name = constructHistName(lep_cat,"lep_pt",i+1);
+        TString h_eta_name = constructHistName(lep_cat,"lep_eta",i+1);
+        fillHistIfExists(h_pt_name,pt,eft_fit);
+        fillHistIfExists(h_eta_name,eta,eft_fit);
+    }
+
+    //// Filling histograms by hand ////
+
     // njets histograms
     h_nJetsEFT->Fill(gen_jets.size(),1.0,eft_fit);
     h_nJetsSM->Fill(gen_jets.size(),sm_wgt);
@@ -189,11 +244,9 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
         h_pl_nJets_3Lep_SM->Fill(pl_jets.size(),sm_wgt);
     }
 
-
     eventnum_intree = event.id().event();
     lumiBlock_intree = event.id().luminosityBlock();
     runNumber_intree = event.id().run();
-
     summaryTree->Fill();
 
 }
