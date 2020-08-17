@@ -106,7 +106,7 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
     bool only_jetPt_lepPt = false;
     bool only_SM = false;
     bool include_ratio = false;
-    std::string norm_type = "SM_rel_norm"; //"unit_norm";
+    std::string norm_type = "unit_norm"; //"SM_rel_norm";
     std::string plot_type = "0p_vs_1p_comp";
 
     std::vector<TFile*> files;
@@ -209,7 +209,8 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
             TH1EFT* h_eventsumEFT1 = (TH1EFT*)td1->Get("h_eventsumEFT");
             double eventsum_SM1 = h_eventsumEFT1->GetBinFit(1).evalPoint(sm_pt);
             TH1EFT* h1 = (TH1EFT*)td1->Get(key1->GetName());
-            if (s1.Index("EFT") != -1) {
+            //if (s1.Index("EFT") != -1) {
+            if (s1.Index("SM") == -1 and s1.Index("summaryTree") == -1) { // Not all EFT hists have EFT in their name, but we assume all SM hists have SM in the name
                 for (Int_t bin_idx = 0; bin_idx <= h1->GetNbinsX()+1; bin_idx++) {
                     double wcfit_bin_val = h1->GetBinFit(bin_idx).evalPoint(wc_pt);
                     h1->SetBinContent(bin_idx,wcfit_bin_val);
@@ -365,7 +366,7 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
                 }
             }
             if(only_njets){ // For only plotting njets plots
-                if (s.Index("njets") == -1) {
+                if (s.Index("njets") == -1 and s.Index("nJets") == -1) { // Apparently I am inconsistent in njets naming convention
                     continue;
                 }
             }
@@ -456,7 +457,8 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
                 canv_pad->SetLogx(1);
             }
 
-            if (s.Index("EFT") != -1) {
+            //if (s.Index("EFT") != -1) {
+            if (s.Index("SM") == -1 and s.Index("summaryTree") == -1) { // Not all EFT hists have EFT in their name, but we assume all SM hists have SM in the name
                 //std::cout << h->GetName() << std::endl;
                 for (Int_t bin_idx = 0; bin_idx <= h->GetNbinsX()+1; bin_idx++) {
                     double wcfit_bin_val = h->GetBinFit(bin_idx).evalPoint(wc_pt);

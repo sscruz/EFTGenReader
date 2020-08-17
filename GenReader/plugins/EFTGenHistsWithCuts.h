@@ -63,6 +63,15 @@
 // end includes
 // -----------------------------------------------
 
+// Structure for storing info for all of the hists we want to plot
+struct HistInfo {
+    TString h_type;
+    int h_bins;
+    int h_min;
+    int h_max;
+    int h_no;
+};
+
 class EFTGenHistsWithCuts: public edm::EDAnalyzer
 {
     private:
@@ -87,10 +96,6 @@ class EFTGenHistsWithCuts: public edm::EDAnalyzer
         reco::GenParticleCollection GetGenParticlesSubset(const reco::GenParticleCollection& gen_particles, int pdg_id);
         std::vector<reco::GenJet> GetGenJets(const std::vector<reco::GenJet>& inputs);
         std::vector<reco::GenJet> GetGenBJets(const std::vector<reco::GenJet>& inputs);
-        std::vector<reco::GenJet> CleanGenJets(const std::vector<reco::GenJet>& gen_jets, const reco::GenParticleCollection& gen_leptons);
-        std::vector<reco::GenJet> MakePtEtaCuts(const std::vector<reco::GenJet>& inputs, std::string input_type);
-        reco::GenParticleCollection MakePtEtaCuts_forGenParticlesCollection(const reco::GenParticleCollection& inputs, std::string input_type);
-        reco::GenParticleCollection GetChargedGenParticle(const reco::GenParticleCollection& inputs);
 
 
         ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>> getSumTLV(reco::GenParticleCollection col);
@@ -98,11 +103,22 @@ class EFTGenHistsWithCuts: public edm::EDAnalyzer
         double getdR(reco::GenParticle p1, reco::GenParticle p2);
         double getInvMass(reco::GenParticle p1, reco::GenParticle p2);
 
+        TString constructHistName(TString lep_cat, TString hist_type, int hist_no);
+        void fillHistIfExists(TString h_name, double val, WCFit eft_fit);
+
+
     public:
         explicit EFTGenHistsWithCuts(const edm::ParameterSet&);
         ~EFTGenHistsWithCuts();
 
         template <typename T> edm::Handle<T> get_collection(const edm::Event& event, const edm::EDGetTokenT<T>& token);
+        template <typename T> std::vector<T> MakePtEtaCuts(const std::vector<T>& input, double min_pt, double max_eta);
+        template <typename T1, typename T2> std::vector<T1> CleanGenJets(const std::vector<T1>& obj1_vector, const std::vector<T2>& obj2_vector, const double coneSize);
+        template <typename T1, typename T2> double getdR(T1 p1, T2 p2);
+
+        template <typename T> TString getLepCat(const std::vector<T>& leptons);
+        template <typename T> int getChargeSum(const std::vector<T>& particles_vect);
+        template <typename T> std::vector<T> getChargedParticles(const std::vector<T>& particles_vect);
 
         std::ofstream fout;
         FILE * ffout;
@@ -172,6 +188,35 @@ class EFTGenHistsWithCuts: public edm::EDAnalyzer
         int total_events;
         double total_orig_xsec;
         double total_sm_xsec;
+
+        // Set up the categories we want to consider and histogram types we want to make
+
+        std::map<TString,TH1EFT*> hist_dict;
+        std::vector<std::string> lep_cats_vect {"2lss","3l","4l"};
+
+        int n_eta_bins = 10;
+        int eta_min = -3;
+        int eta_max = 3;
+
+        int n_pt_bins = 10;
+        int pt_min = 0;
+        int pt_max = 300;
+        int ht_max = 900;
+
+        int n_njet_bins = 14;
+        int njet_min = 0;
+        int njet_max = n_njet_bins;
+
+        std::vector<HistInfo> hist_info_vec {
+            //{"name of hist type", number of bins, number of hists of this type}
+            {"jet_pt"  , n_pt_bins   , pt_min   , pt_max   , 3},
+            {"jet_eta" , n_eta_bins  , eta_min  , eta_max  , 3},
+            {"lep_pt"  , n_pt_bins   , pt_min   , pt_max   , 3},
+            {"lep_eta" , n_eta_bins  , eta_min  , eta_max  , 3},
+            {"njets"   , n_njet_bins , njet_min , njet_max , 1},
+            {"ht"      , n_pt_bins   , pt_min   , ht_max   , 1}
+        };
+
 };
 
 void EFTGenHistsWithCuts::tree_add_branches()
@@ -354,29 +399,6 @@ reco::GenParticleCollection EFTGenHistsWithCuts::GetGenParticlesSubset(const rec
     return gen_subset;
 }
 
-// Clean jets based on how close they are to leptons
-std::vector<reco::GenJet> EFTGenHistsWithCuts::CleanGenJets(const std::vector<reco::GenJet>& gen_jets, const reco::GenParticleCollection& gen_leptons) {
-    std::vector<reco::GenJet> cleanedJets;
-    bool isClean;
-    double coneSize = 0.4;
-    for (size_t i = 0; i < gen_jets.size(); i++){
-        isClean = true;
-        const reco::GenJet& jet = gen_jets.at(i);
-        for (size_t j = 0; j < gen_leptons.size(); j++){
-            const reco::GenParticle& lep = gen_leptons.at(j);
-            //double dR = getdR(jet,lep);
-            if (getdR(jet,lep) <= coneSize){
-                isClean = false;
-                //break;
-            }
-        }
-        if (isClean) {
-            cleanedJets.push_back(jet);
-        }
-    }
-    return cleanedJets;
-}
-
 std::vector<reco::GenJet> EFTGenHistsWithCuts::GetGenJets(const std::vector<reco::GenJet>& inputs) {
     std::vector<reco::GenJet> ret;
     for (size_t i = 0; i < inputs.size(); i++) {
@@ -409,66 +431,6 @@ std::vector<reco::GenJet> EFTGenHistsWithCuts::GetGenBJets(const std::vector<rec
     return gen_bjets;
 }
 
-// Pt and eta cuts particles of type std::vector<reco::GenJet>, note if the type is not specified as "jet" or "lep", generic cuts of 2.5 and 10 are used
-std::vector<reco::GenJet> EFTGenHistsWithCuts::MakePtEtaCuts(const std::vector<reco::GenJet>& inputs, std::string input_type) {
-    std::vector<reco::GenJet> ret;
-    double max_eta = 2.5;
-    double min_pt = 10;
-    if (input_type=="jet"){
-        max_eta = max_eta_jet;
-        min_pt = min_pt_jet;
-        //std::cout << "\nUsing jet pt and eta cuts:" << min_pt << " " << max_eta << "\n" << std::endl;
-    } else if (input_type=="lep"){
-        max_eta = max_eta_lep;
-        min_pt = min_pt_lep;
-        //std::cout << "\nUsing lep pt and eta cuts:" << min_pt << " " << max_eta << "\n" << std::endl;
-    }
-    for (size_t i = 0; i < inputs.size(); i++) {
-        const reco::GenJet& p = inputs.at(i);
-        if (p.p4().Pt() < min_pt) {
-            continue;
-        } else if (max_eta > 0.0 && fabs(p.eta()) >= max_eta) {
-            continue;
-        }
-        ret.push_back(p);
-    }
-    std::sort(ret.begin(),ret.end(), [] (reco::GenJet a, reco::GenJet b) { return a.p4().Pt() > b.p4().Pt();});
-    return ret;
-}
-
-// Pt and eta cuts particles of type vector<reco::GenParticle>> (aka reco::GenParticlesCollection)
-reco::GenParticleCollection EFTGenHistsWithCuts::MakePtEtaCuts_forGenParticlesCollection(const reco::GenParticleCollection& inputs, std::string input_type) {
-    reco::GenParticleCollection ret;
-    double max_eta = 2.5;
-    double min_pt = 10;
-    if (input_type=="lep"){ 
-        max_eta = max_eta_lep;
-        min_pt = min_pt_lep;
-    }
-    for (size_t i = 0; i < inputs.size(); i++) {
-        const reco::GenParticle& p = inputs.at(i);
-        if (p.p4().Pt() < min_pt) {
-            continue;
-        } else if (max_eta > 0.0 && fabs(p.eta()) >= max_eta) {
-            continue;
-        }
-        ret.push_back(p);
-    }
-    std::sort(ret.begin(),ret.end(), [] (reco::GenParticle a, reco::GenParticle b) { return a.p4().Pt() > b.p4().Pt();});
-    return ret;
-}
-
-// Returns the charged particles from particles of type reco::GenParticleCollection
-reco::GenParticleCollection EFTGenHistsWithCuts::GetChargedGenParticle(const reco::GenParticleCollection& inputs) {
-    reco::GenParticleCollection ret;
-    for (size_t i = 0; i < inputs.size(); i++) {
-        const reco::GenParticle& p = inputs.at(i);
-        if (p.charge() != 0){
-            ret.push_back(p);
-        }
-    }
-    return ret;
-}
 
 ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>> EFTGenHistsWithCuts::getSumTLV(reco::GenParticleCollection col) {
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>> p4vec;
@@ -484,16 +446,121 @@ double EFTGenHistsWithCuts::getdPhi(reco::GenParticle p1, reco::GenParticle p2) 
     return dPhi;
 }
 
-double EFTGenHistsWithCuts::getdR(reco::GenParticle p1, reco::GenParticle p2) {
+double EFTGenHistsWithCuts::getInvMass(reco::GenParticle p1, reco::GenParticle p2) {
+    auto p4vec = p1.p4() + p2.p4();
+    return p4vec.M();
+}
+
+// Make a standardized hist name out of category info and hist type and hist number
+TString EFTGenHistsWithCuts::constructHistName(TString lep_cat, TString hist_type, int hist_no){
+    TString ret_str;
+    TString hist_no_str;
+    if (hist_no == -1){
+        hist_no_str = "";
+    } else {
+        hist_no_str = std::to_string(hist_no);
+    }
+    ret_str = "h_"+lep_cat+"_"+hist_type+"_"+hist_no_str;
+    return ret_str;
+}
+
+// Fill TH1EFTs if they exist in the hist dictionary
+void EFTGenHistsWithCuts::fillHistIfExists(TString h_name, double val, WCFit eft_fit){
+    if (hist_dict.find(h_name) != hist_dict.end()){
+        hist_dict[h_name]->Fill(val,1.0,eft_fit);
+        if (h_name == "h_3l_njets_1"){
+        }
+    }
+}
+
+// Template function for making pt and eta cuts
+template <typename T>
+std::vector<T> EFTGenHistsWithCuts::MakePtEtaCuts(const std::vector<T>& input, double min_pt, double max_eta) {
+    std::vector<T> ret;
+    for (size_t i = 0; i < input.size(); i++) {
+        const T& p = input.at(i);
+        if (p.p4().Pt() < min_pt) {
+            continue;
+        } else if (max_eta > 0.0 && fabs(p.eta()) >= max_eta) {
+            continue;
+        }
+        ret.push_back(p);
+    }
+    std::sort(ret.begin(),ret.end(), [] (T a, T b) { return a.p4().Pt() > b.p4().Pt();});
+    return ret;
+}
+
+// Clean objects based on how close they are to other objects
+template <typename T1, typename T2> 
+std::vector<T1> EFTGenHistsWithCuts::CleanGenJets(const std::vector<T1>& obj1_vector, const std::vector<T2>& obj2_vector, const double coneSize) {
+    std::vector<T1> cleaned_obj1_vector;
+    bool isClean;
+    for (size_t i = 0; i < obj1_vector.size(); i++){
+        isClean = true;
+        const T1& obj1 = obj1_vector.at(i);
+        for (size_t j = 0; j < obj2_vector.size(); j++){
+            const T2& obj2 = obj2_vector.at(j);
+            if (getdR(obj1,obj2) <= coneSize){
+                isClean = false;
+            }
+        }
+        if (isClean) {
+            cleaned_obj1_vector.push_back(obj1);
+        }
+    }
+    return cleaned_obj1_vector;
+}
+
+// Get dR between two objects
+template <typename T1, typename T2>
+double EFTGenHistsWithCuts::getdR(T1 p1, T2 p2) {
     double dR = (p1.p4().Eta() - p2.p4().Eta())*(p1.p4().Eta() - p2.p4().Eta());
     dR += (getdPhi(p1,p2)*getdPhi(p1,p2));
     dR = sqrt(dR);
     return dR;
 }
 
-double EFTGenHistsWithCuts::getInvMass(reco::GenParticle p1, reco::GenParticle p2) {
-    auto p4vec = p1.p4() + p2.p4();
-    return p4vec.M();
+// Get lepton category of event
+// NOTE: Right now just returns either 2lss, 3l, 4l (and 4l is for 4 or more l), or none
+template <typename T>
+TString EFTGenHistsWithCuts::getLepCat(const std::vector<T>& leptons) {
+    TString lep_cat_name;
+    const std::vector<T>& charged_leptons = getChargedParticles(leptons);
+    int ch_sum = getChargeSum(leptons);
+    if (charged_leptons.size() == 2 and ch_sum != 0){
+        lep_cat_name = "2lss";
+    } else if (charged_leptons.size() == 3) {
+        lep_cat_name = "3l";
+    } else if (charged_leptons.size() > 3) {
+        lep_cat_name = "4l";
+    } else {
+        lep_cat_name = "none";
+    }
+    return lep_cat_name;
+}
+
+// Get charge sum of particles
+template <typename T>
+int EFTGenHistsWithCuts::getChargeSum(const std::vector<T>& particles_vect) {
+    int ch_sum = 0;
+    for (size_t i = 0; i < particles_vect.size(); i++) {
+        const T& p = particles_vect.at(i);
+        ch_sum = ch_sum + p.charge();
+    }
+    return ch_sum;
+}
+
+// Returns the charged particles from particles of type reco::GenParticleCollection
+template <typename T>
+std::vector<T> EFTGenHistsWithCuts::getChargedParticles(const std::vector<T>& particles_vect) {
+    std::vector<T> ret;
+    for (size_t i = 0; i < particles_vect.size(); i++) {
+        const T& p =  particles_vect.at(i);
+        if (p.charge() != 0){
+            ret.push_back(p);
+        }
+    }
+    return ret;
 }
 
 template<typename T>
