@@ -106,38 +106,14 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
     bool only_jetPt_lepPt = false;
     bool only_SM = false;
     bool include_ratio = false;
+    bool draw_sm = true; // Only really makes sense if we are only drawing one file currently
     std::string norm_type = "unit_norm"; //"SM_rel_norm";
     std::string plot_type = "0p_vs_1p_comp";
 
     std::vector<TFile*> files;
     TH1::SetDefaultSumw2();
 
-    /*
-    //const Int_t kCLRS = 9;
-    const Int_t kCLRS = 5;
-    Int_t palette[kCLRS];
-    //palette[0] = kBlack;
-    //palette[1] = kBlue;
-    //palette[2] = kRed;
-    //palette[3] = kGreen;
-    //palette[4] = kMagenta;
-    //palette[5] = kCyan;
-    //palette[6] = kCyan+3;
-    //palette[7] = kGreen+3;
-    //palette[8] = kRed+3;
-    //palette[9] = kMagenta+3;
-
-    string colorScheme = "standard";
-    if (colorScheme == "standard") {
-        palette[0] = kBlack;
-        palette[1] = kCyan;
-        palette[2] = kBlue;
-        palette[3] = kGreen;
-        palette[4] = kRed;
-    }
-    */
-
-    std::vector<int> clrs {kBlack,kBlue,kRed,kGreen};
+    std::vector<int> clrs {kBlue,kRed,kGreen};
     // TLegend parameters
     double left,right,top,bottom,scale_factor,minimum;
     if (include_ratio) {
@@ -180,6 +156,8 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
 
     std::vector<TCanvas*> canvs;
     std::vector<TLegend*> legs;
+    std::map<std::string,TH1EFT*> empty_hists_dict; // emptytest
+    std::map<std::string,double> max_yvals_dict; // emptytest
     //WCPoint* smpt = new WCPoint();
     WCPoint* wc_pt = new WCPoint(wc_string.Data());
     WCPoint* sm_pt = new WCPoint("smpt");
@@ -194,6 +172,7 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
             files1.push_back(f1);
         }
     }
+    /*
     std::map<string,float> maxYvals_dict;
     std::map<std::string,TH1D*> histSM_dict;
     for (auto f1: files1) {
@@ -259,12 +238,15 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
     for (auto f1: files1) {
         f1->Close();
     }
+    // End of loop over files to find largest y value
+    */
 
 
     std::map<std::string,std::vector<TH1D*>> hist_dict;
     int clr_idx = 0;
 
     for (auto f: files) {
+        f->GetList()->Clear(); // ???
         f->Print();
 
         TString fname = f->GetName();
@@ -386,6 +368,19 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
                 h->SetTitle("");
             }
 
+            TH1EFT* h_sm_rwgt = (TH1EFT*)h->Clone(s+"_sm_rwgt");
+            h_sm_rwgt->SetMarkerStyle(kFullCircle);
+            h_sm_rwgt->SetMarkerSize(0.25);
+            h_sm_rwgt->SetOption("E");
+            h_sm_rwgt->SetMarkerColor(kBlack);
+            //h_sm_rwgt->SetTitle("");
+
+            //std::cout << "h bins: " << h->GetNbinsX() << std::endl;
+            //std::cout << "h fit size: " << h->hist_fits.size() << std::endl;
+            //std::cout << "h sm bins: " << h_sm_rwgt->GetNbinsX() << std::endl;
+            //std::cout << "h sm fit size: " << h_sm_rwgt->hist_fits.size() << std::endl;
+            //std::cout << "" << std::endl;
+
             //Int_t nbins = h->GetNbinsX();
             //Double_t intg = h->Integral(0,nbins+1);
             //if (intg > 1.0) {
@@ -441,6 +436,16 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
                 bottom = std::max(top - scale_factor*(files.size()+1),minimum);
                 leg = new TLegend(left,top,right,bottom);
                 legs.push_back(leg);
+
+                // emptytest This hist will be empty, we'll draw it first and use it for y axis range
+                TH1EFT* h_empty = (TH1EFT*)h->Clone(key->GetName());
+                for (Int_t bin_idx = 0; bin_idx <= h_empty->GetNbinsX()+1; bin_idx++) {
+                    h_empty->SetBinContent(bin_idx,0);
+                }
+                empty_hists_dict[key->GetName()] = h_empty;
+                h_empty->Draw();
+                max_yvals_dict[key->GetName()] = 0;
+
             } else {
                 leg = legs.at(c_idx);
             }
@@ -463,10 +468,20 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
                 for (Int_t bin_idx = 0; bin_idx <= h->GetNbinsX()+1; bin_idx++) {
                     double wcfit_bin_val = h->GetBinFit(bin_idx).evalPoint(wc_pt);
                     double wcfit_bin_err = h->GetBinFit(bin_idx).evalPointError(wc_pt);
+                    //std::cout << "this is the wcfit_bin_val: " << wcfit_bin_val << std::endl;
                     h->SetBinContent(bin_idx,wcfit_bin_val);
                     h->SetBinError(bin_idx,wcfit_bin_err);
                 }
+                for (Int_t bin_idx = 0; bin_idx <= h_sm_rwgt->GetNbinsX()+1; bin_idx++) {
+                    double wcfit_bin_val_sm = h_sm_rwgt->GetBinFit(bin_idx).evalPoint(sm_pt);
+                    double wcfit_bin_err_sm = h_sm_rwgt->GetBinFit(bin_idx).evalPointError(sm_pt);
+                    //std::cout << "this is the wcfit_bin_val_sm: " << wcfit_bin_val_sm<< std::endl;
+                    h_sm_rwgt->SetBinContent(bin_idx,wcfit_bin_val_sm);
+                    h_sm_rwgt->SetBinError(bin_idx,wcfit_bin_err_sm);
+
+                }
             }
+            /*
             // SM rel
             if (TString(norm_type).Contains("SM_rel")){
                 if (s.Index("EFT") != -1) {
@@ -514,6 +529,7 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
                     //std::cout << "Fit chi^2 for " << tmps << " = " << chi << std::endl;
                 }
             }
+            */
             // Unit norm
             if (norm_type == "unit_norm"){
                 if (s != "h_SMwgt_norm") {
@@ -522,14 +538,26 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
                     if (intg > 1.0) {
                         h->Scale(1./intg);
                         h->Scale(1./h->GetBinWidth(1)); // Scale by bin width
-                        h->GetYaxis()->SetRangeUser(0.0,1.2*maxYvals_dict[string(s)]);
+                        //h->GetYaxis()->SetRangeUser(0.0,1.2*maxYvals_dict[string(s)]);
+                        // SM histogram
+                        Double_t intg_sm_rwgt = h_sm_rwgt->Integral(0,nbins+1); // Should this have its own "if intg_sm_rwgt>0" statement?
+                        h_sm_rwgt->Scale(1./intg_sm_rwgt);
+                        h_sm_rwgt->Scale(1./h_sm_rwgt->GetBinWidth(1)); // Scale by bin width
                     }
                 } else {
                     std::cout << "\nNot normalizing this histogram: " << s << "\n" << std::endl;
-                    h->GetYaxis()->SetRangeUser(0.1,2*maxYvals_dict[string(s)]);
+                    //h->GetYaxis()->SetRangeUser(0.1,2*maxYvals_dict[string(s)]);
                 }
             }
 
+            // emptytest
+            //std::cout << "s: " << s << " max_yvals_dict[string(s)]: " << max_yvals_dict[string(s)] << std::endl;
+            if (h->GetMaximum() > max_yvals_dict[string(s)]){
+                max_yvals_dict[string(s)] = h->GetMaximum();
+                empty_hists_dict[string(s)]->GetYaxis()->SetRangeUser(0.0,1.2*max_yvals_dict[string(s)]);
+                //std::cout << "\th->GetMaximum() is new max: " << h->GetMaximum() << std::endl;
+            }
+            /*
             if (is_new) {
                 //h->Draw("E PLC PMC");
                 h->Draw("E");
@@ -537,6 +565,20 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
                 //h->Draw("E SAME PLC PMC");
                 h->Draw("E SAME");
             }
+            */
+            h->Draw("E SAME"); // emptytest 
+            if (draw_sm) {
+                h_sm_rwgt->SetLineColor(kBlack);
+                h_sm_rwgt->Draw("E SAME");
+                leg->AddEntry(h_sm_rwgt,sub_str+"_SM","l");
+                // Check if max val is larger than previous max y value, and set range of empty_hists_dict accordingly
+                if (h_sm_rwgt->GetMaximum() > max_yvals_dict[string(s)]){
+                    max_yvals_dict[string(s)] = h_sm_rwgt->GetMaximum();
+                    empty_hists_dict[string(s)]->GetYaxis()->SetRangeUser(0.0,1.2*max_yvals_dict[string(s)]);
+                }
+            }
+            //std::cout << "s: " << s << " max val: " << max_yvals_dict[string(s)] << std::endl;;
+
             //std::cout << "clr_idx: " << clr_idx << " clrs.at(clr_idx) " << clrs.at(clr_idx) << std::endl;
             h->SetLineColor(clrs.at(clr_idx));
             leg->AddEntry(h,sub_str,"l");
@@ -558,7 +600,9 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
         //std::cout << " it->first " << it->first << std:: endl;
         //std::cout << "hist_dict[it->first].size()" << hist_dict[it->first].size() << std::endl;
         for(int i=0; i<hist_dict[it->first].size(); i++){
-            ratio_hist = makeRatioHistogram(it->first,hist_dict[it->first].at(i), hist_dict[it->first].at(0));
+            // Note: I added "i" to the name we pass to makeRatioHistogram to get rid of "Potential memory leak" issue, next 
+            // time we want to actually include a ratio hist, should check if this causes any problems
+            ratio_hist = makeRatioHistogram(it->first+to_string(i),hist_dict[it->first].at(i), hist_dict[it->first].at(0)); 
             ratio_hist_dict[string(it->first)].push_back(ratio_hist);
             // Print the hists
             for(int k=0; k<=hist_dict[it->first].at(i)->GetNbinsX(); k++){
