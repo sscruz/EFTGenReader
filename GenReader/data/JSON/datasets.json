@@ -109,6 +109,16 @@
     "loc": "/hadoop/store/user/kmohrman/postLHE_step/2019_04_19/tXq4f-HanV4tXq4fSMCheck/v1/mAOD_step_tHq4f_HanV4tXqSMCheckMatchOff_run0", 
     "on_das": false
   }, 
+  "tHq4f_HanV4_GEN": {
+    "central_xsec": 0, 
+    "dataset": "", 
+    "datatier": "GEN", 
+    "description": "", 
+    "files_per_task": 5, 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/tXq4f_HanV4/v4/gen_step_tHq4f_HanV4tHqStartPtChecksMatchOff_run2", 
+    "on_das": false
+  }, 
   "tHq_HanModelEFTfixed": {
     "central_xsec": 0.0, 
     "dataset": "", 
@@ -387,6 +397,16 @@
     "files_per_task": 6, 
     "is_eft": false, 
     "loc": "/hadoop/store/user/kmohrman/postLHE_step/2019_04_19/tXq4f-HanV4tXq4fSMCheck/v1/mAOD_step_tllq4fNoSchanWNoHiggs0p_HanV4tXqSMCheckMatchOff_run0", 
+    "on_das": false
+  }, 
+  "tllq4fNoSchanWNoHiggs0p_HanV4_GEN": {
+    "central_xsec": 0, 
+    "dataset": "", 
+    "datatier": "GEN", 
+    "description": "", 
+    "files_per_task": 5, 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/tXq4f_HanV4/v4/gen_step_tllq4fNoSchanWNoHiggs0p_HanV4Model16DttllScanpointsXQCUT0MatchOff_run1", 
     "on_das": false
   }, 
   "tllq4fNoSchanWNoHiggs0p_HanV4_startPtChecksRun0": {
