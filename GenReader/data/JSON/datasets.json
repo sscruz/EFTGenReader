@@ -925,7 +925,7 @@
     "datatier": "GEN", 
     "description": "", 
     "files_per_task": 5, 
-    "is_eft": false, 
+    "is_eft": true, 
     "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/ttX-ttXJet_HanV4_QED1-and-noConstraints_moreStats-goodStartPt/v1/gen_step_ttHJet_HanV4DIM61QED1QCD3withRwgt_run1", 
     "on_das": false
   }, 
@@ -1045,7 +1045,7 @@
     "datatier": "GEN", 
     "description": "", 
     "files_per_task": 5, 
-    "is_eft": false, 
+    "is_eft": true, 
     "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/ttX-ttXJet_HanV4_QED1-and-noConstraints_moreStats-goodStartPt/v1/gen_step_ttH_HanV4DIM61QED1QCD3withRwgt_run1", 
     "on_das": false
   }, 
@@ -1095,7 +1095,7 @@
     "datatier": "GEN", 
     "description": "", 
     "files_per_task": 5, 
-    "is_eft": false, 
+    "is_eft": true, 
     "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/ttX-ttXJet_HanV4_QED1-and-noConstraints_moreStats-goodStartPt/v1/gen_step_ttWJet_HanV4QED1QCD3goodStartPt_run1", 
     "on_das": false
   }, 
@@ -1135,7 +1135,7 @@
     "datatier": "GEN", 
     "description": "", 
     "files_per_task": 5, 
-    "is_eft": false, 
+    "is_eft": true, 
     "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/ttX-ttXJet_HanV4_QED1-and-noConstraints_moreStats-goodStartPt/v1/gen_step_ttW_HanV4QED1QCD3goodStartPt_run1", 
     "on_das": false
   }, 
@@ -1185,7 +1185,7 @@
     "datatier": "GEN", 
     "description": "", 
     "files_per_task": 5, 
-    "is_eft": false, 
+    "is_eft": true, 
     "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/ttX-ttXJet_HanV4_QED1-and-noConstraints_moreStats-goodStartPt/v1/gen_step_ttZJet_HanV4QED1QCD3goodStartPt_run2", 
     "on_das": false
   }, 
@@ -1225,7 +1225,7 @@
     "datatier": "GEN", 
     "description": "", 
     "files_per_task": 5, 
-    "is_eft": false, 
+    "is_eft": true, 
     "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/ttX-ttXJet_HanV4_QED1-and-noConstraints_moreStats-goodStartPt/v1/gen_step_ttZ_HanV4QED1QCD3goodStartPt_run2", 
     "on_das": false
   }, 
