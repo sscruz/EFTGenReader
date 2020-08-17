@@ -1,39 +1,10 @@
-//{
-//    //TString sample = "privateTTW";
-//    //TString sample = "privateTTW-NoDim6";
-//    TString sample = "privateTTW-NoDim6-1Jet";
-//    //TString sample = "privateTZQ4f-NoDim6-NoSchanW";
-//    //TString sample = "centralTTZ";
-//    TFile* f = TFile::Open(sample+"_NoTopLeptons_output_tree.root");
-//    TDirectory* td = f->GetDirectory("EFTGenReader");
-//    TIter next(td->GetListOfKeys());
-//    TKey* key;
-//    while ((key = (TKey*)next())) {
-//        TString cmp = "summaryTree";
-//        TString s = key->GetName();
-//        if (s == cmp) continue;
-//        s += "_" + sample + ".png";
-//        std::cout << s << std::endl;
-//        TH1D* h = (TH1D*)td->Get(key->GetName());
-//
-//        TCanvas c1("c1","",1280,720);
-//        c1.cd();
-//        h->Draw();
-//        c1.Print(s,"png");
-//    }
-//    f->Close();
-//}
-
 #include "EFTGenReader/EFTHelperUtilities/interface/TH1EFT.h"
 #include "EFTGenReader/EFTHelperUtilities/interface/WCPoint.h"
 
 TCanvas* findCanvas(TString search,std::vector<TCanvas*> canvs) {
-    //TCanvas* canv = nullptr;
     for (auto c: canvs) {
         if (c->GetTitle() == search) {
             return c;
-            //canv = c;
-            //break;
         }
     }
     return nullptr;
@@ -156,9 +127,8 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
 
     std::vector<TCanvas*> canvs;
     std::vector<TLegend*> legs;
-    std::map<std::string,TH1EFT*> empty_hists_dict; // emptytest
-    std::map<std::string,double> max_yvals_dict; // emptytest
-    //WCPoint* smpt = new WCPoint();
+    std::map<std::string,TH1EFT*> empty_hists_dict;
+    std::map<std::string,double> max_yvals_dict;
     WCPoint* wc_pt = new WCPoint(wc_string.Data());
     WCPoint* sm_pt = new WCPoint("smpt");
     int filecounter = 0;
@@ -246,14 +216,12 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
     int clr_idx = 0;
 
     for (auto f: files) {
-        f->GetList()->Clear(); // ???
+        f->GetList()->Clear(); // ??? ROOT is so confusing
         f->Print();
 
         TString fname = f->GetName();
-        //cout << "name of the file !!! " << fname << std::endl;
         TString sub_str;
         Ssiz_t idx = fname.First('/');
-        //cout << "idx !!! " << idx << std::endl;
         int idx_begin = 0;
         int idx_end = 0;
         if (idx != TString::kNPOS) {
@@ -358,7 +326,6 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
                 }
             }
 
-            //TH1D* h = (TH1D*)td->Get(key->GetName());
             TH1EFT* h = (TH1EFT*)td->Get(key->GetName());
             h->SetMarkerStyle(kFullCircle);
             h->SetMarkerSize(0.25);
@@ -367,41 +334,24 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
             if (only_njets){
                 h->SetTitle("");
             }
+            //std::cout << "h bins: " << h->GetNbinsX() << std::endl;
+            //std::cout << "h fit size: " << h->hist_fits.size() << std::endl;
 
+            // This histogram should be reweighted to the SM and plotting along with h if the draw_sm option is on
             TH1EFT* h_sm_rwgt = (TH1EFT*)h->Clone(s+"_sm_rwgt");
             h_sm_rwgt->SetMarkerStyle(kFullCircle);
             h_sm_rwgt->SetMarkerSize(0.25);
             h_sm_rwgt->SetOption("E");
             h_sm_rwgt->SetMarkerColor(kBlack);
-            //h_sm_rwgt->SetTitle("");
 
-            //std::cout << "h bins: " << h->GetNbinsX() << std::endl;
-            //std::cout << "h fit size: " << h->hist_fits.size() << std::endl;
-            //std::cout << "h sm bins: " << h_sm_rwgt->GetNbinsX() << std::endl;
-            //std::cout << "h sm fit size: " << h_sm_rwgt->hist_fits.size() << std::endl;
-            //std::cout << "" << std::endl;
-
-            //Int_t nbins = h->GetNbinsX();
-            //Double_t intg = h->Integral(0,nbins+1);
-            //if (intg > 1.0) {
-            //    h->Scale(1./intg);
-            //}
-
-            //// Rebin the pt distrubutions
-            //if (s.Index("_pt") != -1) {
-            //    //cout << "this is a pt plot!" << s << "\n";
-            //	h->Rebin(10);
-            //}
 
             c = findCanvas(key->GetName(),canvs);
             int c_idx = findCanvasIndex(key->GetName(),canvs);
 
             TString canv_str = (TString)f->GetName() + "-" + (TString)key->GetName();
-            //std::cout << "\nthe canvas info!!! " << canv_str << "\n" << std::endl;
 
             bool is_new = !c;
             if (is_new) {
-                //std::cout << "is new !!!!" << std::endl;
                 //c = new TCanvas(canv_str,key->GetName(),1280,720);
                 c = new TCanvas(canv_str,key->GetName(),1100,800);
 
@@ -437,7 +387,7 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
                 leg = new TLegend(left,top,right,bottom);
                 legs.push_back(leg);
 
-                // emptytest This hist will be empty, we'll draw it first and use it for y axis range
+                // This hist will be empty, we'll draw it first and use it for setting y axis range
                 TH1EFT* h_empty = (TH1EFT*)h->Clone(key->GetName());
                 for (Int_t bin_idx = 0; bin_idx <= h_empty->GetNbinsX()+1; bin_idx++) {
                     h_empty->SetBinContent(bin_idx,0);
@@ -462,20 +412,16 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
                 canv_pad->SetLogx(1);
             }
 
-            //if (s.Index("EFT") != -1) {
             if (s.Index("SM") == -1 and s.Index("summaryTree") == -1) { // Not all EFT hists have EFT in their name, but we assume all SM hists have SM in the name
-                //std::cout << h->GetName() << std::endl;
                 for (Int_t bin_idx = 0; bin_idx <= h->GetNbinsX()+1; bin_idx++) {
                     double wcfit_bin_val = h->GetBinFit(bin_idx).evalPoint(wc_pt);
                     double wcfit_bin_err = h->GetBinFit(bin_idx).evalPointError(wc_pt);
-                    //std::cout << "this is the wcfit_bin_val: " << wcfit_bin_val << std::endl;
                     h->SetBinContent(bin_idx,wcfit_bin_val);
                     h->SetBinError(bin_idx,wcfit_bin_err);
                 }
                 for (Int_t bin_idx = 0; bin_idx <= h_sm_rwgt->GetNbinsX()+1; bin_idx++) {
                     double wcfit_bin_val_sm = h_sm_rwgt->GetBinFit(bin_idx).evalPoint(sm_pt);
                     double wcfit_bin_err_sm = h_sm_rwgt->GetBinFit(bin_idx).evalPointError(sm_pt);
-                    //std::cout << "this is the wcfit_bin_val_sm: " << wcfit_bin_val_sm<< std::endl;
                     h_sm_rwgt->SetBinContent(bin_idx,wcfit_bin_val_sm);
                     h_sm_rwgt->SetBinError(bin_idx,wcfit_bin_err_sm);
 
@@ -550,12 +496,10 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
                 }
             }
 
-            // emptytest
-            //std::cout << "s: " << s << " max_yvals_dict[string(s)]: " << max_yvals_dict[string(s)] << std::endl;
+            // Set the y axis range of the empty hist, update max_yvals_dict
             if (h->GetMaximum() > max_yvals_dict[string(s)]){
                 max_yvals_dict[string(s)] = h->GetMaximum();
                 empty_hists_dict[string(s)]->GetYaxis()->SetRangeUser(0.0,1.2*max_yvals_dict[string(s)]);
-                //std::cout << "\th->GetMaximum() is new max: " << h->GetMaximum() << std::endl;
             }
             /*
             if (is_new) {
@@ -566,18 +510,17 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
                 h->Draw("E SAME");
             }
             */
-            h->Draw("E SAME"); // emptytest 
+            h->Draw("E SAME");
             if (draw_sm) {
                 h_sm_rwgt->SetLineColor(kBlack);
                 h_sm_rwgt->Draw("E SAME");
                 leg->AddEntry(h_sm_rwgt,sub_str+"_SM","l");
-                // Check if max val is larger than previous max y value, and set range of empty_hists_dict accordingly
+                // Set the y axis range of the empty hist, update max_yvals_dict
                 if (h_sm_rwgt->GetMaximum() > max_yvals_dict[string(s)]){
                     max_yvals_dict[string(s)] = h_sm_rwgt->GetMaximum();
                     empty_hists_dict[string(s)]->GetYaxis()->SetRangeUser(0.0,1.2*max_yvals_dict[string(s)]);
                 }
             }
-            //std::cout << "s: " << s << " max val: " << max_yvals_dict[string(s)] << std::endl;;
 
             //std::cout << "clr_idx: " << clr_idx << " clrs.at(clr_idx) " << clrs.at(clr_idx) << std::endl;
             h->SetLineColor(clrs.at(clr_idx));
