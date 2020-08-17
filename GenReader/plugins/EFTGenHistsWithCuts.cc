@@ -51,6 +51,7 @@ void EFTGenHistsWithCuts::beginJob()
     double jet_pt_max = 300;
     double jetpt_bin_width = (jet_pt_max-jet_pt_min)/pt_bins;
 
+
     //bin sizes for 2D jet vs. bjet hist
     int njet_bins_jetbjet = 8; //number of jet bins 
     int nbjet_bins_jetbjet = 5; //number of bjet bins
@@ -218,92 +219,116 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
     //lepton categories
     if(pl_leptons.size() == 2)
     {
-        const reco::GenParticle& p1 = pl_leptons.at(0);
+	const reco::GenParticle& p1 = pl_leptons.at(0);
         const reco::GenParticle& p2 = pl_leptons.at(1);
+	double pt1 = p1.p4().Pt();
+        double pt2 = p2.p4().Pt();
         int id1 = p1.pdgId();
         int id2 = p2.pdgId();
         int id_product = id1*id2;
-        if(id_product > 0)
+        if(id_product > 0 && pt1 > 25 && pt2 > 15)
         {
-           if(pl_jets.size()<njet_max && pl_bjets.size()<nbjet_max)
-        {
+	  if(pl_jets.size()<njet_max && pl_bjets.size()<nbjet_max)
+          {
             h_2lss_jetbjetEFT->Fill(pl_jets.size(),pl_bjets.size(),1.0,eft_fit);
             h_2lss_jetbjetSM->Fill(pl_jets.size(),pl_bjets.size(),sm_wgt);
-        }
+          }
 
-	else if(pl_jets.size()<njet_max && pl_bjets.size()>nbjet_max)
-        {
+	  else if(pl_jets.size()<njet_max && pl_bjets.size()>nbjet_max)
+          {
             h_2lss_jetbjetEFT->Fill(pl_jets.size(),nbjet_max-1,1.0,eft_fit);
             h_2lss_jetbjetSM->Fill(pl_jets.size(),nbjet_max-1,sm_wgt);
-        }
+          }
 
-	else if(pl_jets.size()>njet_max && pl_bjets.size()>nbjet_max)
-        {
+	  else if(pl_jets.size()>njet_max && pl_bjets.size()>nbjet_max)
+          {
             h_2lss_jetbjetEFT->Fill(njet_max-1,pl_bjets.size(),1.0,eft_fit);
             h_2lss_jetbjetSM->Fill(njet_max-1,pl_bjets.size(),sm_wgt);
-        }
+          }
 
-	else
-	{
+	  else
+	  {
             h_2lss_jetbjetEFT->Fill(njet_max-1,nbjet_max-1,1.0,eft_fit);
             h_2lss_jetbjetSM->Fill(njet_max-1,nbjet_max-1,sm_wgt);
-        }
+          }
+ 	  
 
         }
     }
 
     if(pl_leptons.size() == 3)
     {
-        if(pl_jets.size()<njet_max && pl_bjets.size()<nbjet_max)
-        {
+	const reco::GenParticle& p1 = pl_leptons.at(0);
+        const reco::GenParticle& p2 = pl_leptons.at(1);
+        const reco::GenParticle& p3 = pl_leptons.at(2);
+	double pt1 = p1.p4().Pt();
+        double pt2 = p2.p4().Pt();
+        double pt3 = p3.p4().Pt();
+	if(pt1 > 25 && pt2 > 15 && pt3 > 10)
+	{
+          if(pl_jets.size()<njet_max && pl_bjets.size()<nbjet_max)
+          {
             h_3l_jetbjetEFT->Fill(pl_jets.size(),pl_bjets.size(),1.0,eft_fit);
             h_3l_jetbjetSM->Fill(pl_jets.size(),pl_bjets.size(),sm_wgt);
-        }
+          }
 
-	else if(pl_jets.size()<njet_max && pl_bjets.size()>nbjet_max)
-        {
+	  else if(pl_jets.size()<njet_max && pl_bjets.size()>nbjet_max)
+          {
             h_3l_jetbjetEFT->Fill(pl_jets.size(),nbjet_max-1,1.0,eft_fit);
             h_3l_jetbjetSM->Fill(pl_jets.size(),nbjet_max-1,sm_wgt);
-        }
+          }
 
-	else if(pl_jets.size()>njet_max && pl_bjets.size()>nbjet_max)
-        {
+	  else if(pl_jets.size()>njet_max && pl_bjets.size()>nbjet_max)
+          {
             h_3l_jetbjetEFT->Fill(njet_max-1,pl_bjets.size(),1.0,eft_fit);
             h_3l_jetbjetSM->Fill(njet_max-1,pl_bjets.size(),sm_wgt);
-        }
+          }
 
-	else
-	{
+	  else
+	  {
             h_3l_jetbjetEFT->Fill(njet_max-1,nbjet_max-1,1.0,eft_fit);
             h_3l_jetbjetSM->Fill(njet_max-1,nbjet_max-1,sm_wgt);
-        }
+          }
+	}
     }
 
-    if(pl_leptons.size() ==4)
+    if(pl_leptons.size() >= 4)
     {
-        if(pl_jets.size()<njet_max && pl_bjets.size()<nbjet_max)
-        {
+	const reco::GenParticle& p1 = pl_leptons.at(0);
+        const reco::GenParticle& p2 = pl_leptons.at(1);
+        const reco::GenParticle& p3 = pl_leptons.at(2);
+        const reco::GenParticle& p4 = pl_leptons.at(3);
+    	double pt1 = p1.p4().Pt();
+    	double pt2 = p2.p4().Pt();
+    	double pt3 = p3.p4().Pt();
+    	double pt4 = p4.p4().Pt();
+
+	if(pt1 > 25 && pt2 > 15 && pt3 > 10 && pt4 > 10)
+	{
+          if(pl_jets.size()<njet_max && pl_bjets.size()<nbjet_max)
+          {
             h_4l_jetbjetEFT->Fill(pl_jets.size(),pl_bjets.size(),1.0,eft_fit);
             h_4l_jetbjetSM->Fill(pl_jets.size(),pl_bjets.size(),sm_wgt);
-        }
+          }
 
-	else if(pl_jets.size()<njet_max && pl_bjets.size()>nbjet_max)
-        {
+	  else if(pl_jets.size()<njet_max && pl_bjets.size()>nbjet_max)
+          {
             h_4l_jetbjetEFT->Fill(pl_jets.size(),nbjet_max-1,1.0,eft_fit);
             h_4l_jetbjetSM->Fill(pl_jets.size(),nbjet_max-1,sm_wgt);
-        }
+          }
 
-	else if(pl_jets.size()>njet_max && pl_bjets.size()>nbjet_max)
-        {
+	  else if(pl_jets.size()>njet_max && pl_bjets.size()>nbjet_max)
+          {
             h_4l_jetbjetEFT->Fill(njet_max-1,pl_bjets.size(),1.0,eft_fit);
             h_4l_jetbjetSM->Fill(njet_max-1,pl_bjets.size(),sm_wgt);
-        }
+          }
 
-	else
-	{
+	  else
+	  {
             h_4l_jetbjetEFT->Fill(njet_max-1,nbjet_max-1,1.0,eft_fit);
             h_4l_jetbjetSM->Fill(njet_max-1,nbjet_max-1,sm_wgt);
-        }
+          }
+	}
     }
 
 

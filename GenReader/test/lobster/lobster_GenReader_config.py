@@ -80,15 +80,15 @@ samples = [
     #'ttHJet_HanV2Model-xqcut10qcut15',
     #'ttHJet_HanV2Model-xqcut10qcut19',
     #'ttHJet_HanV2Model-xqcut10qcut25',
-    ##'ttHJet_HanV4Model-xqcut10qcut15',
+    #'ttHJet_HanV4Model-xqcut10qcut15',
     'ttHJet_HanV4Model-xqcut10qcut19',
-    ##'ttHJet_HanV4Model-xqcut10qcut25',
-    ##'ttllNuNuJetNoHiggs_HanV4Model-xqcut10qcut15',
-    ##'ttllNuNuJetNoHiggs_HanV4Model-xqcut10qcut19',
-    ##'ttllNuNuJetNoHiggs_HanV4Model-xqcut10qcut25',
-    ##'ttlnuJet_HanV4Model-xqcut10qcut15',
-    ##'ttlnuJet_HanV4Model-xqcut10qcut19',
-    ##'ttlnuJet_HanV4Model-xqcut10qcut25',
+    #'ttHJet_HanV4Model-xqcut10qcut25',
+    #'ttllNuNuJetNoHiggs_HanV4Model-xqcut10qcut15',
+    #'ttllNuNuJetNoHiggs_HanV4Model-xqcut10qcut19',
+    #'ttllNuNuJetNoHiggs_HanV4Model-xqcut10qcut25',
+    #'ttlnuJet_HanV4Model-xqcut10qcut15',
+    #'ttlnuJet_HanV4Model-xqcut10qcut19',
+    #'ttlnuJet_HanV4Model-xqcut10qcut25',
     #'ttHJet_HanModel16DttllScanpointsxqcut10-qCut15',
     #'ttHJet_HanModel16DttllScanpointsxqcut10-qCut19',
     #'ttHJet_HanModel16DttllScanpointsxqcut10-qCut25',
@@ -217,8 +217,8 @@ for idx,sample_name in enumerate(samples):
         merge_size = '512K'     # non-EFT sample sizes are O(40K)
         #merge_size = -1
 
-    cms_cmd = ['cmsRun','lobsterized_EFTGenReader_cfg.py'] # Uncomment this if want to run EFTGenReader not EFTGenHistsWithCuts
-    #cms_cmd = ['cmsRun','lobsterized_EFTGenHistsWithCuts_cfg.py'] # Uncomment this if want to run EFTGenHistsWithCuts not EFTGenReader
+    #cms_cmd = ['cmsRun','lobsterized_EFTGenReader_cfg.py'] # Uncomment this if want to run EFTGenReader not EFTGenHistsWithCuts
+    cms_cmd = ['cmsRun','lobsterized_EFTGenHistsWithCuts_cfg.py'] # Uncomment this if want to run EFTGenHistsWithCuts not EFTGenReader
     cms_cmd.extend([
         'datatier={tier}'.format(tier=ds_helper.getData(sample_name,'datatier')),
         'minPtLep=10',
