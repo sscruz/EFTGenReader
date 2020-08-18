@@ -149,17 +149,18 @@ class EFTGenHistsWithCuts: public edm::EDAnalyzer
         TH1EFT* h_eventsumEFT;
 
         // Jet Histograms
-        TH1EFT* h_nJetsEFT; TH1D* h_nJetsSM;
+        //TH1EFT* h_nJetsEFT; TH1D* h_nJetsSM;
 
         // njets histograms with some selecitons
-        TH1EFT* h_nJets_3orMoreLep_EFT;           TH1D* h_nJets_3orMoreLep_SM;
-        TH1EFT* h_nJets_3Lep_EFT;                 TH1D* h_nJets_3Lep_SM;
-        TH1EFT* h_nJets_cleanJets_3orMoreLep_EFT; TH1D* h_nJets_cleanJets_3orMoreLep_SM;
-        TH1EFT* h_nJets_cleanJets_3Lep_EFT;       TH1D* h_nJets_cleanJets_3Lep_SM;
+        //TH1EFT* h_nJets_3orMoreLep_EFT;           TH1D* h_nJets_3orMoreLep_SM;
+        //TH1EFT* h_nJets_3Lep_EFT;                 TH1D* h_nJets_3Lep_SM;
+        //TH1EFT* h_nJets_cleanJets_3orMoreLep_EFT; TH1D* h_nJets_cleanJets_3orMoreLep_SM;
+        //TH1EFT* h_nJets_cleanJets_3Lep_EFT;       TH1D* h_nJets_cleanJets_3Lep_SM;
 
         // Particle level jets hists
-        TH1EFT* h_pl_nJets_EFT; TH1D* h_pl_nJets_SM;
+        //TH1EFT* h_pl_nJets_EFT; TH1D* h_pl_nJets_SM;
         TH1EFT* h_pl_nJets_3Lep_EFT; TH1D* h_pl_nJets_3Lep_SM;
+        TH1EFT* h_pl_clean_nJets_3Lep_EFT;
         TH2EFT* h_bjet_jetEFT; TH2D* h_bjet_jetSM;
         TH2EFT* h_bjet_jet2lEFT; TH2D* h_bjet_jet2lSM;
         TH2EFT* h_bjet_jet3lEFT; TH2D* h_bjet_jet3lSM;
@@ -190,14 +191,14 @@ class EFTGenHistsWithCuts: public edm::EDAnalyzer
         std::map<TString,TH1EFT*> hist_dict;
         std::vector<std::string> lep_cats_vect {"2lss","3l","4l"};
 
-        int n_eta_bins = 10;
+        int n_eta_bins = 12;
         int eta_min = -3;
         int eta_max = 3;
 
-        int n_pt_bins = 10;
+        int n_pt_bins = 12;
         int pt_min = 0;
-        int pt_max = 300;
-        int ht_max = 900;
+        int pt_max = 500;
+        int ht_max = 1000;
 
         int n_njet_bins = 14;
         int njet_min = 0;
@@ -205,10 +206,10 @@ class EFTGenHistsWithCuts: public edm::EDAnalyzer
 
         std::vector<HistInfo> hist_info_vec {
             //{"name of hist type", number of bins, number of hists of this type}
-            {"jet_pt"  , n_pt_bins   , pt_min   , pt_max   , 3},
-            {"jet_eta" , n_eta_bins  , eta_min  , eta_max  , 3},
-            {"lep_pt"  , n_pt_bins   , pt_min   , pt_max   , 3},
-            {"lep_eta" , n_eta_bins  , eta_min  , eta_max  , 3},
+            {"jet_pt"  , n_pt_bins   , pt_min   , pt_max   , 4},
+            {"jet_eta" , n_eta_bins  , eta_min  , eta_max  , 4},
+            {"lep_pt"  , n_pt_bins   , pt_min   , pt_max   , 4},
+            {"lep_eta" , n_eta_bins  , eta_min  , eta_max  , 4},
             {"njets"   , n_njet_bins , njet_min , njet_max , 1},
             {"ht"      , n_pt_bins   , pt_min   , ht_max   , 1}
         };
