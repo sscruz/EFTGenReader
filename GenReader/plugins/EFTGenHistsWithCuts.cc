@@ -163,14 +163,9 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
     edm::Handle<std::vector<reco::GenJet>> particleLevelLeptonsHandle_;
     event.getByToken(particleLevelJetsToken_,particleLevelJetsHandle_);
     event.getByToken(particleLevelLeptonsToken_,particleLevelLeptonsHandle_);
-<<<<<<< HEAD
-    std::vector<reco::GenJet> pl_jets    = MakePtEtaCuts(*particleLevelJetsHandle_,"jet");
-    std::vector<reco::GenJet> pl_leptons = MakePtEtaCuts(*particleLevelLeptonsHandle_,"lep");
-    std::vector<reco::GenJet> pl_bjets = GetGenBJets(pl_jets);
-=======
     std::vector<reco::GenJet> pl_jets    = MakePtEtaCuts(*particleLevelJetsHandle_,min_pt_jet,max_eta_jet);
     std::vector<reco::GenJet> pl_leptons = MakePtEtaCuts(*particleLevelLeptonsHandle_,min_pt_lep,max_eta_lep);
->>>>>>> master
+    std::vector<reco::GenJet> pl_bjets = GetGenBJets(pl_jets);
 
     // Clean jets
     std::vector<reco::GenJet> gen_jets_clean = CleanGenJets(gen_jets,gen_leptons,0.4);
@@ -271,7 +266,7 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
         h_pl_nJets_3Lep_SM->Fill(pl_jets.size(),sm_wgt);
     }
 
-<<<<<<< HEAD
+
     //Filling the 2D hists for jets vs. bjets (different lepton categories). Overblow bins taken care of. 
 
     double njet_max = 8.0;
@@ -392,9 +387,6 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
 	}
     }
 
-
-=======
->>>>>>> master
     eventnum_intree = event.id().event();
     lumiBlock_intree = event.id().luminosityBlock();
     runNumber_intree = event.id().run();
