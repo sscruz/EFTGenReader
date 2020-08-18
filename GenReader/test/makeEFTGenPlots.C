@@ -68,8 +68,7 @@ TH1D* makeRatioHistogram(TString name,T* h1,T* h2) {
     return h_ratio;
 }
 
-
-//void makeEFTGenPlots(TString output_fname,std::vector<TString> input_fnames) {
+// Main 
 void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
 
     // Set up the type of plots we want to make
@@ -77,14 +76,14 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
     bool only_jetPt_lepPt = false;
     bool only_SM = false;
     bool include_ratio = false;
-    bool draw_sm = true; // Only really makes sense if we are only drawing one file currently
+    bool draw_sm = false; // Only really makes sense if we are only drawing one file currently
     std::string norm_type = "unit_norm"; //"SM_rel_norm";
     std::string plot_type = "0p_vs_1p_comp";
 
     std::vector<TFile*> files;
     TH1::SetDefaultSumw2();
 
-    std::vector<int> clrs {kBlue,kRed,kGreen};
+    std::vector<int> clrs {kBlue,kRed,kGreen,kMagenta,kCyan,kOrange,kGray,kTeal,kSpring,kPink};
     // TLegend parameters
     double left,right,top,bottom,scale_factor,minimum;
     if (include_ratio) {
@@ -102,10 +101,6 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
     }
     minimum      = 0.1;
 
-    //gStyle->SetPalette(kCLRS,palette);
-    //if (input_fnames.size() <= 3) {
-    //    gStyle->SetPalette(kCLRS2,pal2);
-    //}
     gStyle->SetOptStat(0);
     gStyle->SetPadRightMargin(0.2);
 
@@ -122,8 +117,6 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
     if (!files.size()) {
         return;
     }
-
-    std::cout << "" << std::endl;
 
     std::vector<TCanvas*> canvs;
     std::vector<TLegend*> legs;
@@ -142,77 +135,8 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
             files1.push_back(f1);
         }
     }
-    /*
-    std::map<string,float> maxYvals_dict;
-    std::map<std::string,TH1D*> histSM_dict;
-    for (auto f1: files1) {
-        TDirectory* td1;
-        td1 = f1->GetDirectory("EFTGenReader");
-        if (td1 == 0){
-            td1 = f1->GetDirectory("EFTGenHistsWithCuts"); // In case we are using files produced by the  EFTGenHistsWithCuts analyzer
-        }
-        TKey* key1;
-        TIter next(td1->GetListOfKeys());
-        while ((key1 = (TKey*)next())) {
-            TString s1 = key1->GetName();
-            TH1EFT* h_eventsumEFT1 = (TH1EFT*)td1->Get("h_eventsumEFT");
-            double eventsum_SM1 = h_eventsumEFT1->GetBinFit(1).evalPoint(sm_pt);
-            TH1EFT* h1 = (TH1EFT*)td1->Get(key1->GetName());
-            //if (s1.Index("EFT") != -1) {
-            if (s1.Index("SM") == -1 and s1.Index("summaryTree") == -1) { // Not all EFT hists have EFT in their name, but we assume all SM hists have SM in the name
-                for (Int_t bin_idx = 0; bin_idx <= h1->GetNbinsX()+1; bin_idx++) {
-                    double wcfit_bin_val = h1->GetBinFit(bin_idx).evalPoint(wc_pt);
-                    h1->SetBinContent(bin_idx,wcfit_bin_val);
-                }
-            }
-            // SM rel
-            if (TString(norm_type).Contains("SM_rel")) {
-                if (s1 != "h_SMwgt_norm" && s1.Contains("EFT")) {
-                    auto tmps = s1;
-                    std::cout << tmps << " " << tmps.ReplaceAll("EFT","SM") << std::endl;
-                    auto hsm = (TH1D*)f1->Get("EFTGenReader/"+tmps);
-                    std::cout << "EFTGenReader/"+tmps << std::endl;
-                    if(hsm != nullptr) {
-                    hsm->SetDirectory(0);
-                    histSM_dict[tmps.Data()]=hsm;
-                    }
-                }
-            }
-            // SM norm
-            if (norm_type == "SM_norm"){
-                if (s1 != "h_SMwgt_norm") {
-                    h1->Scale(1.0/eventsum_SM1);
-                }
-            }
-            // Unit norm
-            if (norm_type == "unit_norm") {
-                if (s1 != "h_SMwgt_norm") {
-                    Int_t nbins = h1->GetNbinsX();
-                    Double_t intg = h1->Integral(0,nbins+1);
-                    if (intg > 1.0) {
-                        h1->Scale(1./intg);
-                        h1->Scale(1./h1->GetBinWidth(1)); // Scale by bin width
-                    }
-                }
-            }
 
-            // Fill the dictionary:
-            if (maxYvals_dict.count(string(s1)) == 0) {
-                maxYvals_dict[string(s1)] = h1->GetMaximum();
-            } else if (maxYvals_dict[string(s1)] < h1->GetMaximum()){
-                //std::cout << "New largest value for " << s1 << ": " << h1->GetMaximum() << " (Old largest val: " << maxYvals_dict[string(s1)] << ")" << std::endl;
-                maxYvals_dict[string(s1)] = h1->GetMaximum();
-              }
-        }
-    }
-    for (auto f1: files1) {
-        f1->Close();
-    }
-    // End of loop over files to find largest y value
-    */
-
-
-    std::map<std::string,std::vector<TH1D*>> hist_dict;
+    std::map<std::string,std::vector<TH1D*>> hist_dict; // For the ratio plots
     int clr_idx = 0;
 
     for (auto f: files) {
@@ -230,40 +154,15 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
 
         /*
         //TString marker = "output_";
-        TString marker = "HanV4Model";
-        //TString marker = "0p_";
         idx_begin = sub_str.Index(marker)+marker.Length();
-        //idx_end = sub_str.Index("fromMAOD.root");
         idx_end = sub_str.Index(".root");
         sub_str = sub_str(idx_begin,idx_end-idx_begin);
-        //cout << " this is the sub str now !!!!!!!!!! " << sub_str << std::endl;
-
-        // Hard code for  making no jets vs jets plots!
-        if (plot_type == "0p_vs_1p_comp") {
-            if (sub_str.Index("NoJets") != -1){
-                std::cout << "the no jets sub str! " << sub_str << std::endl;
-                sub_str = "ttH 0 partons";
-            } else {
-                std::cout << "the plus jets sub str! " << sub_str << std::endl;
-                sub_str = "ttH 0+1 partons";
-            }
-        }
         */
-
-        TString marker = "output_";
-        //TString marker = "HanV4Model";
-        //TString marker = "0p_";
-        //idx_begin = sub_str.Index(marker)+marker.Length();
-        //idx_end = sub_str.Index("fromMAOD.root");
-        //idx_end = sub_str.Index(".root");
-        //sub_str = sub_str(idx_begin,idx_end-idx_begin);
-        //cout << "\ntThis is the sub str now !!!!!!!!!!\n" << sub_str << std::endl;
 
         // This legend string stuff is very specific to the names of the files and is just leftover 
         // from the last thing I used this code for, i.e. this is very ad hoc and will probably not 
         // work great for situations besides the specific one I was using it for (sorry)
-        //sub_str = "ttH";
-        std::string leg_str;
+        TString leg_str;
         if (sub_str.Index("ttH") != -1){
             leg_str = "ttH ";
         } else if (sub_str.Index("ttW") != -1){
@@ -277,22 +176,23 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
         }
         if (plot_type == "0p_vs_1p_comp") {
             if (sub_str.Index("NoJets") != -1){
-                //std::cout << "the no jets sub str! " << sub_str << std::endl;
-                sub_str = leg_str+"0 partons";
-            } else if (sub_str.Index("NLO") != -1){
-                //std::cout << "the NLO sub str! " << sub_str << std::endl;
-                sub_str = leg_str+"NLO";
-            } else if (sub_str.Index("central") != -1){
-                //std::cout << "The NLO sub str! " << sub_str << std::endl;
-                sub_str = leg_str+"central";
+                leg_str = leg_str+"0 partons";
             } else if (sub_str.Index("Jet") != -1) {
-                //std::cout << "the plus jets sub str! " << sub_str << std::endl;
-                sub_str = leg_str+"0+1 partons";
+                leg_str = leg_str+"0+1 partons";
             } else {
-                //std::cout << "the 0 jets sub str also! " << sub_str << std::endl;
-                sub_str = leg_str+"0 partons";
+                leg_str = leg_str+"0 partons";
             }
         }
+        if (plot_type == "qCut_comp") {
+            if (sub_str.Index("qcut15") != -1) {
+                leg_str = leg_str+"0+1p qCut=15";
+            } else if (sub_str.Index("qcut19") != -1){
+                leg_str = leg_str+"0+1p qCut=19";
+            } else if (sub_str.Index("qcut25") != -1){
+                leg_str = leg_str+"0+1p qCut=25";
+            }
+        }
+        std::cout << "\n\tSub str: " << sub_str << "\n\tLeg str: " << leg_str << "\n" << std::endl;
 
         TDirectory* td;
         td = f->GetDirectory("EFTGenReader");
@@ -343,7 +243,6 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
             h_sm_rwgt->SetMarkerSize(0.25);
             h_sm_rwgt->SetOption("E");
             h_sm_rwgt->SetMarkerColor(kBlack);
-
 
             c = findCanvas(key->GetName(),canvs);
             int c_idx = findCanvasIndex(key->GetName(),canvs);
@@ -400,13 +299,13 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
                 leg = legs.at(c_idx);
             }
 
-            // Log log scale for wgt hist
             TPad* canv_pad;
             if (include_ratio) {
                 canv_pad = (TPad*)c->cd(1);
             } else {
                 canv_pad = (TPad*)c->cd();
             }
+            // Log log scale for wgt hist
             if (s == "h_SMwgt_norm") {
                 canv_pad->SetLogy(1);
                 canv_pad->SetLogx(1);
@@ -427,55 +326,6 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
 
                 }
             }
-            /*
-            // SM rel
-            if (TString(norm_type).Contains("SM_rel")){
-                if (s.Index("EFT") != -1) {
-                    auto tmps = s;
-                    tmps.ReplaceAll("EFT","SM");
-                    TH1D* h_sm = (TH1D*)histSM_dict[tmps.Data()];
-                    double normH = 1.;
-                    double normHsm = 1.;
-                    if(TString(norm_type).Contains("norm")) {
-                        double normHsm = 1./h_sm->Integral();
-                        h->Scale(normH);
-                        h_sm->Scale(normHsm);
-                    }
-                    for (Int_t bin_idx = 1; bin_idx <= h->GetNbinsX(); bin_idx++) {
-                        double sm_bin_val = h_sm->GetBinContent(bin_idx);
-                        double sm_bin_err = h_sm->GetBinContent(bin_idx);
-                        double wcfit_bin_val = h->GetBinFit(bin_idx).evalPoint(wc_pt);
-                        double wcfit_bin_err = h->GetBinFit(bin_idx).evalPointError(wc_pt);
-                        if(bin_idx == h->GetNbinsX()) {
-                            sm_bin_val += h_sm->GetBinContent(bin_idx+1);
-                            sm_bin_err = sqrt(pow(sm_bin_err,2) + pow(h_sm->GetBinError(bin_idx+1),2));
-                            wcfit_bin_val += h->GetBinFit(bin_idx+1).evalPoint(wc_pt);
-                            wcfit_bin_err = sqrt(pow(wcfit_bin_err,2) + pow(h->GetBinFit(bin_idx+1).evalPointError(wc_pt),2));
-                        }
-                        if(TString(norm_type).Contains("norm")) {
-                            wcfit_bin_val *= 1 / h->Integral();
-                            wcfit_bin_err *= 1 / h->Integral();
-                        }
-                        wcfit_bin_err = wcfit_bin_val/sm_bin_val * sqrt(wcfit_bin_err/wcfit_bin_val + sm_bin_err/sm_bin_val);
-                        wcfit_bin_val *= 1/h_sm->GetBinContent(bin_idx);
-                        h->SetBinContent(bin_idx,wcfit_bin_val);
-                        h->SetBinError(bin_idx,wcfit_bin_err);
-                    }
-                    if(TString(norm_type).Contains("norm")) tmps.ReplaceAll("SM","SM_norm");
-                    tmps.ReplaceAll("SM","EFToSM");
-                    h->SetName(tmps);
-                    h->SetTitle(tmps);
-                    h->Fit("pol1", "FSMEQW");
-                    float chi = 0.;
-                    for (Int_t bin_idx = 1; bin_idx <= h->GetNbinsX()+1; bin_idx++) {
-                        double bin = h->GetBinCenter(bin_idx);
-                        double bin_val = h->GetBinContent(bin_idx);
-                        chi += pow(h->GetFunction("pol1")->Eval(bin) - bin_val, 2) / bin_val;
-                    }
-                    //std::cout << "Fit chi^2 for " << tmps << " = " << chi << std::endl;
-                }
-            }
-            */
             // Unit norm
             if (norm_type == "unit_norm"){
                 if (s != "h_SMwgt_norm") {
@@ -492,29 +342,24 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
                     }
                 } else {
                     std::cout << "\nNot normalizing this histogram: " << s << "\n" << std::endl;
-                    //h->GetYaxis()->SetRangeUser(0.1,2*maxYvals_dict[string(s)]);
                 }
             }
 
             // Set the y axis range of the empty hist, update max_yvals_dict
             if (h->GetMaximum() > max_yvals_dict[string(s)]){
                 max_yvals_dict[string(s)] = h->GetMaximum();
-                empty_hists_dict[string(s)]->GetYaxis()->SetRangeUser(0.0,1.2*max_yvals_dict[string(s)]);
+                if (string(s) != "h_SMwgt_norm"){
+                    empty_hists_dict[string(s)]->GetYaxis()->SetRangeUser(0.0,1.2*max_yvals_dict[string(s)]);
+                } else {
+                    empty_hists_dict[string(s)]->GetYaxis()->SetRangeUser(0.1,1.2*max_yvals_dict[string(s)]);
+                }
             }
-            /*
-            if (is_new) {
-                //h->Draw("E PLC PMC");
-                h->Draw("E");
-            } else {
-                //h->Draw("E SAME PLC PMC");
-                h->Draw("E SAME");
-            }
-            */
+
             h->Draw("E SAME");
             if (draw_sm) {
                 h_sm_rwgt->SetLineColor(kBlack);
                 h_sm_rwgt->Draw("E SAME");
-                leg->AddEntry(h_sm_rwgt,sub_str+"_SM","l");
+                leg->AddEntry(h_sm_rwgt,leg_str+"_SM","l");
                 // Set the y axis range of the empty hist, update max_yvals_dict
                 if (h_sm_rwgt->GetMaximum() > max_yvals_dict[string(s)]){
                     max_yvals_dict[string(s)] = h_sm_rwgt->GetMaximum();
@@ -524,7 +369,7 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
 
             //std::cout << "clr_idx: " << clr_idx << " clrs.at(clr_idx) " << clrs.at(clr_idx) << std::endl;
             h->SetLineColor(clrs.at(clr_idx));
-            leg->AddEntry(h,sub_str,"l");
+            leg->AddEntry(h,leg_str,"l");
             if (include_ratio) {
                 leg->SetBorderSize(0);
             }
@@ -626,14 +471,6 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
         c->Print(s,"png");
         c->Print(s.ReplaceAll("png","pdf"),"pdf");
     }
-
-    //// Print maxYvals dictionary:
-    //for (auto it = maxYvals_dict.begin(); it != maxYvals_dict.end(); it++ ) {
-    //    std::cout << it->first  // string (key)
-    //              << ": "
-    //              << it->second   // string's value
-    //              << std::endl ;
-    //}
 
 
     delete sm_pt;
