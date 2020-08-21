@@ -12,12 +12,6 @@ TH2EFT::TH2EFT(const char *name, const char *title, Int_t nbinsx, Double_t xlow,
     for (Int_t i = 0; i < this->FindFixBin(xup,yup); i++) {
         this->hist_fits.push_back(new_fit);
     }
-    for (Int_t i = 0; i < nbinsx; i++) {
-        this->hist_fitsx.push_back(new_fit);
-    }
-    for (Int_t i = 0; i < nbinsy; i++) {
-        this->hist_fitsy.push_back(new_fit);
-    }
 }
 void TH2EFT::SetBins(Int_t nx, Double_t xmin, Double_t xmax, Int_t ny, Double_t ymin, Double_t ymax)
 {
@@ -25,15 +19,7 @@ void TH2EFT::SetBins(Int_t nx, Double_t xmin, Double_t xmax, Int_t ny, Double_t 
     // erased and hist_fits re-sized with empty fits.
     
     hist_fits.clear();
-    hist_fitsx.clear();
-    hist_fitsy.clear();
     WCFit new_fit;
-    for (Int_t i = 0; i < nx; i++) {
-        this->hist_fitsx.push_back(new_fit);
-    }
-    for (Int_t i = 0; i < ny; i++) {
-        this->hist_fitsy.push_back(new_fit);
-    }
     for (Int_t i = 0; i < nx+ny; i++) {
         this->hist_fits.push_back(new_fit);
     }
@@ -44,19 +30,14 @@ Bool_t TH2EFT::Add(const TH2 *h1, Double_t c1)
 {
     // check whether the object pointed to inherits from (or is a) TH2EFT:
     if (h1->IsA()->InheritsFrom(TH2EFT::Class())) {
-        if ((this->hist_fitsx.size() == ((TH2EFT*)h1)->hist_fitsx.size()) && (this->hist_fitsy.size() == ((TH2EFT*)h1)->hist_fitsy.size())) {
-            for (unsigned int i = 0; i < this->hist_fitsx.size(); i++) {
+        if ((this->hist_fits.size() == ((TH2EFT*)h1)->hist_fits.size())) {
+            for (unsigned int i = 0; i < this->hist_fits.size(); i++) {
                 // assumes this hist and the one whose fits we're adding have the same bins!
-                this->hist_fitsx[i].addFit( ((TH2EFT*)h1)->hist_fitsx[i] );
-            }
-            for (unsigned int i = 0; i < this->hist_fitsy.size(); i++) {
-                // assumes this hist and the one whose fits we're adding have the same bins!
-                this->hist_fitsy[i].addFit( ((TH2EFT*)h1)->hist_fitsy[i] );
+                this->hist_fits[i].addFit( ((TH2EFT*)h1)->hist_fits[i] );
             }
         } else { 
             std::cout << "Attempt to add 2 TH2EFTs with different # of fits!" << std::endl;
-            std::cout << this->hist_fitsx.size() << ", " << ((TH2EFT*)h1)->hist_fitsx.size() << std::endl;
-            std::cout << this->hist_fitsy.size() << ", " << ((TH2EFT*)h1)->hist_fitsy.size() << std::endl;
+            std::cout << this->hist_fits.size() << ", " << ((TH2EFT*)h1)->hist_fits.size() << std::endl;
         }
         this->overflow_fit.addFit( ((TH2EFT*)h1)->overflow_fit );
         this->underflow_fit.addFit( ((TH2EFT*)h1)->underflow_fit );
@@ -69,12 +50,11 @@ Bool_t TH2EFT::NormalizeTo(const TH2D *h1, Double_t c1)
 {
     // check whether the object pointed to inherits from (or is a) TH2EFT:
     if (h1->IsA()->InheritsFrom(TH2EFT::Class())) {
-        if ((this->hist_fitsx.size() == ((TH2EFT*)h1)->hist_fitsx.size()) && (this->hist_fitsy.size() == ((TH2EFT*)h1)->hist_fitsy.size())) {
+        if ((this->hist_fits.size() == ((TH2EFT*)h1)->hist_fits.size())) {
             //Do nothing, just check
         } else { 
             std::cout << "Attempt to add 2 TH2EFTs with different # of fits!" << std::endl;
-            std::cout << this->hist_fitsx.size() << ", " << ((TH2EFT*)h1)->hist_fitsx.size() << std::endl;
-            std::cout << this->hist_fitsy.size() << ", " << ((TH2EFT*)h1)->hist_fitsy.size() << std::endl;
+            std::cout << this->hist_fits.size() << ", " << ((TH2EFT*)h1)->hist_fits.size() << std::endl;
             return false;
         }
     }
@@ -102,19 +82,12 @@ Long64_t TH2EFT::Merge(TCollection* list)
     TIter nexthist(list);
     TH2EFT *hist;
     while ((hist = (TH2EFT*)nexthist.Next())) {
-        if (this->hist_fitsx.size() != hist->hist_fitsx.size()) {
+        if (this->hist_fits.size() != hist->hist_fits.size()) {
             std::cout << "[WARNING] Skipping histogram with different # of fits" << std::endl;
             continue;
         }
-        if (this->hist_fitsy.size() != hist->hist_fitsy.size()) {
-            std::cout << "[WARNING] Skipping histogram with different # of fits" << std::endl;
-            continue;
-        }
-        for (unsigned int i = 0; i < this->hist_fitsx.size(); i++) {
-            this->hist_fitsx.at(i).addFit(hist->hist_fitsx.at(i));
-        }
-        for (unsigned int i = 0; i < this->hist_fitsy.size(); i++) {
-            this->hist_fitsy.at(i).addFit(hist->hist_fitsy.at(i));
+        for (unsigned int i = 0; i < this->hist_fits.size(); i++) {
+            this->hist_fits.at(i).addFit(hist->hist_fits.at(i));
         }
         this->overflow_fit.addFit(hist->overflow_fit);
         this->underflow_fit.addFit(hist->underflow_fit);
@@ -156,37 +129,48 @@ WCFit TH2EFT::GetBinFit(Int_t bin)
 WCFit TH2EFT::GetSumFit(Int_t axis=0)
 {
     WCFit summed_fit;
-    if(axis == 1) {
-        for (unsigned int i = 0; i < this->hist_fitsy.size(); i++) {
-            summed_fit.addFit(this->hist_fitsy.at(i));
-        }
-        return summed_fit;
+    for (unsigned int i = 0; i < this->hist_fits.size(); i++) {
+        summed_fit.addFit(this->hist_fits.at(i));
     }
-    else {
-        for (unsigned int i = 0; i < this->hist_fitsx.size(); i++) {
-            summed_fit.addFit(this->hist_fitsx.at(i));
-        }
-        return summed_fit;
-    }
+    return summed_fit;
 }
 
 // Returns a bin scaled by the the corresponding fit evaluated at a particular WC point
 Double_t TH2EFT::GetBinContent(Int_t binx, Int_t biny, WCPoint wc_pt)
 {
-    Int_t bin = this->FindFixBin(binx-1,biny-1);
+    Int_t bin = this->FindFixBin(binx,biny);
     if (this->GetBinFit(bin).getDim() <= 0) {
         // We don't have a fit for this bin, return regular bin contents
-        return GetBinContent(binx, biny);
+        //return GetBinContent(binx, biny);
+        return GetBinContent(bin);
     }
 
     double scale_value = this->GetBinFit(bin).evalPoint(&wc_pt);
-    Double_t num_events = GetBinContent(binx,biny);
+    Double_t num_events = GetBinContent(bin);
     if (num_events == 0) {
         return 0.0;
     }
 
     return scale_value;
 }
+
+Double_t TH2EFT::GetBinContent(Int_t bin, WCPoint wc_pt)
+{
+    if (this->GetBinFit(bin).getDim() <= 0) {
+        // We don't have a fit for this bin, return regular bin contents
+        //return GetBinContent(binx, biny);
+        return GetBinContent(bin);
+    }
+
+    double scale_value = this->GetBinFit(bin).evalPoint(&wc_pt);
+    Double_t num_events = GetBinContent(bin);
+    if (num_events == 0) {
+        return 0.0;
+    }
+
+    return scale_value;
+}
+
 void TH2EFT::Scale(WCPoint wc_pt)
 {
     // Warning: calling GetEntries after a call to this function will return a 
@@ -195,7 +179,8 @@ void TH2EFT::Scale(WCPoint wc_pt)
     for (Int_t i = 1; i <= this->GetNbinsX(); i++) {
         for (Int_t j = 1; j <= this->GetNbinsY(); j++) {
             Int_t bin = this->FindFixBin(i-1,j-1);
-            Double_t new_content = this->GetBinContent(i,j,wc_pt);
+            Double_t new_content = this->GetBinContent(bin,wc_pt);
+            //Double_t new_content = this->GetBinContent(i,j,wc_pt);
             Double_t new_error = (GetBinFit(bin)).evalPointError(&wc_pt);
             this->SetBinContent(bin,new_content);
             this->SetBinError(bin,new_error);
@@ -223,25 +208,15 @@ void TH2EFT::Scale(WCPoint wc_pt)
 // Uniformly scale all fits by amt
 void TH2EFT::ScaleFits(double amt, Int_t axis=0)
 {
-    if(axis == 0){
-        for (uint i = 0; i < this->hist_fitsx.size(); i++) {
-            this->hist_fitsx.at(i).scale(amt);
-        }
-    }
-    if(axis == 1){
-        for (uint i = 0; i < this->hist_fitsy.size(); i++) {
-            this->hist_fitsy.at(i).scale(amt);
-        }
+    for (uint i = 0; i < this->hist_fits.size(); i++) {
+        this->hist_fits.at(i).scale(amt);
     }
 }
 
 // Display the fit parameters for all bins
 void TH2EFT::DumpFits()
 {
-    for (uint i = 0; i < this->hist_fitsx.size(); i++) {
-        this->hist_fitsx.at(i).dump();
-    }
-    for (uint i = 0; i < this->hist_fitsy.size(); i++) {
-        this->hist_fitsy.at(i).dump();
+    for (uint i = 0; i < this->hist_fits.size(); i++) {
+        this->hist_fits.at(i).dump();
     }
 }
