@@ -284,29 +284,29 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
         int id_product = id1*id2;
         if(id_product > 0 && pt1 > 25 && pt2 > 15)
         {
-	  if(pl_jets.size()<njet_max && pl_bjets.size()<nbjet_max)
-          {
-            h_2lss_jetbjetEFT->Fill(pl_jets.size(),pl_bjets.size(),1.0,eft_fit);
-            h_2lss_jetbjetSM->Fill(pl_jets.size(),pl_bjets.size(),sm_wgt);
-          }
+	    if(pl_jets.size()<njet_max && pl_bjets.size()<nbjet_max)
+            {
+                h_2lss_jetbjetEFT->Fill(pl_jets.size(),pl_bjets.size(),1.0,eft_fit);
+                h_2lss_jetbjetSM->Fill(pl_jets.size(),pl_bjets.size(),sm_wgt);
+            }
 
-	  else if(pl_jets.size()<njet_max && pl_bjets.size()>nbjet_max)
-          {
-            h_2lss_jetbjetEFT->Fill(pl_jets.size(),nbjet_max-1,1.0,eft_fit);
-            h_2lss_jetbjetSM->Fill(pl_jets.size(),nbjet_max-1,sm_wgt);
-          }
+	    else if(pl_jets.size()<njet_max && pl_bjets.size()>nbjet_max)
+            {
+                h_2lss_jetbjetEFT->Fill(pl_jets.size(),nbjet_max-1,1.0,eft_fit);
+                h_2lss_jetbjetSM->Fill(pl_jets.size(),nbjet_max-1,sm_wgt);
+            }
 
-	  else if(pl_jets.size()>njet_max && pl_bjets.size()>nbjet_max)
-          {
-            h_2lss_jetbjetEFT->Fill(njet_max-1,pl_bjets.size(),1.0,eft_fit);
-            h_2lss_jetbjetSM->Fill(njet_max-1,pl_bjets.size(),sm_wgt);
-          }
+	    else if(pl_jets.size()>njet_max && pl_bjets.size()>nbjet_max)
+            {
+                h_2lss_jetbjetEFT->Fill(njet_max-1,pl_bjets.size(),1.0,eft_fit);
+                h_2lss_jetbjetSM->Fill(njet_max-1,pl_bjets.size(),sm_wgt);
+            }
 
-	  else
-	  {
-            h_2lss_jetbjetEFT->Fill(njet_max-1,nbjet_max-1,1.0,eft_fit);
-            h_2lss_jetbjetSM->Fill(njet_max-1,nbjet_max-1,sm_wgt);
-          }
+	    else
+	    {
+                h_2lss_jetbjetEFT->Fill(njet_max-1,nbjet_max-1,1.0,eft_fit);
+                h_2lss_jetbjetSM->Fill(njet_max-1,nbjet_max-1,sm_wgt);
+            }
  	  
 
         }
@@ -322,29 +322,29 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
         double pt3 = p3.p4().Pt();
 	if(pt1 > 25 && pt2 > 15 && pt3 > 10)
 	{
-          if(pl_jets.size()<njet_max && pl_bjets.size()<nbjet_max)
-          {
-            h_3l_jetbjetEFT->Fill(pl_jets.size(),pl_bjets.size(),1.0,eft_fit);
-            h_3l_jetbjetSM->Fill(pl_jets.size(),pl_bjets.size(),sm_wgt);
-          }
+            if(pl_jets.size()<njet_max && pl_bjets.size()<nbjet_max)
+            {
+                h_3l_jetbjetEFT->Fill(pl_jets.size(),pl_bjets.size(),1.0,eft_fit);
+                h_3l_jetbjetSM->Fill(pl_jets.size(),pl_bjets.size(),sm_wgt);
+            }
 
-	  else if(pl_jets.size()<njet_max && pl_bjets.size()>nbjet_max)
-          {
-            h_3l_jetbjetEFT->Fill(pl_jets.size(),nbjet_max-1,1.0,eft_fit);
-            h_3l_jetbjetSM->Fill(pl_jets.size(),nbjet_max-1,sm_wgt);
-          }
+	    else if(pl_jets.size()<njet_max && pl_bjets.size()>nbjet_max)
+            {
+                h_3l_jetbjetEFT->Fill(pl_jets.size(),nbjet_max-1,1.0,eft_fit);
+                h_3l_jetbjetSM->Fill(pl_jets.size(),nbjet_max-1,sm_wgt);
+            }
 
-	  else if(pl_jets.size()>njet_max && pl_bjets.size()>nbjet_max)
-          {
-            h_3l_jetbjetEFT->Fill(njet_max-1,pl_bjets.size(),1.0,eft_fit);
-            h_3l_jetbjetSM->Fill(njet_max-1,pl_bjets.size(),sm_wgt);
-          }
+	    else if(pl_jets.size()>njet_max && pl_bjets.size()>nbjet_max)
+            {
+                h_3l_jetbjetEFT->Fill(njet_max-1,pl_bjets.size(),1.0,eft_fit);
+                h_3l_jetbjetSM->Fill(njet_max-1,pl_bjets.size(),sm_wgt);
+            }
 
-	  else
-	  {
-            h_3l_jetbjetEFT->Fill(njet_max-1,nbjet_max-1,1.0,eft_fit);
-            h_3l_jetbjetSM->Fill(njet_max-1,nbjet_max-1,sm_wgt);
-          }
+	    else
+	    {
+                h_3l_jetbjetEFT->Fill(njet_max-1,nbjet_max-1,1.0,eft_fit);
+                h_3l_jetbjetSM->Fill(njet_max-1,nbjet_max-1,sm_wgt);
+            }
 	}
     }
 
@@ -361,29 +361,29 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
 
 	if(pt1 > 25 && pt2 > 15 && pt3 > 10 && pt4 > 10)
 	{
-          if(pl_jets.size()<njet_max && pl_bjets.size()<nbjet_max)
-          {
-            h_4l_jetbjetEFT->Fill(pl_jets.size(),pl_bjets.size(),1.0,eft_fit);
-            h_4l_jetbjetSM->Fill(pl_jets.size(),pl_bjets.size(),sm_wgt);
-          }
+            if(pl_jets.size()<njet_max && pl_bjets.size()<nbjet_max)
+            {
+                h_4l_jetbjetEFT->Fill(pl_jets.size(),pl_bjets.size(),1.0,eft_fit);
+                h_4l_jetbjetSM->Fill(pl_jets.size(),pl_bjets.size(),sm_wgt);
+            }
 
-	  else if(pl_jets.size()<njet_max && pl_bjets.size()>nbjet_max)
-          {
-            h_4l_jetbjetEFT->Fill(pl_jets.size(),nbjet_max-1,1.0,eft_fit);
-            h_4l_jetbjetSM->Fill(pl_jets.size(),nbjet_max-1,sm_wgt);
-          }
+	    else if(pl_jets.size()<njet_max && pl_bjets.size()>nbjet_max)
+            {
+                h_4l_jetbjetEFT->Fill(pl_jets.size(),nbjet_max-1,1.0,eft_fit);
+                h_4l_jetbjetSM->Fill(pl_jets.size(),nbjet_max-1,sm_wgt);
+            }
 
-	  else if(pl_jets.size()>njet_max && pl_bjets.size()>nbjet_max)
-          {
-            h_4l_jetbjetEFT->Fill(njet_max-1,pl_bjets.size(),1.0,eft_fit);
-            h_4l_jetbjetSM->Fill(njet_max-1,pl_bjets.size(),sm_wgt);
-          }
+	    else if(pl_jets.size()>njet_max && pl_bjets.size()>nbjet_max)
+            {
+                h_4l_jetbjetEFT->Fill(njet_max-1,pl_bjets.size(),1.0,eft_fit);
+                h_4l_jetbjetSM->Fill(njet_max-1,pl_bjets.size(),sm_wgt);
+            }
 
-	  else
-	  {
-            h_4l_jetbjetEFT->Fill(njet_max-1,nbjet_max-1,1.0,eft_fit);
-            h_4l_jetbjetSM->Fill(njet_max-1,nbjet_max-1,sm_wgt);
-          }
+	    else
+	    {
+                h_4l_jetbjetEFT->Fill(njet_max-1,nbjet_max-1,1.0,eft_fit);
+                h_4l_jetbjetSM->Fill(njet_max-1,nbjet_max-1,sm_wgt);
+            }
 	}
     }
 

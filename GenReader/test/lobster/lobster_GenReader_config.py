@@ -80,15 +80,15 @@ samples = [
     #'ttHJet_HanV2Model-xqcut10qcut15',
     #'ttHJet_HanV2Model-xqcut10qcut19',
     #'ttHJet_HanV2Model-xqcut10qcut25',
-    #'ttHJet_HanV4Model-xqcut10qcut15',
+    ##'ttHJet_HanV4Model-xqcut10qcut15',
     'ttHJet_HanV4Model-xqcut10qcut19',
-    #'ttHJet_HanV4Model-xqcut10qcut25',
-    #'ttllNuNuJetNoHiggs_HanV4Model-xqcut10qcut15',
-    'ttllNuNuJetNoHiggs_HanV4Model-xqcut10qcut19',
-    #'ttllNuNuJetNoHiggs_HanV4Model-xqcut10qcut25',
-    #'ttlnuJet_HanV4Model-xqcut10qcut15',
-    'ttlnuJet_HanV4Model-xqcut10qcut19',
-    #'ttlnuJet_HanV4Model-xqcut10qcut25',
+    ##'ttHJet_HanV4Model-xqcut10qcut25',
+    ##'ttllNuNuJetNoHiggs_HanV4Model-xqcut10qcut15',
+    ##'ttllNuNuJetNoHiggs_HanV4Model-xqcut10qcut19',
+    ##'ttllNuNuJetNoHiggs_HanV4Model-xqcut10qcut25',
+    ##'ttlnuJet_HanV4Model-xqcut10qcut15',
+    ##'ttlnuJet_HanV4Model-xqcut10qcut19',
+    ##'ttlnuJet_HanV4Model-xqcut10qcut25',
     #'ttHJet_HanModel16DttllScanpointsxqcut10-qCut15',
     #'ttHJet_HanModel16DttllScanpointsxqcut10-qCut19',
     #'ttHJet_HanModel16DttllScanpointsxqcut10-qCut25',
@@ -154,8 +154,8 @@ samples = [
     #'ttZJet_HanV4', # (Private ttZJet NOT ttll!)
     #'ttW_HanV4',    # (Private ttW NOT ttlnu!)
     #'ttZ_HanV4',    # (Private ttZ NOT ttll!)
-    'tHq4f_HanV4_GEN',
-    'tllq4fNoSchanWNoHiggs0p_HanV4_GEN',
+    #'tHq4f_HanV4_GEN',
+    #'tllq4fNoSchanWNoHiggs0p_HanV4_GEN',
 ]
 
 das_mode = False
