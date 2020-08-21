@@ -27,6 +27,8 @@ class TH1EFT : public TH1D
         using TH1D::GetBinContent;  // Bring the TH1D GetBinContent fcts into scope
         using TH1D::Scale;          // Bring the TH1D Scale fcts into scope (likely not needed)
 
+        void Copy(TObject &obj) const;  // This allows Clone to properly copy the WCFit objects
+
         Int_t Fill(Double_t x, Double_t w, WCFit fit);
         WCFit GetBinFit(Int_t bin);
         WCFit GetSumFit();
