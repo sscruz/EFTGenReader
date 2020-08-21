@@ -19,8 +19,6 @@ class TH2EFT : public TH2D
         TH2EFT(const char *name, const char *title, Int_t nbinsx, Double_t xlow, Double_t xup, Int_t nbinsy, Double_t ylow, Double_t yup);
         
         std::vector<WCFit> hist_fits;
-        std::vector<WCFit> hist_fitsx;
-        std::vector<WCFit> hist_fitsy;
         //TODO(maybe?): Add over/underflow bin fit functions and update Fill to use them accordingly
         WCFit overflow_fit;
         WCFit underflow_fit;
@@ -33,6 +31,7 @@ class TH2EFT : public TH2D
         WCFit GetBinFit(Int_t bin);
         WCFit GetSumFit(Int_t axis);
         Double_t GetBinContent(Int_t binx, Int_t biny, WCPoint wc_pt);
+        Double_t GetBinContent(Int_t bin, WCPoint wc_pt);
         //TH2EFT* Scale(WCPoint wc_pt);
         void Scale(WCPoint wc_pt);
         void ScaleFits(double amt, Int_t axis);
