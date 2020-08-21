@@ -37,6 +37,25 @@ void EFTGenHistsWithCuts::beginJob()
 
     edm::Service<TFileService> newfs;
 
+    // Automatically declare histograms, store in hist_dict
+    for (size_t i=0; i<lep_cats_vect.size(); i++){
+        TString lep_cat = lep_cats_vect.at(i);
+        for (size_t j=0; j<hist_info_vec.size(); j++){
+            TString h_type = hist_info_vec.at(j).h_type;
+            int     h_bins = hist_info_vec.at(j).h_bins;
+            int     h_min  = hist_info_vec.at(j).h_min;
+            int     h_max  = hist_info_vec.at(j).h_max;
+            size_t  h_no   = abs(hist_info_vec.at(j).h_no);
+            for (size_t k=0; k<h_no; k++){
+                TString hist_name = constructHistName(lep_cat,h_type,k+1);
+                //std::cout << hist_name << std::endl;
+                hist_dict[hist_name] = newfs->make<TH1EFT>(hist_name,hist_name,h_bins,h_min,h_max);
+            }
+        }
+    }
+
+    //// Declare histograms by hand ////
+
     int pdg_bins = 100;
     int njet_bins = 16;
     int pt_bins = 5;
@@ -48,24 +67,25 @@ void EFTGenHistsWithCuts::beginJob()
     h_eventsumEFT = newfs->make<TH1EFT>("h_eventsumEFT","h_eventsumEFT",1,0,1);
 
     // Jet histograms
-    h_nJetsEFT= newfs->make<TH1EFT>("h_njetsEFT","h_njetsEFT",njet_bins,0,njet_bins);
-    h_nJetsSM = newfs->make<TH1D>("h_njetsSM","h_njetsSM",njet_bins,0,njet_bins);
+    //h_nJetsEFT= newfs->make<TH1EFT>("h_njetsEFT","h_njetsEFT",njet_bins,0,njet_bins);
+    //h_nJetsSM = newfs->make<TH1D>("h_njetsSM","h_njetsSM",njet_bins,0,njet_bins);
 
     // These are njets histograms with some basic selections
-    h_nJets_3orMoreLep_EFT = newfs->make<TH1EFT>("h_nJets_3orMoreLep_EFT","h_nJets_3orMoreLep_EFT",njet_bins,0,njet_bins);
-    h_nJets_3orMoreLep_SM  = newfs->make<TH1D>("h_nJets_3orMoreLep_SM","h_nJets_3orMoreLep_SM",njet_bins,0,njet_bins);
-    h_nJets_3Lep_EFT       = newfs->make<TH1EFT>("h_nJets_3Lep_EFT","h_nJets_3Lep_EFT",njet_bins,0,njet_bins);
-    h_nJets_3Lep_SM        = newfs->make<TH1D>("h_nJets_3Lep_SM","h_nJets_3Lep_SM",njet_bins,0,njet_bins);
-    h_nJets_cleanJets_3orMoreLep_EFT = newfs->make<TH1EFT>("h_nJets_cleanJets_3orMoreLep_EFT","h_nJets_cleanJets_3orMoreLep_EFT",njet_bins,0,njet_bins);
-    h_nJets_cleanJets_3orMoreLep_SM  = newfs->make<TH1D>("h_nJets_cleanJets_3orMoreLep_SM","h_nJets_cleanJets_3orMoreLep_SM",njet_bins,0,njet_bins);
-    h_nJets_cleanJets_3Lep_EFT       = newfs->make<TH1EFT>("h_nJets_cleanJets_3Lep_EFT","h_nJets_cleanJets_3Lep_EFT",njet_bins,0,njet_bins);
-    h_nJets_cleanJets_3Lep_SM        = newfs->make<TH1D>("h_nJets_cleanJets_3Lep_SM","h_nJets_cleanJets_3Lep_SM",njet_bins,0,njet_bins);
+    //h_nJets_3orMoreLep_EFT = newfs->make<TH1EFT>("h_nJets_3orMoreLep_EFT","h_nJets_3orMoreLep_EFT",njet_bins,0,njet_bins);
+    //h_nJets_3orMoreLep_SM  = newfs->make<TH1D>("h_nJets_3orMoreLep_SM","h_nJets_3orMoreLep_SM",njet_bins,0,njet_bins);
+    //h_nJets_3Lep_EFT       = newfs->make<TH1EFT>("h_nJets_3Lep_EFT","h_nJets_3Lep_EFT",njet_bins,0,njet_bins);
+    //h_nJets_3Lep_SM        = newfs->make<TH1D>("h_nJets_3Lep_SM","h_nJets_3Lep_SM",njet_bins,0,njet_bins);
+    //h_nJets_cleanJets_3orMoreLep_EFT = newfs->make<TH1EFT>("h_nJets_cleanJets_3orMoreLep_EFT","h_nJets_cleanJets_3orMoreLep_EFT",njet_bins,0,njet_bins);
+    //h_nJets_cleanJets_3orMoreLep_SM  = newfs->make<TH1D>("h_nJets_cleanJets_3orMoreLep_SM","h_nJets_cleanJets_3orMoreLep_SM",njet_bins,0,njet_bins);
+    //h_nJets_cleanJets_3Lep_EFT       = newfs->make<TH1EFT>("h_nJets_cleanJets_3Lep_EFT","h_nJets_cleanJets_3Lep_EFT",njet_bins,0,njet_bins);
+    //h_nJets_cleanJets_3Lep_SM        = newfs->make<TH1D>("h_nJets_cleanJets_3Lep_SM","h_nJets_cleanJets_3Lep_SM",njet_bins,0,njet_bins);
 
     // Particle level hists
-    h_pl_nJets_EFT = newfs->make<TH1EFT>("h_pl_njetsEFT","h_pl_njetsEFT",njet_bins,0,njet_bins);
-    h_pl_nJets_SM  = newfs->make<TH1D>("h_pl_njetsSM","h_pl_njetsSM",njet_bins,0,njet_bins);
+    //h_pl_nJets_EFT = newfs->make<TH1EFT>("h_pl_njetsEFT","h_pl_njetsEFT",njet_bins,0,njet_bins);
+    //h_pl_nJets_SM  = newfs->make<TH1D>("h_pl_njetsSM","h_pl_njetsSM",njet_bins,0,njet_bins);
     h_pl_nJets_3Lep_EFT = newfs->make<TH1EFT>("h_pl_nJets_3Lep_EFT","h_pl_nJets_3Lep_EFT",njet_bins,0,njet_bins);
     h_pl_nJets_3Lep_SM  = newfs->make<TH1D>("h_pl_nJets_3Lep_SM","h_pl_nJets_3Lep_SM",njet_bins,0,njet_bins);
+    h_pl_clean_nJets_3Lep_EFT = newfs->make<TH1EFT>("h_pl_clean_nJets_3Lep_EFT","h_pl_clean_nJets_3Lep_EFT",njet_bins,0,njet_bins);
 
     // Don't normalize these plots
     h_SMwgt_norm = newfs->make<TH1D>("h_SMwgt_norm","h_SMwgt_norm",350,-0.1,2.0);
@@ -123,11 +143,20 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
     edm::Handle<std::vector<reco::GenJet>> particleLevelLeptonsHandle_;
     event.getByToken(particleLevelJetsToken_,particleLevelJetsHandle_);
     event.getByToken(particleLevelLeptonsToken_,particleLevelLeptonsHandle_);
-    std::vector<reco::GenJet> pl_jets    = MakePtEtaCuts(*particleLevelJetsHandle_,"jet");
-    std::vector<reco::GenJet> pl_leptons = MakePtEtaCuts(*particleLevelLeptonsHandle_,"lep");
+    std::vector<reco::GenJet> pl_jets    = MakePtEtaCuts(*particleLevelJetsHandle_,min_pt_jet,max_eta_jet);
+    std::vector<reco::GenJet> pl_leptons = MakePtEtaCuts(*particleLevelLeptonsHandle_,min_pt_lep,max_eta_lep);
+
+    std::vector<reco::GenJet> pl_jets_clean = CleanGenJets(pl_jets,*particleLevelLeptonsHandle_,0.4); // Clean gen jets
 
     // Clean jets
-    std::vector<reco::GenJet> gen_jets_clean = CleanGenJets(gen_jets,gen_leptons);
+    std::vector<reco::GenJet> gen_jets_clean = CleanGenJets(gen_jets,gen_leptons,0.4);
+
+    // Make pt, eta cuts on jets (after doing jet cleaning)
+    gen_leptons = MakePtEtaCuts(gen_leptons,min_pt_lep,max_eta_lep);
+
+    // Get just charged leptons (recall std::vector<reco::GenParticle>> is an alias for std::vector<reco::GenParticle>>)
+    reco::GenParticleCollection gen_leptons_charged = getChargedParticles(gen_leptons);
+
 
     originalXWGTUP_intree = LHEInfo->originalXWGTUP();  // original cross-section
     double sm_wgt = 0.;
@@ -158,6 +187,43 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
     h_eventsumEFT->Fill(0.5,1,eft_fit);
     h_SMwgt_norm->Fill(sm_wgt);
 
+    // Find what lepton category (if any) this even falls into
+    TString lep_cat = getLepCat(gen_leptons);
+
+    // Loop over jets and fill jet hists automatically
+    double ht=0;
+    for (size_t i = 0; i < gen_jets_clean.size(); i++) {
+        const reco::GenJet& p = gen_jets.at(i);
+        double pt = p.p4().Pt();
+        double eta = p.p4().Eta();
+        TString h_pt_name = constructHistName(lep_cat,"jet_pt",i+1);
+        TString h_eta_name = constructHistName(lep_cat,"jet_eta",i+1);
+        fillHistIfExists(h_pt_name,pt,eft_fit);
+        fillHistIfExists(h_eta_name,eta,eft_fit);
+        ht = ht + pt;
+    }
+
+    // Fill jet hists that include info for all jets in event
+    TString h_ht_name = constructHistName(lep_cat,"ht",1);
+    fillHistIfExists(h_ht_name,ht,eft_fit);
+    TString h_njet_name = constructHistName(lep_cat,"njets",1);
+    fillHistIfExists(h_njet_name,gen_jets_clean.size(),eft_fit);
+
+    // Loop over leptonss and fill hists automatically
+    for (size_t i = 0; i < gen_leptons_charged.size(); i++) {
+        const reco::GenParticle& p = gen_leptons_charged.at(i);
+        double pt = p.p4().Pt();
+        double eta = p.p4().Eta();
+        TString h_pt_name = constructHistName(lep_cat,"lep_pt",i+1);
+        TString h_eta_name = constructHistName(lep_cat,"lep_eta",i+1);
+        fillHistIfExists(h_pt_name,pt,eft_fit);
+        fillHistIfExists(h_eta_name,eta,eft_fit);
+    }
+    
+
+    //// Filling histograms by hand ////
+
+    /* // Probably we can delete these now
     // njets histograms
     h_nJetsEFT->Fill(gen_jets.size(),1.0,eft_fit);
     h_nJetsSM->Fill(gen_jets.size(),sm_wgt);
@@ -167,27 +233,30 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
     h_pl_nJets_SM->Fill(pl_jets.size(),sm_wgt);
 
     // njets histograms with some basic slection criteria
-    if (gen_leptons.size() >= 3) {
+    if (gen_leptons_charged.size() >= 3) {
         h_nJets_3orMoreLep_EFT->Fill(gen_jets.size(),1.0,eft_fit);
         h_nJets_3orMoreLep_SM->Fill(gen_jets.size(),sm_wgt);
         h_nJets_cleanJets_3orMoreLep_EFT->Fill(gen_jets_clean.size(),1.0,eft_fit);
         h_nJets_cleanJets_3orMoreLep_SM->Fill(gen_jets_clean.size(),sm_wgt);
     }
-    if (gen_leptons.size() == 3) {
-        h_nJets_3Lep_EFT->Fill(gen_jets.size(),1.0,eft_fit);
-        h_nJets_3Lep_SM->Fill(gen_jets.size(),sm_wgt);
-        h_nJets_cleanJets_3Lep_EFT->Fill(gen_jets_clean.size(),1.0,eft_fit);
-        h_nJets_cleanJets_3Lep_SM->Fill(gen_jets_clean.size(),sm_wgt);
+    */
+    if (gen_leptons_charged.size() == 3) {
+        // We not automatically fill the equivalent of thse, probably can delete
+        //h_nJets_3Lep_EFT->Fill(gen_jets.size(),1.0,eft_fit);
+        //h_nJets_3Lep_SM->Fill(gen_jets.size(),sm_wgt);
+        //h_nJets_cleanJets_3Lep_EFT->Fill(gen_jets_clean.size(),1.0,eft_fit);
+        //h_nJets_cleanJets_3Lep_SM->Fill(gen_jets_clean.size(),sm_wgt);
         // Particle level
         h_pl_nJets_3Lep_EFT->Fill(pl_jets.size(),1.0,eft_fit);
         h_pl_nJets_3Lep_SM->Fill(pl_jets.size(),sm_wgt);
     }
-
+    if (gen_leptons_charged.size() == 3) {
+        h_pl_clean_nJets_3Lep_EFT->Fill(pl_jets_clean.size(),1.0,eft_fit);
+    }
 
     eventnum_intree = event.id().event();
     lumiBlock_intree = event.id().luminosityBlock();
     runNumber_intree = event.id().run();
-
     summaryTree->Fill();
 
 }
