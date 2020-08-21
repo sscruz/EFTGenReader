@@ -47,6 +47,6 @@ class TH2EFT : public TH2D
 };
 
 // ROOT needs this here:
-ClassImp(TH2EFT);
+//ClassImp(TH2EFT);
 
 #endif
