@@ -65,6 +65,7 @@
 
 // Structure for storing info for all of the hists we want to plot
 struct HistInfo {
+    TString h_multiplicity;
     TString h_type;
     int h_bins;
     int h_min;
@@ -100,10 +101,11 @@ class EFTGenHistsWithCuts: public edm::EDAnalyzer
 
         ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>> getSumTLV(reco::GenParticleCollection col);
         double getdPhi(reco::GenParticle p1, reco::GenParticle p2);
-        double getdR(reco::GenParticle p1, reco::GenParticle p2);
+        //double getdR(reco::GenParticle p1, reco::GenParticle p2);
         double getInvMass(reco::GenParticle p1, reco::GenParticle p2);
 
-        TString constructHistName(TString lep_cat, TString hist_type, int hist_no);
+        //TString constructHistName(TString lep_cat, TString hist_type, int hist_no);
+        TString constructHistName(TString lep_cat, TString hist_type, std::vector<size_t> hist_idx_vect);
         void fillHistIfExists(TString h_name, double val, WCFit eft_fit);
 
 
@@ -208,14 +210,20 @@ class EFTGenHistsWithCuts: public edm::EDAnalyzer
         int njet_min = 0;
         int njet_max = n_njet_bins;
 
+        int n_dr_bins = 10;
+
         std::vector<HistInfo> hist_info_vec {
-            //{"name of hist type", number of bins, number of hists of this type}
-            {"jet_pt"  , n_pt_bins   , pt_min   , pt_max   , 4},
-            {"jet_eta" , n_eta_bins  , eta_min  , eta_max  , 4},
-            {"lep_pt"  , n_pt_bins   , pt_min   , pt_max   , 4},
-            {"lep_eta" , n_eta_bins  , eta_min  , eta_max  , 4},
-            {"njets"   , n_njet_bins , njet_min , njet_max , 1},
-            {"ht"      , n_pt_bins   , pt_min   , ht_max   , 1}
+            //{"multiplicity type" , "name of hist type" , number of bins, min, max, number of hists of this type}
+            {"single" , "jet_pt"  , n_pt_bins   , pt_min   , pt_max   , 4},
+            {"single" , "jet_eta" , n_eta_bins  , eta_min  , eta_max  , 4},
+            {"single" , "lep_pt"  , n_pt_bins   , pt_min   , pt_max   , 4},
+            {"single" , "lep_eta" , n_eta_bins  , eta_min  , eta_max  , 4},
+            {"all"    , "njets"   , n_njet_bins , njet_min , njet_max , 1},
+            {"all"    , "ht"      , n_pt_bins   , pt_min   , ht_max   , 1},
+            {"pair"   , "jet_dR"  , n_dr_bins   , 0 , 5 , 4},
+            {"pair"   , "lep_dR"  , n_dr_bins   , 0 , 5 , 4},
+            {"pair"   , "lep_mll"  , 30 , 0 , 500 , 4}
+
         };
 
 };
@@ -453,6 +461,7 @@ double EFTGenHistsWithCuts::getInvMass(reco::GenParticle p1, reco::GenParticle p
 }
 
 // Make a standardized hist name out of category info and hist type and hist number
+/*
 TString EFTGenHistsWithCuts::constructHistName(TString lep_cat, TString hist_type, int hist_no){
     TString ret_str;
     TString hist_no_str;
@@ -462,6 +471,23 @@ TString EFTGenHistsWithCuts::constructHistName(TString lep_cat, TString hist_typ
         hist_no_str = std::to_string(hist_no);
     }
     ret_str = "h_"+lep_cat+"_"+hist_type+"_"+hist_no_str;
+    return ret_str;
+}
+*/
+TString EFTGenHistsWithCuts::constructHistName(TString lep_cat, TString hist_type, std::vector<size_t> hist_idx_vect){
+    TString ret_str;
+    TString hist_no_str = "";
+    int n_indices = hist_idx_vect.size();
+    for (int i=0; i<n_indices; i++){
+        if (i==0){ // If first index, add the "_" before first number
+            hist_no_str = hist_no_str + "_";
+        }
+        hist_no_str = hist_no_str + std::to_string(hist_idx_vect.at(i));
+        if (i<n_indices-1){ // If not last index, ad "-" after number
+            hist_no_str = hist_no_str + "-";
+        }
+    }
+    ret_str = "h_"+lep_cat+"_"+hist_type+hist_no_str;
     return ret_str;
 }
 
