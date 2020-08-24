@@ -76,7 +76,7 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
     bool only_jetPt_lepPt = false;
     bool only_SM = false;
     bool include_ratio = false;
-    bool draw_sm = false; // Only really makes sense if we are only drawing one file currently
+    bool draw_sm = true; // Only really makes sense if we are only drawing one file currently
     std::string norm_type = "unit_norm"; //"SM_rel_norm";
     std::string plot_type = "0p_vs_1p_comp";
 
@@ -227,6 +227,15 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
             }
 
             TH1EFT* h = (TH1EFT*)td->Get(key->GetName());
+            // Skip TH2D:
+            if (h->IsA()->InheritsFrom(TH1EFT::Class())){
+                //std::cout << "This is a TH1EFT " << s << std::endl;
+            } else if (h->IsA()->InheritsFrom(TH1D::Class())){
+               //std::cout << "This is a TH1D " << s << std::endl; 
+            }else {
+                std::cout << "Skipping " << s << ", not a TH1EFT and not a TH1D" << std::endl;
+                continue;
+            }
             h->SetMarkerStyle(kFullCircle);
             h->SetMarkerSize(0.25);
             h->SetOption("E");
