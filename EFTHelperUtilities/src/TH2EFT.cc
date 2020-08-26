@@ -60,8 +60,8 @@ Bool_t TH2EFT::NormalizeTo(const TH2D *h1, Double_t c1)
     }
 
     //Loop over all bins, and divide by h1->GetBinContent ^ c1 (sqrt by default)
-    for(int i = 1; i < this->GetNbinsX(); i++) {
-        for(int j = 1; j < this->GetNbinsY(); j++) {
+    for(int i = 0; i < this->GetNbinsX(); i++) {
+        for(int j = 0; j < this->GetNbinsY(); j++) {
             int bin = this->FindBin(i,j); //Find the corresonding bin
             //Get bin contents and errors from this and h1
             double thisbin = this->GetBinContent(bin);
