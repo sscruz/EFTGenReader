@@ -25,11 +25,9 @@ private:
     std::vector<double> coeffs; // The fit structure constants
 
     std::vector<std::pair<int,int>> err_pairs;  // The pair dublets are the indicies of the 'pairs' vector
-    std::vector<double> err_coeffs; // The error fit structure constants
+    std::vector<float> err_coeffs; // The error fit structure constants
 
-    std::vector<WCPoint> points;    // The WCPoints used to generate the fit
     std::string tag;    // Names the fit, for id
-    WCPoint start_pt;   // The starting point used by MadGraph to generate the sample
 
     int kPad = 12;
 
@@ -53,15 +51,6 @@ public:
         this->tag = _tag;
     }
 
-    // Specify the MadGraph starting point
-    void setStart(WCPoint pt) {
-        this->start_pt = pt;
-    }
-
-    void setStart(std::string id_tag, double wgt_val) {
-        this->start_pt = WCPoint(id_tag,wgt_val);
-    }
-
     // The number of pairs in the fit, should be equal to 1 + 2N + N(N-1)/2
     uint size() {
         //Note: pairs.size() and coeffs.size() should always be in 1-to-1 correspondance!
@@ -76,14 +65,6 @@ public:
 
     std::string getTag() {
         return this->tag;
-    }
-
-    WCPoint getStart() {
-        return this->start_pt;
-    }
-
-    std::vector<WCPoint> getFitPoints() {
-        return this->points;
     }
 
     // A vector of all non-zero WCs in the fit (includes 'sm')
@@ -187,46 +168,12 @@ public:
     }
 
     // Can only access the error coefficients directly via the err_coeffs vector
-    double getErrorCoefficient(uint idx) {
+    float getErrorCoefficient(uint idx) {
         if (idx >= this->errSize()) {
             std::cout << "[ERROR] WCFit tried to access invalid index " << idx << std::endl;
             throw;
         }
         return this->err_coeffs.at(idx);
-    }
-
-    // Returns the lowest strength for a particular WC from among all fit points
-    double getLowStrength(std::string wc_name) {
-        if (this->points.size() == 0) {
-            // No fit points were specified
-            return 0.0;
-        } else if (this->points.size() == 1) {
-            // Only one fit point was specified
-            return this->points.at(0).getStrength(wc_name);
-        }
-        double strength = this->points.at(0).getStrength(wc_name);
-        for (uint i = 1; i < this->points.size(); i++) {
-            if (this->points.at(i).getStrength(wc_name) < strength) {
-                strength = this->points.at(i).getStrength(wc_name);
-            }
-        }
-        return strength;
-    }
-
-    // Returns the largest strength for a particular WC from among all fit points
-    double getHighStrength(std::string wc_name) {
-        if (this->points.size() == 0) {
-            return 0.0;
-        } else if (this->points.size() == 1) {
-            return this->points.at(0).getStrength(wc_name);
-        }
-        double strength = this->points.at(0).getStrength(wc_name);
-        for (uint i = 1; i < this->points.size(); i++) {
-            if (this->points.at(i).getStrength(wc_name) > strength) {
-                strength = this->points.at(i).getStrength(wc_name);
-            }
-        }
-        return strength;
     }
 
     // Returns the dimensionality of the fit (i.e. the number of WCs)
@@ -304,9 +251,7 @@ public:
         return this->evalPointError(&pt);
     }
 
-    //TODO: Change this to pass by reference
-    void addFit(WCFit added_fit) {
-        
+    void addFit(WCFit & added_fit) {
         if (added_fit.size() == 0) return;
 
         if (this->size() == 0) {
@@ -316,10 +261,7 @@ public:
             this->coeffs = added_fit.getCoefficients();
             this->err_pairs = added_fit.getErrorPairs();
             this->err_coeffs = added_fit.getErrorCoefficients();
-            this->points = added_fit.getFitPoints();
-            //this->tag = added_fit.getTag();
             this->tag = (this->getTag().size() == 0) ? added_fit.getTag() : this->getTag();
-            this->start_pt = added_fit.getStart();
             return;
         }
 
@@ -338,6 +280,7 @@ public:
             // It is *very* important that we keep track of the err fit coeffs separately, since Sum(f^2) != (Sum(f))^2
             this->err_coeffs.at(i) += added_fit.getErrorCoefficient(i);
         }
+
         //for (uint i = 0; i < this->size(); i++) {
         //    this->coeffs.at(i) += added_fit.getCoefficient(i);
         //}
@@ -359,7 +302,6 @@ public:
         this->coeffs.clear();
         this->err_pairs.clear();
         this->err_coeffs.clear();
-        this->points.clear();
     }
 
     // Save the fit to a text file
@@ -401,11 +343,6 @@ public:
         std::string n1,n2;
         std::pair<int,int> idx_pair;
 
-        //std::string check_str = "sm_";
-        //if (WC_name != ""){
-            //check_str = check_str+WC_name;
-        //}
-
         ss1 << std::setw(kPad) << "";
         ss2 << std::setw(kPad) << this->tag;
         for (uint i = 0; i < this->size(); i++) {
@@ -417,10 +354,6 @@ public:
             idx_pair = this->pairs.at(i);
             n1 = this->names.at(idx_pair.first);
             n2 = this->names.at(idx_pair.second);
-
-            //std::cout << "n1 and n1: " << n1 << " " << n2 << std::endl;
-            //ss1 << std::setw(kPad) << n1+"*"+n2;
-            //ss2 << std::setw(kPad) << std::to_string(this->coeffs.at(i));
 
             if (WC_name == ""){
                 ss1 << std::setw(kPad) << n1+"*"+n2;
