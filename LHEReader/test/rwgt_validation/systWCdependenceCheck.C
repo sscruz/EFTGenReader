@@ -205,16 +205,77 @@ void printFracUncty(std::string wc_name, TString sys, vector<WCPoint> pts_vect_n
     //std::cout << "The fit vals at this n point, nom, u, d: " << wc_fit_nom->evalPoint(&wcpt_m_lim) << " " << wc_fit_WgtU->evalPoint(&wcpt_m_lim) << " " << wc_fit_WgtD->evalPoint(&wcpt_m_lim) << std::endl;
 }
 
+// Get an error band between two TF1s (Not tested or used!!!)
+TGraphAsymmErrors getErrorBandFromTF1s(TF1 *fit, TF1 *fit_u, TF1 *fit_d, double x_min, double x_max){
+    const Int_t n = 100;
+    double xcoord = 0;
+    double step_size = (x_max-x_min)/float(n-1);
+    Double_t x[n], y[n], exl[n], eyl[n], exh[n], eyh[n];
+    for (int i=0; i<n; i++){
+        xcoord = x_min + i*step_size;
+        x[i] = xcoord;
+        y[i] = fit->Eval(xcoord);
+        // The errror band only makes sense in the same line is either always above or always below nominal
+        // If this is not the case, these if statements do not cover that situation, we'll just get some negative error bars
+        // Probably we should not be trying to draw error bands between u and d fits if they are crossing nominal anyway
+        if (fit_u->Eval(xcoord) > fit->Eval(xcoord)){
+            eyh[i] = fit_u->Eval(xcoord) - fit->Eval(xcoord);
+            eyl[i] = fit->Eval(xcoord) - fit_d->Eval(xcoord);
+        } else {
+            eyh[i] = fit_d->Eval(xcoord) - fit->Eval(xcoord);
+            eyl[i] = fit->Eval(xcoord) - fit_u->Eval(xcoord);
+        }
+        exl[i] = 0;
+        exh[i] = 0;
+    }
+    auto error_band = new TGraphAsymmErrors(n,x,y,exl,exh,eyl,eyh);
+    return *error_band;
+}
+
+// Get an error band between two TH1s
+TGraphAsymmErrors* getErrorBandFromTH1s(TH1 *h, TH1 *h_u, TH1 *h_d){
+    float xcoord;
+    //const Int_t n = h->size();
+    int bins = h->GetXaxis()->GetNbins();
+    const Int_t n = bins;
+    Double_t low = h->GetXaxis()->GetXmin();
+    Double_t high = h->GetXaxis()->GetXmax();
+
+    Double_t x[n], y[n], exl[n], eyl[n], exh[n], eyh[n];
+    //for (int i = 1; i <= bins; i++) {
+    for (int i = 0; i <= bins; i++) {
+        xcoord = h->GetBinCenter(i);
+        x[i] = xcoord;
+        y[i] = h->GetBinContent(i);
+        if (h_u->GetBinContent(i) > h->GetBinContent(i)){
+            eyh[i] = h_u->GetBinContent(i) - h->GetBinContent(i);
+            eyl[i] = h->GetBinContent(i) - h_d->GetBinContent(i);
+        } else {
+            eyh[i] = h_d->GetBinContent(i) - h->GetBinContent(i);
+            eyl[i] = h->GetBinContent(i) - h_u->GetBinContent(i);
+        }
+        exl[i] = 0;
+        exh[i] = 0;
+        //std::cout << "i,x,y " << i << " " << x[i] << " " << y[i] << std::endl;
+    }
+    auto error_band  = new TGraphAsymmErrors(bins,x,y,exl,exh,eyl,eyh);
+    return error_band;
+}
+
+
 // Make plots of the up down and nominal
 //void makePlot(std::string wc_name, TString sys, vector<WCPoint> pts_vect, vector<WCPoint> pts_vect_WgtU, vector<WCPoint> pts_vect_WgtD){
 void makePlot(std::string wc_name, TString sys, vector<vector<WCPoint>> pts_vect_vect, vector<vector<WCPoint>> pts_vect_WgtU_vect, vector<vector<WCPoint>> pts_vect_WgtD_vect, vector<TString> tag_vect={"",""}){
     std::cout << "\t" << sys << ":" << std::endl;
 
     bool include_ratio = true;
-    bool draw_errorband = false;
-    bool draw_updown = true;
+    bool draw_errorband = true;
+    bool draw_updown = false;
+    bool draw_points = false;
 
-    TString save_name = sys+".png";
+    TString save_name = sys;
+    //TString save_name = sys+".png";
+    //TString save_name_pdf = sys+".pdf";
     TString plot_name = "";
     TString x_axis_name = wc_name+" Strength";
     TString y_axis_name = "\\sigma_{NP}/\\sigma_{SM}";
@@ -223,56 +284,90 @@ void makePlot(std::string wc_name, TString sys, vector<vector<WCPoint>> pts_vect
     int d_clr = kBlue;
     float x_min, x_max, y_min, y_max;
     if (wc_name=="cpt"){
-        x_min = -20;
-        x_max = 20;
+        //x_min = -20;
+        //x_max = 20;
         //y_min = .9;
+        x_min = -13;
+        x_max = 18;
         y_min = .95;
-        y_max = 1.3;
+        y_max = 1.35;
     } else if (wc_name=="ctG"){
-        x_min = -2.5;
-        x_max = 2.5;
-        y_min = 0;
-        y_max = 15;
+        //x_min = -2.5;
+        //x_max = 2.5;
+        //y_min = 0.0;
+        //y_max = 15;
+        x_min = -.4;
+        x_max = 0.4;
+        y_min = 0.6;
+        y_max = 2.20;
     } else if (wc_name=="cpQ3"){
         x_min = -5.5;
         x_max = 5.8;
-        y_min = .95;
-        y_max = 1.18;
+        //y_min = .95;
+        //y_max = 1.18;
+        y_min = 0.95;
+        y_max = 1.25;
     } else {
         std::cout << "\nError: Unknown WC: " << wc_name << " , exiting.." << std::endl;
         throw std::exception();
     }
 
     int n_samples_to_plot = pts_vect_vect.size();
+    if (n_samples_to_plot>1){
+        include_ratio = false;       
+        std::cout << "Not including ratio plot, too many samples." << std::endl;
+    }
 
     //TCanvas *c1 = new TCanvas("c1","",1200,800);
     //TCanvas *c1 = new TCanvas("c1","",1000,900);
     TCanvas *c1 = new TCanvas("c1","",1000,1000);
-    TPad *pad1 = new TPad("pad1", "pad1", 0, 0.25, 1, 1.0);
-    TPad *pad2 = new TPad("pad2", "pad2", 0, 0.05, 1, 0.25);
+    //TPad *pad1 = new TPad("pad1", "pad1", 0, 0.25, 1, 1.0); // xlow, ylow, xup, yup
+    //TPad *pad2 = new TPad("pad2", "pad2", 0, 0.05, 1, 0.25); // xlow, ylow, xup, yup
+    //TPad *pad1 = new TPad("pad1", "pad1", 0, 0.3, 1, 1.0); // xlow, ylow, xup, yup
+    //TPad *pad2 = new TPad("pad2", "pad2", 0, 0.00, 1, 0.3); // xlow, ylow, xup, yup
+    double r = 0.40;
+    double epsilon = 0.03;
+    double pad_left_edge;
+    double pad_right_edge;
+    TPad *pad1 = new TPad("pad1", "pad1", 0, r-epsilon, 1, 1);
+    TPad *pad2 = new TPad("pad2", "pad2", 0, 0, 1, r*(1-epsilon));
     if (include_ratio){
         pad1->SetLeftMargin(.17);  // Room for the legend
-        pad1->SetBottomMargin(.17); // Upper and lower plot are not joined
+        //pad1->SetBottomMargin(.17); // Upper and lower plot are not joined
+        pad1->SetBottomMargin(0.0);
         pad1->SetGrid(1,1);        // Grid
         pad1->Draw();              // Draw the upper pad: pad1
         c1->cd();                  // Go back to the main canvas before defining pad2
         pad2->SetLeftMargin(.17);  // Room for the legend
-        pad2->SetTopMargin(0.1);
-        pad2->SetBottomMargin(0.2);
+        //pad2->SetTopMargin(0.1);
+        pad2->SetTopMargin(0.0);
+        //pad2->SetBottomMargin(0.25);
+        pad2->SetBottomMargin(0.45);
         pad2->SetGrid(1,1);
         pad2->Draw();
         pad1->cd();
+        pad_left_edge = pad1->GetLeftMargin();
+        pad_right_edge = 1-pad1->GetRightMargin();
     } else {
-        c1->SetBottomMargin(.17);
-        c1->SetLeftMargin(.23);
+        c1->SetBottomMargin(.20);
+        c1->SetLeftMargin(.20);
         c1->SetGrid(1,1);
+        pad_left_edge = c1->GetLeftMargin();
+        pad_right_edge = 1-c1->GetRightMargin();
     }
 
     // Set up the legend
-    float left   = 0.27;
-    float right  = 0.85;
-    float top    = 0.88;
-    float bottom = 0.75;
+    double ledgend_width = 0.5;
+    double top, bottom, left, right;
+    if (include_ratio){
+        top    = 0.78;
+        bottom = 0.62;
+    } else {
+        top = 0.85;
+        bottom = 0.75;
+    }
+    left  = (pad_right_edge-pad_left_edge)/2 + pad_left_edge - ledgend_width/2; // Center the legend on the pad, not canvas
+    right = (pad_right_edge-pad_left_edge)/2 + pad_left_edge + ledgend_width/2; // Center the legend on the pad, not canvas
     TLegend *legend;
     legend = new TLegend(left,top,right,bottom);
     if (draw_updown){
@@ -289,6 +384,7 @@ void makePlot(std::string wc_name, TString sys, vector<vector<WCPoint>> pts_vect
     }
     for (int sample_idx=0; sample_idx<n_samples_to_plot; sample_idx++){
         TString tag = tag_vect.at(sample_idx);
+        std::cout << "Tag: " << tag << std::endl;
         vector<WCPoint> pts_vect = pts_vect_vect.at(sample_idx);            // Set of nominal points (for a given sample)
         vector<WCPoint> pts_vect_WgtU = pts_vect_WgtU_vect.at(sample_idx);  // Set of up variations (for a given sample)
         vector<WCPoint> pts_vect_WgtD = pts_vect_WgtD_vect.at(sample_idx);  // Set of down variations (for a given sample)
@@ -310,22 +406,24 @@ void makePlot(std::string wc_name, TString sys, vector<vector<WCPoint>> pts_vect
         fit->SetLineColor(nom_clr);
         fit->GetXaxis()->SetTitle(x_axis_name);
         fit->GetYaxis()->SetTitle(y_axis_name);
+        if (wc_name == "ctG"){
+            fit->GetXaxis()->SetNdivisions(6,2,0,true);
+        }
         // Size and offset
         fit->GetXaxis()->SetTitleSize(0.060);
-        fit->GetYaxis()->SetTitleSize(0.09);
-        fit->GetYaxis()->SetTitleOffset(0.97);
-        fit->GetXaxis()->SetTitleOffset(1.1);
+        fit->GetYaxis()->SetTitleSize(0.12);
+        fit->GetYaxis()->SetTitleOffset(0.70);
+        fit->GetXaxis()->SetTitleOffset(0.9);
         fit->GetYaxis()->SetLabelSize(0.065);
         fit->GetXaxis()->SetLabelSize(0.065);
         fit->GetYaxis()->SetLabelOffset(0.015);
         fit->GetXaxis()->SetLabelOffset(0.015);
         if (not include_ratio){
-            fit->GetYaxis()->SetLabelSize(0.050);
             fit->GetXaxis()->SetLabelSize(0.050);
-            fit->GetYaxis()->SetTitleOffset(1.1);
-            //fit->GetYaxis()->SetNdivisions(5,2,5,true);
-            //fit->GetXaxis()->SetNdivisions(5,2,5,true);
-            //fit->GetXaxis()->SetNdivisions(3,2,5,true);
+            fit->GetYaxis()->SetLabelSize(0.050);
+            fit->GetXaxis()->SetTitleOffset(1.1);
+            fit->GetYaxis()->SetTitleOffset(1.0);
+            fit->GetYaxis()->SetTitleSize(0.10);
         }
         fit->SetTitle(plot_name);
         if (sample_idx==0){
@@ -336,14 +434,17 @@ void makePlot(std::string wc_name, TString sys, vector<vector<WCPoint>> pts_vect
         if (tag != ""){
             legend->AddEntry(fit,tag,"l");
             if (tag.Index("0+1p") != -1){
+                std::cout << "Custom 0+1p legend: " << tag << std::endl;
                 fit->SetLineColor(kBlue);
-                fit->SetLineWidth(2);
+                fit->SetLineWidth(3);
                 fit->SetLineStyle(7); // Plot the 0+1p lines as dashed
             } else if (tag.Index("0p") != -1){
+                std::cout << "Custom 0p legend: " << tag << std::endl;
                 fit->SetLineColor(kBlue);
                 fit->SetLineWidth(2);
             }
         } else {
+            std::cout << "default legend: " << std::endl;
             legend->AddEntry(fit,"Nominal","l");
         }
         std::cout << "pts_vect.size() size: " << pts_vect.size() << std::endl;
@@ -354,7 +455,9 @@ void makePlot(std::string wc_name, TString sys, vector<vector<WCPoint>> pts_vect
             std::cout << "NOMINAL VAL x:" << ref_pt.getStrength(wc_name) << " y: " << ref_pt.wgt << std::endl;
             ref_pt_gr->SetMarkerStyle(4);
             ref_pt_gr->SetMarkerColor(1);
-            ref_pt_gr->Draw("P");
+            if (draw_points){
+                ref_pt_gr->Draw("P");
+            }
         }
         
         // UP //
@@ -383,7 +486,7 @@ void makePlot(std::string wc_name, TString sys, vector<vector<WCPoint>> pts_vect
             ref_pt_gr_u->SetPoint(0,ref_pt_u.getStrength(wc_name),ref_pt_u.wgt);
             ref_pt_gr_u->SetMarkerStyle(4);
             ref_pt_gr_u->SetMarkerColor(u_clr);
-            if (draw_updown) {
+            if (draw_updown and draw_points) {
                 ref_pt_gr_u->Draw("P");
             }
         }
@@ -413,48 +516,60 @@ void makePlot(std::string wc_name, TString sys, vector<vector<WCPoint>> pts_vect
             ref_pt_gr_d->SetPoint(0,ref_pt_d.getStrength(wc_name),ref_pt_d.wgt);
             ref_pt_gr_d->SetMarkerStyle(4);
             ref_pt_gr_d->SetMarkerColor(d_clr);
-            if (draw_updown) {
+            if (draw_updown and draw_points) {
                 ref_pt_gr_d->Draw("P");
             }
         }
 
         if (include_ratio){
             pad2->cd();               // pad2 becomes the current pad
-            TH1D* u_ratio_hist;
-            u_ratio_hist = divideTF1s("u",fit_u,fit,x_min,x_max);
-            u_ratio_hist->SetLineColor(u_clr);
-            u_ratio_hist->SetLineWidth(2);
-            //u_ratio_hist->GetYaxis()->SetNdivisions(305,true);
-            u_ratio_hist->GetYaxis()->SetNdivisions(3,5,1,true);
-            u_ratio_hist->GetYaxis()->SetTitleOffset(0.3);
-            //u_ratio_hist->GetYaxis()->SetTitleSize(0.09);
-            u_ratio_hist->GetYaxis()->SetTitleSize(0.30);
-            u_ratio_hist->GetXaxis()->SetLabelSize(0.20);
-            u_ratio_hist->GetYaxis()->SetLabelSize(0.20);
-            //u_ratio_hist->GetYaxis()->SetTitle("Ratio to nominal");
-            u_ratio_hist->GetYaxis()->SetTitle("Ratio");
-            //u_ratio_hist->Draw();
-            if (sample_idx==0){
-                u_ratio_hist->Draw();
-            } else {
-                u_ratio_hist->Draw("same");
-            }
-            TH1D* d_ratio_hist;
-            d_ratio_hist = divideTF1s("d",fit_d,fit,x_min,x_max);
-            d_ratio_hist->SetLineColor(d_clr);
-            d_ratio_hist->SetLineWidth(2);
-            d_ratio_hist->Draw("same");
             TH1D* nom_ratio_hist;
             nom_ratio_hist = divideTF1s("n",fit,fit,x_min,x_max);
             nom_ratio_hist->SetLineColor(nom_clr);
             nom_ratio_hist->SetLineWidth(2); 
-            nom_ratio_hist->Draw("same");
+            if (wc_name == "ctG"){
+                nom_ratio_hist->GetXaxis()->SetNdivisions(6,2,0,true);
+            }
+            nom_ratio_hist->GetYaxis()->SetNdivisions(5,2,1,true);
+            nom_ratio_hist->GetYaxis()->SetTitleOffset(0.50);
+            nom_ratio_hist->GetXaxis()->SetTitleSize(0.16);
+            nom_ratio_hist->GetYaxis()->SetTitleSize(0.18);
+            nom_ratio_hist->GetXaxis()->SetLabelSize(0.15);
+            nom_ratio_hist->GetYaxis()->SetLabelSize(0.10);
+            nom_ratio_hist->GetXaxis()->SetLabelOffset(0.015);
+            nom_ratio_hist->GetYaxis()->SetLabelOffset(0.015);
+            nom_ratio_hist->GetXaxis()->SetTickLength(0.09);
+            nom_ratio_hist->GetYaxis()->SetTitle("Ratio");
+            nom_ratio_hist->GetXaxis()->SetTitle(x_axis_name);
+            if (sample_idx==0){
+                nom_ratio_hist->Draw();
+            } else {
+                nom_ratio_hist->Draw("same");
+            }
+            TH1D* u_ratio_hist;
+            u_ratio_hist = divideTF1s("u",fit_u,fit,x_min,x_max);
+            u_ratio_hist->SetLineColor(u_clr);
+            u_ratio_hist->SetLineWidth(2);
+            TH1D* d_ratio_hist;
+            d_ratio_hist = divideTF1s("d",fit_d,fit,x_min,x_max);
+            d_ratio_hist->SetLineColor(d_clr);
+            d_ratio_hist->SetLineWidth(2);
+            if (draw_updown){
+                u_ratio_hist->Draw("same");
+                d_ratio_hist->Draw("same");
+            }
 
             float ratio_y_lim = max( abs(u_ratio_hist->GetBinContent(1)-1), abs(d_ratio_hist->GetBinContent(1)-1) );
-            u_ratio_hist->SetMaximum(1.05*(1+ratio_y_lim));
-            u_ratio_hist->SetMinimum(0.95*(1-ratio_y_lim));
-            //u_ratio_hist->SetMaximum(1.025); // Hard code (good for cpt)
-            //u_ratio_hist->SetMinimum(0.975); // Hard code (good for cpt)
+            //u_ratio_hist->SetMaximum(1.05*(1+ratio_y_lim));
+            //u_ratio_hist->SetMinimum(0.95*(1-ratio_y_lim));
+            nom_ratio_hist->SetMaximum(1.025); // Hard code (good for cpt)
+            nom_ratio_hist->SetMinimum(0.975); // Hard code (good for cpt)
+            if (draw_errorband){
+                auto ratio_band = getErrorBandFromTH1s(nom_ratio_hist,u_ratio_hist,d_ratio_hist);
+                ratio_band->SetFillStyle(3002);
+                ratio_band->SetFillColor(fit->GetLineColor());
+                ratio_band->Draw("3");
+            }
             pad1->cd();
         }
 
@@ -495,8 +610,8 @@ void makePlot(std::string wc_name, TString sys, vector<vector<WCPoint>> pts_vect
 
     // Draw, save, delete
     legend->Draw();
-    c1->Print(save_name,"png");
-    //c1->Print("./sys_plots/"+save_name,"png");
+    c1->Print(save_name+".png","png");
+    c1->Print(save_name+".pdf","pdf");
     delete legend;
     delete c1;
 
@@ -814,45 +929,22 @@ void systWCdependenceCheck(TString proc_name, TString wc_name, TString run_dirs_
     systs_pts_vect_p1p = get_WCpt_syst_maps(wc_name,run_dirs_qCuts_file); // plus 1p (With qCut variations)
     systs_pts_vect_p0p = get_WCpt_syst_maps(wc_name,run_dirs_0p_file);    // plus 0p file
 
-    // For the 0+1p files
-    //std::map<std::string,std::vector<WCPoint>> selection_pts_map= systs_pts_vect_p1p.at(0);
-    //std::map<std::string,std::vector<WCPoint>> selection_pts_WgtU_map= systs_pts_vect_p1p.at(1);
-    //std::map<std::string,std::vector<WCPoint>> selection_pts_WgtD_map= systs_pts_vect_p1p.at(2);
-    //std::map<std::string,std::vector<WCPoint>> selection_pts_map_p1p      = systs_pts_vect_p1p.at(0);
-    //std::map<std::string,std::vector<WCPoint>> selection_pts_WgtU_map_p1p = systs_pts_vect_p1p.at(1);
-    //std::map<std::string,std::vector<WCPoint>> selection_pts_WgtD_map_p1p = systs_pts_vect_p1p.at(2);
-
     // Make plots for all of the systematics individually
     //sys_names.push_back("qCut"); // If including qCut
     for(auto sys : sys_names){
-        //makePlot(string(wc_name),sys,selection_pts_map["nominal"],selection_pts_WgtU_map[sys],selection_pts_WgtD_map[sys]);
-        //makePlot(string(wc_name),sys+"TEST",{selection_pts_map_p1p["nominal"]},{selection_pts_WgtU_map_p1p[sys]},{selection_pts_WgtD_map_p1p[sys]});
         makePlot(string(wc_name),sys,{systs_pts_vect_p1p.at(0)["nominal"]},{systs_pts_vect_p1p.at(1)[sys]},{systs_pts_vect_p1p.at(2)[sys]});
         if (sys != "qCut"){
             std::cout << "Not quct: " << sys << std::endl;
             makePlot(string(wc_name),sys+"_0p",{systs_pts_vect_p0p.at(0)["nominal"]},{systs_pts_vect_p0p.at(1)[sys]},{systs_pts_vect_p0p.at(2)[sys]});
-            //makePlot(
-            //    string(wc_name),
-            //    sys+"_both",
-            //    {systs_pts_vect_p1p.at(0)["nominal"],systs_pts_vect_p0p.at(0)["nominal"]},
-            //    {systs_pts_vect_p1p.at(1)[sys],systs_pts_vect_p0p.at(1)[sys]},
-            //    {systs_pts_vect_p1p.at(2)[sys],systs_pts_vect_p0p.at(2)[sys]}
-            //);
         }
     }
 
     // Get the envelope of muR and muF
-    //std::map<std::string,std::vector<WCPoint>> muRmuFenvelope_map;
-    //muRmuFenvelope_map = muRmuFenvelope(string(wc_name),selection_pts_map["nominal"],selection_pts_WgtU_map,selection_pts_WgtD_map);
     std::map<std::string,std::vector<WCPoint>> muRmuFenvelope_map_p1p;
     std::map<std::string,std::vector<WCPoint>> muRmuFenvelope_map_p0p;
     muRmuFenvelope_map_p1p = muRmuFenvelope(string(wc_name),systs_pts_vect_p1p.at(0)["nominal"],systs_pts_vect_p1p.at(1),systs_pts_vect_p1p.at(2));
     muRmuFenvelope_map_p0p = muRmuFenvelope(string(wc_name),systs_pts_vect_p0p.at(0)["nominal"],systs_pts_vect_p0p.at(1),systs_pts_vect_p0p.at(2));
 
-    //makePlot(string(wc_name),"muRmuF_evnelope",selection_pts_map["nominal"],muRmuFenvelope_map["inc"],muRmuFenvelope_map["dec"]);
-    //makePlot(string(wc_name),"muRmuF_evnelope",{selection_pts_map["nominal"]},{muRmuFenvelope_map["inc"]},{muRmuFenvelope_map["dec"]});
-    //selection_pts_WgtU_map["muRmuFenv"] = muRmuFenvelope_map["inc"]; // Add to map, though up and down do not hold meaning here
-    //selection_pts_WgtD_map["muRmuFenv"] = muRmuFenvelope_map["dec"]; // Add to map, though up and down do not hold meaning here
     makePlot(string(wc_name),"muRmuF_evnelope",{systs_pts_vect_p1p.at(0)["nominal"]},{muRmuFenvelope_map_p1p["inc"]},{muRmuFenvelope_map_p1p["dec"]});
     systs_pts_vect_p1p.at(1)["muRmuFenv"] = muRmuFenvelope_map_p1p["inc"]; // Add to map, though up and down do not hold meaning here
     systs_pts_vect_p1p.at(2)["muRmuFenv"] = muRmuFenvelope_map_p1p["dec"]; // Add to map, though up and down do not hold meaning here
@@ -861,22 +953,14 @@ void systWCdependenceCheck(TString proc_name, TString wc_name, TString run_dirs_
     systs_pts_vect_p0p.at(2)["muRmuFenv"] = muRmuFenvelope_map_p0p["dec"]; // Add to map, though up and down do not hold meaning here
     
     // Add the systematics in quadrature
-    //std::vector<std::string> s_to_add_in_quad {"psISR","psFSR","nnpdf","qCut","muRmuFenv"}; // with qCut
-    //std::vector<std::string> s_to_add_in_quad {"psISR","psFSR","nnpdf","muRmuFenv"}; // No qCut
-    //std::map<std::string,std::vector<WCPoint>> quad_sum_map;
-    //quad_sum_map = getQuadSums(string(wc_name),s_to_add_in_quad,selection_pts_map,selection_pts_WgtU_map,selection_pts_WgtD_map);
-    //makePlot(string(wc_name),"quad_sum",selection_pts_map["nominal"],quad_sum_map["inc"],quad_sum_map["dec"]);
-    //makePlot(string(wc_name),"quad_sum",{selection_pts_map["nominal"]},{quad_sum_map["inc"]},{quad_sum_map["dec"]});
-
-    // Add the systematics in quadrature
     std::vector<std::string> s_to_add_in_quad {"psISR","psFSR","nnpdf","qCut","muRmuFenv"}; // with qCut
     std::vector<std::string> s_to_add_in_quad_noqCut {"psISR","psFSR","nnpdf","muRmuFenv"}; // No qCut
     std::map<std::string,std::vector<WCPoint>> quad_sum_map_p1p;
     std::map<std::string,std::vector<WCPoint>> quad_sum_map_p0p;
     quad_sum_map_p1p = getQuadSums(string(wc_name),s_to_add_in_quad,systs_pts_vect_p1p.at(0),systs_pts_vect_p1p.at(1),systs_pts_vect_p1p.at(2));
     quad_sum_map_p0p = getQuadSums(string(wc_name),s_to_add_in_quad_noqCut,systs_pts_vect_p0p.at(0),systs_pts_vect_p0p.at(1),systs_pts_vect_p0p.at(2));
-    makePlot(string(wc_name),"quad_sum",{systs_pts_vect_p1p.at(0)["nominal"]},{quad_sum_map_p1p["inc"]},{quad_sum_map_p1p["dec"]});
-    makePlot(string(wc_name),"quad_sum_0p",{systs_pts_vect_p0p.at(0)["nominal"]},{quad_sum_map_p0p["inc"]},{quad_sum_map_p0p["dec"]});
+    makePlot(string(wc_name),"quad_sum",{systs_pts_vect_p1p.at(0)["nominal"]},{quad_sum_map_p1p["inc"]},{quad_sum_map_p1p["dec"]},{proc_name+" 0+1p "});
+    makePlot(string(wc_name),"quad_sum_0p",{systs_pts_vect_p0p.at(0)["nominal"]},{quad_sum_map_p0p["inc"]},{quad_sum_map_p0p["dec"]},{proc_name+" 0+1p "});
 
     makePlot(
         string(wc_name),
@@ -884,13 +968,10 @@ void systWCdependenceCheck(TString proc_name, TString wc_name, TString run_dirs_
         {systs_pts_vect_p1p.at(0)["nominal"],systs_pts_vect_p0p.at(0)["nominal"]},
         {quad_sum_map_p1p["inc"],quad_sum_map_p0p["inc"]},
         {quad_sum_map_p1p["dec"],quad_sum_map_p0p["dec"]},
-        //{"tth 0+1p ","tth 0p "} // Optional argument, each tag should correspond to the samples passed
-        //{"ttW 0+1p ","ttW 0p "} // Optional argument, each tag should correspond to the samples passed
         {proc_name+" 0+1p ",proc_name+" 0p "} // Optional argument, each tag should correspond to the samples passed
     );
 
     // TEST print frac uncty
-    //for(auto sys : sys_names){
     for(auto sys : s_to_add_in_quad){
         printFracUncty(string(wc_name) , sys , systs_pts_vect_p1p.at(0)["nominal"] , systs_pts_vect_p1p.at(1)[sys], systs_pts_vect_p1p.at(2)[sys]);
     }
