@@ -633,8 +633,8 @@ ALL_INFO = [
         'tag': 'ttX-ttXJet_HanV4_0Jetvs1JetTests_with-ttZjetRun2Run3_analysisEtaCut-GEN',
         'grp_name': '',
         'version': 'v1',
-        'include': True,
-        #'include': False,
+        #'include': True,
+        'include': False,
         #'p_wl': ["ttH","ttHJet","ttlnuJet","ttlnu","ttllNuNuJetNoHiggs","ttllNuNuNoHiggs"],
         'p_wl': ["ttH","ttHJet"],
         #'p_wl': ["ttlnu","ttlnuJet","ttllNuNuNoHiggs","ttllNuNuJetNoHiggs"],
@@ -733,6 +733,7 @@ ALL_INFO = [
         'c_wl': [],
         'r_wl': ["run0"],
     },
+    #### Round 6 FP samples ####
     {# HanModelV4 Round 6, (batch depends on HADOOP_BASE_PATH) FP samples:
         #'tag': 'ttXjet-mAOD', # Batch1 (ttZ, ttW)
         #'tag': 'tHq4f-mAOD', # Batch3 (tHq)
@@ -740,13 +741,58 @@ ALL_INFO = [
         #'tag': 'ttHjet-mAOD', # Batch7 (ttH good start pt)
         'grp_name': '',
         'version': 'v1',
-        #'include': True,
+        ##'include': True,
         'include': False,
         #'p_wl': ["ttllNuNuJetNoHiggs","ttlnuJet"], # ttH from batch 1 had the bad start pt
         'p_wl': [],
         'c_wl': [],
         'r_wl': [],
     },
+    {# HanModelV4 FP R6 B2: ttWJet and ttZJet (and ttH but bad starting point for MC stats)
+        'tag': 'ttXjet-mAOD',
+        'grp_name': '',
+        'version': 'v1',
+        #'include': True,
+        'include': False,
+        'p_wl': ["ttllNuNuJetNoHiggs","ttlnuJet"], # Don't incluede ttH
+        'c_wl': [],
+        'r_wl': [],
+        'basepath' : "/hadoop/store/user/kmohrman/summaryTree_LHE/FP/Round6/Batch2/",
+    },
+    {# HanModelV4 FP R6 B3: tHq
+        'tag': 'tHq4f-mAOD',
+        'grp_name': '',
+        'version': 'v1',
+        #'include': True,
+        'include': False,
+        'p_wl': [],
+        'c_wl': [],
+        'r_wl': [],
+        'basepath' : "/hadoop/store/user/kmohrman/summaryTree_LHE/FP/Round6/Batch3/",
+    },
+    {# HanModelV4 FP R6 B4: tZq
+        'tag': 'tZq4f-mAOD',
+        'grp_name': '',
+        'version': 'v1',
+        #'include': True,
+        'include': False,
+        'p_wl': [],
+        'c_wl': [],
+        'r_wl': [],
+        'basepath' : "/hadoop/store/user/kmohrman/summaryTree_LHE/FP/Round6/Batch4/",
+    },
+    {# HanModelV4 FP R6 B7: ttHJet
+        'tag': 'ttHjet-mAOD',
+        'grp_name': '',
+        'version': 'v1',
+        #'include': True,
+        'include': False,
+        'p_wl': [],
+        'c_wl': [],
+        'r_wl': [],
+        'basepath' : "/hadoop/store/user/kmohrman/summaryTree_LHE/FP/Round6/Batch7/",
+    },
+    ############################
     {# HanModelV4 ttHJet dedicated ctG=[-3,3] axis scan ####### AXIS SCAN #######
         'tag': 'ttHJet_HanV4ctGAxisScan_analysisEtaCut-GEN',
         'grp_name': '',
@@ -758,6 +804,7 @@ ALL_INFO = [
         'r_wl': [],
     },
     {# HanModelV4 ttHJet dedicated ctW=[-4,4] axis scan (for smeft comp, qed1, qcd2, dim6=2) ####### AXIS SCAN #######
+        # Note: dim6=2 is NOT the same as NP=2, so can't compare this with NLO as was intended
         'tag': 'ttHJet_HanV4_cbW-AxisScan-withRwgt_smeftComp_QED1_QCD2_DIM62-GEN',
         'grp_name': '',
         'version': 'v1',
@@ -818,10 +865,10 @@ ALL_INFO = [
         'tag': 'ttW-ttWJet-ttZ-ttZJet_QED-QCD-order-tests-GEN',
         'grp_name': '',
         'version': 'v1',
-        ##'include': True,
+        #'include': True, # ForPheno (before moreStats-goodStartPt remake)
         'include': False,
         'p_wl': ["ttW","ttZ"], # Don't use ttWJet, ttZJet #
-        'c_wl': ["HanV4withRwgt"], # Skipping the QED1,QCD2 ones since same as QED1,QCD jet
+        'c_wl': ["HanV4withRwgt"], # Skipping the QED1,QCD2 ones, not good for NLO comp #
         'r_wl': [],
         'basepath' : "/hadoop/store/user/kmohrman/summaryTree_LHE/2020_03_03_addPSweights",
     },
@@ -832,7 +879,7 @@ ALL_INFO = [
         'tag': 'ttWJet-ttZJet_HanV4-0plus1p-QCDQED-OrderChecks-GEN',
         'grp_name': '',
         'version': 'v1',
-        ##'include': True,
+        #'include': True, # ForPheno (before moreStats-goodStartPt remake)
         'include': False,
         'p_wl': [],
         'c_wl': ["HanV40plus1pwithRwgt"], # Don't use "HanV40plus1pQED1QCD2withRwgt" as it wrongly has matching on
@@ -843,11 +890,88 @@ ALL_INFO = [
         'tag': 'ttH-ttXJet_HanV4-0pttH-0plus1pttXJet-noMatching-QCDQED-OrderChecks-GEN',
         'grp_name': '',
         'version': 'v1',
-        'include': True,
-        #'include': False,
+        #'include': True,
+        'include': False,
         #'p_wl': ["ttHJet","ttWJet","ttZJet","ttH"], # ttH is sort of annoyingly stuck in withe these ttXJet samples
         #'p_wl': ["ttHJet","ttWJet","ttZJet"], # ttH is sort of annoyingly stuck in withe these ttXJet samples
         'p_wl': ["ttHJet"], # ttH is sort of annoyingly stuck in withe these ttXJet samples
+        'c_wl': [],
+        'r_wl': [],
+        'basepath' : "/hadoop/store/user/kmohrman/summaryTree_LHE/2020_03_03_addPSweights",
+    },
+    {# HanV4 ttX (ttH, ttW, ttZ), ttXJet (ttHJet, ttWJet, ttZJet) all with QED=1, QCD=3
+        # Note: The QCD=3 _should_ be correct for comparing with the NLO (which have QCD=2, but also [QCD])
+        'tag': 'ttX-ttXJet_HanV4-QED1-QCD3-GEN',
+        'grp_name': '',
+        'version': 'v1',
+        #'include': True, # ForPheno (before moreStats-goodStartPt remake)
+        'include': False,
+        'p_wl': [],
+        'c_wl': [],
+        'r_wl': [],
+        'basepath' : "/hadoop/store/user/kmohrman/summaryTree_LHE/2020_03_03_addPSweights",
+    },
+    {# ttV, ttVJet start point checks
+        'tag': 'ttV-ttVJet_HanV4_QED1-and-noConstraints_startPtChecks-GEN',
+        'grp_name': '',
+        'version': 'v1',
+        #'include': True,
+        'include': False,
+        #'p_wl': ["ttZ","ttZJet"],
+        #'p_wl': ["ttW","ttWJet"],
+        'p_wl': ["ttH","ttW","ttZ"],
+        'c_wl': ["HanV4QED1QCD3startPtChecks"],
+        #'c_wl': ["HanV4startPtChecks"],
+        'c_wl': [],
+        'r_wl': [],
+        'basepath' : "/hadoop/store/user/kmohrman/summaryTree_LHE/2020_03_03_addPSweights",
+    },
+    {# ttX, ttXJet QED2 start point checks
+        'tag': 'ttX-ttXJet_HanV4-QED2-startPtChecks-GEN',
+        'grp_name': '',
+        'version': 'v1',
+        #'include': True,
+        'include': False,
+        #'p_wl': ["ttH","ttHJet"],
+        #'p_wl': ["ttW","ttWJet"],
+        'p_wl': ["ttHJet","ttWJet","ttZJet"],
+        'c_wl': [],
+        #'r_wl': ["run1"],
+        'r_wl': [],
+        'basepath' : "/hadoop/store/user/kmohrman/summaryTree_LHE/2020_03_03_addPSweights",
+    },
+    {# HanV4 ttX (ttH, ttW, ttZ) ttXJet, all with and without QED1QCD3 constrints
+        # Note: 300k events, and the ttV samples are at better starting points than the original, so the stats should be better
+        # FOR PHENO PAPER 300k events
+        'tag': 'ttX-ttXJet_HanV4_QED1-and-noConstraints_moreStats-goodStartPt-GEN',
+        'grp_name': '',
+        'version': 'v1',
+        'include': True,
+        #'include': False,
+        #'p_wl': [],
+        #'p_wl': ["ttH"],
+        #'p_wl': ["ttHJet"],
+        #'p_wl': ["ttWJet"],
+        #'p_wl': ["ttZJet"],
+        #'p_wl': ["ttH","ttHJet"], 
+        #'p_wl': ["ttW","ttWJet"], 
+        #'p_wl': ["ttZ","ttZJet"], 
+        #'p_wl': ["ttZ","ttZJet","ttW","ttWJet"], 
+        'p_wl': ["ttH","ttHJet","ttZ","ttZJet","ttW","ttWJet"], 
+        #'c_wl': [],
+        #'c_wl': ["HanV4goodStartPt"], # ttV: HanV4goodStartPt, HanV4QED1QCD3goodStartPt
+        #'c_wl': ["HanV4lModel16DttllScanpoints","HanV4ModelNoJets16DttllScanpoints"], # This is for ttH without any cuts
+        'c_wl': ["HanV4goodStartPt","HanV4lModel16DttllScanpoints","HanV4ModelNoJets16DttllScanpoints"], # All samples, no QED cuts
+        'r_wl': [],
+        'basepath' : "/hadoop/store/user/kmohrman/summaryTree_LHE/2020_03_03_addPSweights",
+    },
+    {# ttH start point check, just to make sure the "normal" start point is okay for ttH 0j (can't believe we havn't checked this before?)
+        'tag': 'ttH_HanV4ttH0pStartPtDoubleCheck-GEN',
+        'grp_name': '',
+        'version': 'v1',
+        #'include': True,
+        'include': False,
+        'p_wl': [],
         'c_wl': [],
         'r_wl': [],
         'basepath' : "/hadoop/store/user/kmohrman/summaryTree_LHE/2020_03_03_addPSweights",
@@ -880,7 +1004,7 @@ REF_TAGS = [
 
     # Axis scans (don't need to include as "True" in ALL_INFO)
     #'ttHJet_HanV4ctGAxisScan_analysisEtaCut-GEN'
-    'ttHJet_HanV4_cbW-AxisScan-withRwgt_smeftComp_QED1_QCD2_DIM62-GEN' # Note, the proc name is ttHJetSMEFTcomp, might need to take care of this in REF_PROCESS_MAP
+    #'ttHJet_HanV4_cbW-AxisScan-withRwgt_smeftComp_QED1_QCD2_DIM62-GEN' # Note, the proc name is ttHJetSMEFTcomp, might need to take care of this in REF_PROCESS_MAP
 ]
 
 # Dictionary to map certain MG processes to another for use in finding reference samples
@@ -911,6 +1035,7 @@ HADOOP_BASE_PATH = "/hadoop/store/user/kmohrman/summaryTree_LHE/2019_08_14_addPt
 
 def runByProcess():
 
+    cleanName = True
     #NOTE: The output name could be duplicated and overwrite a previous run
     file_dirs = {}
     all_grouped_file_dirs_dict = {}
@@ -926,15 +1051,22 @@ def runByProcess():
         grouped_dirs = groupByProcess(path,info['tag'],'',info['p_wl'],info['c_wl'],info['r_wl'])
         #print "\nThe current grouped dirs are:" , grouped_dirs , "\n"
         for tup,dirs in grouped_dirs.iteritems():
-            if "ttH" in tup[1]:
-                proc = "ttH"
-            elif "ttlnu" in tup[1] or "ttW" in tup[1]:
-                proc = "ttW"
-            elif "ttll" in tup[1] or "ttZ" in tup[1]:
-                proc = "ttZ"
+            if cleanName: # Note: This is also for grouping
+                if "ttH" in tup[1]:
+                    proc = "ttH"
+                elif "ttlnu" in tup[1] or "ttW" in tup[1]:
+                    proc = "ttW"
+                elif "ttll" in tup[1] or "ttZ" in tup[1]:
+                    proc = "ttZ"
+                elif "tHq" in tup[1]:
+                    proc = tup[1]
+                elif "tllq" in tup[1]:
+                    proc = tup[1]
+                else:
+                    print "\nError: Unknown process" , tup[1] , "exiting"
+                    raise BaseException
             else:
-                print "\nError: Unknown process" , tup[1] , "exiting"
-                raise BaseException
+                proc = tup[1]
             if not all_grouped_file_dirs_dict.has_key(proc):
                 all_grouped_file_dirs_dict[proc] = []
             all_grouped_file_dirs_dict[proc].extend(dirs)

@@ -23,6 +23,7 @@
 #include "EFTGenReader/EFTHelperUtilities/interface/Stopwatch.h"
 #include "EFTGenReader/EFTHelperUtilities/interface/split_string.h"
 #include "makeEFTPlots.h"
+//#include "make1DXsecPlots.h"
 
 /*
     This script does the following:
@@ -38,6 +39,48 @@ const std::string kMGStart   = "MGStart";   // The tag we use to designate MadGr
 const std::string kOrig      = "original";
 const std::string kOutputDir = "read_lhe_outputs";
 
+/*
+struct customPointInfo {
+    TString proc_name;
+    TString type;
+    TString wc_name;
+    double x;
+    double y;
+    double err;
+};
+*/
+
+/*
+// Print info about customPointsInfo object
+void print_customPointInfo_object(std::vector<customPointInfo> points_info){
+    for (int i=0; i<points_info.size(); i++){
+        customPointInfo s = points_info.at(i);
+        std::cout << "\nPrinting info about customPointInfo struct:" << std::endl;
+        std::cout << "\tProc name: " << s.proc_name << ", Type: " << s.type << ", WC: " << s.wc_name << ", x val: " << s.x << ", y val: " << s.y << ", error: " << s.err << std::endl;
+    }
+}
+*/
+
+// Normalize a point (in the "customPointInfo" struct format) to a given value, propagate errors
+std::vector<customPointInfo> normCustomPoint(std::vector<customPointInfo> points_info, double norm_pt_val, double norm_pt_err){
+    std::cout << "norm pt: " << norm_pt_val << " norm err: " << norm_pt_err << std::endl;
+    std::vector<customPointInfo> return_vector;
+    for (int i=0; i<points_info.size(); i++){
+        customPointInfo point_info = points_info.at(i);
+        TString wc_name = point_info.wc_name;
+        double y = point_info.y;
+        double e = point_info.err;
+        double y_norm = y/norm_pt_val;
+        double e_norm = sqrt((e/y)*(e/y) + (norm_pt_err/norm_pt_val)*(norm_pt_err/norm_pt_val)) * (y/norm_pt_val);
+        //std::cout << "\nBefore norm: " << wc_name << " y: " << y << " e: " << e << std::endl;
+        //std::cout << "After norm: " << wc_name << " y: " << y_norm << " e: " << e_norm << "\n" << std::endl;
+        point_info.y = y_norm;
+        point_info.err = e_norm;
+        return_vector.push_back(point_info);
+    }
+    return return_vector;
+}
+
 // Takes a vector of (x,y) points for a WC and returns a WCFit (where x = WC value, y = cross section at that value)
 WCFit make_WCFit(std::string wc_name, std::string tag, std::vector<std::pair<double,double>> pts_pairs_vect, double norm_factor=1) {
     std::vector<WCPoint> pts_to_fit;
@@ -51,7 +94,10 @@ WCFit make_WCFit(std::string wc_name, std::string tag, std::vector<std::pair<dou
     return *wcfit;
 }
 
+// TestPrint
 void print_xsec(WCFit wcfit){
+
+    std::cout << "\nTag: " << wcfit.getTag() << std::endl;
 
     // Best fit val from AN
     std::map<std::string,float> bestfit_dict {
@@ -78,6 +124,42 @@ void print_xsec(WCFit wcfit){
     WCPoint ctG2_wcpt;
     ctG2_wcpt.setStrength("ctG",2);
 
+    ////////////////////
+    /*
+    // For Comp with 1601
+    WCPoint comp_1601_pt;
+    double ctW_val = -1.5;
+    double ctZ_val = ctW_val*0.8768010;
+    std::cout << "The ctZ and ctW values: " << ctW_val << " , " << ctZ_val << std::endl;
+    comp_1601_pt.setStrength("ctW",ctW_val);
+    std::cout << "At ctW_val " << ctW_val << " : " << wcfit.evalPoint(&comp_1601_pt) << " +- " << wcfit.evalPointError(&comp_1601_pt) << std::endl;
+    comp_1601_pt.setStrength("ctZ",ctZ_val);
+    std::cout << "At the 1601 comp point: " << wcfit.evalPoint(&comp_1601_pt) << " +- " << wcfit.evalPointError(&comp_1601_pt) << std::endl;
+    std:: cout << " " << std::endl;
+
+    WCPoint comp_1601_pt2;
+    double ctW_val2 = -3;
+    double ctZ_val2 = ctW_val2*0.8768010;
+    std::cout << "The ctZ and ctW values: " << ctW_val2 << " , " << ctZ_val2 << std::endl;
+    comp_1601_pt2.setStrength("ctW",ctW_val2);
+    std::cout << "At ctW_val2 " << ctW_val2 << " : " << wcfit.evalPoint(&comp_1601_pt2) << " +- " << wcfit.evalPointError(&comp_1601_pt2) << std::endl;
+    comp_1601_pt2.setStrength("ctZ",ctZ_val2);
+    std::cout << "At the 1601 comp point: " << wcfit.evalPoint(&comp_1601_pt2) << " +- " << wcfit.evalPointError(&comp_1601_pt2) << std::endl;
+    std:: cout << " " << std::endl;
+
+    WCPoint comp_1601_pt3;
+    double ctW_val3 = 3;
+    double ctZ_val3 = ctW_val3*0.8768010;
+    std::cout << "The ctZ and ctW values: " << ctW_val3 << " , " << ctZ_val3 << std::endl;
+    comp_1601_pt3.setStrength("ctW",ctW_val3);
+    std::cout << "At ctW_val3 " << ctW_val3 << " : " << wcfit.evalPoint(&comp_1601_pt3) << " +- " << wcfit.evalPointError(&comp_1601_pt3) << std::endl;
+    comp_1601_pt3.setStrength("ctZ",ctZ_val3);
+    std::cout << "At the 1601 comp point: " << wcfit.evalPoint(&comp_1601_pt3) << " +- " << wcfit.evalPointError(&comp_1601_pt3) << std::endl;
+    std:: cout << " " << std::endl;
+    */
+    ////////////////////
+
+    /*
     std::string wc;
     float wc_bestfit_val;
     float bestfit_val;
@@ -93,11 +175,73 @@ void print_xsec(WCFit wcfit){
     std::cout << "Best fit val is: " << bestfit_val << " +- " << bestfit_val_err << std::endl;
     std::cout << "SM val: " << wcfit.evalPoint(&sm_pt)<< " +- " << wcfit.evalPointError(&sm_pt)<<std::endl;
     std::cout << "ctG=2: " << wcfit.evalPoint(&ctG2_wcpt) << " +- " << wcfit.evalPointError(&ctG2_wcpt)<<std::endl;
+    */
 
 }
 
 void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_spec,TString grp_name="") {
     int run_idx = 0;
+
+    ////////////////// Setting up the infor for the points from Reza //////////////////
+    std::vector<customPointInfo> ttH_ctG_RezaPointsSMEFT;
+    std::vector<customPointInfo> ttH_ctp_RezaPointsSMEFT;
+    std::vector<customPointInfo> ttW_ctG_RezaPointsSMEFT;
+    std::vector<customPointInfo> ttZ_ctG_RezaPointsSMEFT;
+    std::vector<customPointInfo> ttZ_cpQM_RezaPointsSMEFT;
+    std::vector<customPointInfo> ttZ_cpt_RezaPointsSMEFT;
+    double ttH_NLO_SM = 0.4398;
+    double ttH_NLO_SM_err = 0.001484;
+    double ttW_NLO_SM = 0.5613;
+    double ttW_NLO_SM_err = 0.0027;
+    double ttZ_NLO_SM = 0.7333;
+    double ttZ_NLO_SM_err = 0.003;
+    ttH_ctG_RezaPointsSMEFT = {
+        {"tth","nlo","ctG", -.3,0.3586,0.0013},
+        {"tth","nlo","ctG", 0,ttH_NLO_SM,ttH_NLO_SM_err},
+        {"tth","nlo","ctG", .3,0.6215,0.0023},
+    };
+    ttH_ctp_RezaPointsSMEFT = {
+        {"tth","nlo","ctp", -50,7.935,0.024},
+        {"tth","nlo","ctp", -30,3.835,0.01},
+        {"tth","nlo","ctp", 0,ttH_NLO_SM,ttH_NLO_SM_err},
+        {"tth","nlo","ctp", 5,0.2009,0.00068},
+    };
+    ttW_ctG_RezaPointsSMEFT = {
+        {"ttW","nlo","ctG", -.3,0.5166,0.0022},
+        {"ttW","nlo","ctG", 0,ttW_NLO_SM,ttW_NLO_SM_err},
+        {"ttW","nlo","ctG", .3,0.621,0.0036},
+    };
+    ttZ_ctG_RezaPointsSMEFT = {
+        {"ttZ","nlo","ctG", -.3,0.669,0.0027},
+        {"ttZ","nlo","ctG", 0,ttZ_NLO_SM,ttZ_NLO_SM_err},
+        {"ttZ","nlo","ctG", .3,0.8229,0.0033},
+    };
+    ttZ_cpQM_RezaPointsSMEFT = {
+        {"ttZ","nlo","cpQM", -3,0.9815,0.0034},
+        {"ttZ","nlo","cpQM", 0,ttZ_NLO_SM,ttZ_NLO_SM_err},
+        {"ttZ","nlo","cpQM", 2,0.591,0.003523},
+    };
+    ttZ_cpt_RezaPointsSMEFT = {
+        {"ttZ","nlo","cpt", -10,0.5501,0.0015},
+        {"ttZ","nlo","cpt", 0,ttZ_NLO_SM,ttZ_NLO_SM_err},
+        {"ttZ","nlo","cpt", 10,1.497,0.0045},
+    };
+
+    // Normalize the points to the SM
+    ttH_ctG_RezaPointsSMEFT = normCustomPoint(ttH_ctG_RezaPointsSMEFT,ttH_NLO_SM,ttH_NLO_SM_err);
+    ttH_ctp_RezaPointsSMEFT = normCustomPoint(ttH_ctp_RezaPointsSMEFT,ttH_NLO_SM,ttH_NLO_SM_err);
+    ttW_ctG_RezaPointsSMEFT = normCustomPoint(ttW_ctG_RezaPointsSMEFT,ttW_NLO_SM,ttW_NLO_SM_err);
+    ttZ_ctG_RezaPointsSMEFT = normCustomPoint(ttZ_ctG_RezaPointsSMEFT,ttZ_NLO_SM,ttZ_NLO_SM_err);
+    ttZ_cpQM_RezaPointsSMEFT = normCustomPoint(ttZ_cpQM_RezaPointsSMEFT,ttZ_NLO_SM,ttZ_NLO_SM_err);
+    ttZ_cpt_RezaPointsSMEFT = normCustomPoint(ttZ_cpt_RezaPointsSMEFT,ttZ_NLO_SM,ttZ_NLO_SM_err);
+
+    std::vector<std::vector<customPointInfo>> reza_pts_info_vect = {ttH_ctG_RezaPointsSMEFT, ttH_ctp_RezaPointsSMEFT, ttW_ctG_RezaPointsSMEFT, ttZ_ctG_RezaPointsSMEFT, ttZ_cpQM_RezaPointsSMEFT, ttZ_cpt_RezaPointsSMEFT};
+    for (auto points: reza_pts_info_vect){
+        print_customPointInfo_object(points);
+    };
+    ////////////////////////////////////
+
+    //return ;
 
     Stopwatch sw;
 
@@ -115,25 +259,45 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
     std::map<std::string,std::map<std::string,std::vector<std::pair<double,double>>>> ptsMap; // e.g. {"ttH":{"ctG_lo":[(0,1),(1,2)]}}
     std::vector<std::string> custom_fits_wc_lst {"ctG","ctp","cpQM","cpt","ctZ","ctW"};
 
+    double sm_ttH_nlo, sm_ttW_nlo, sm_ttZ_nlo, sm_ttZ_lo;
+    /* // For PDF 2.3 (NOT what was used for the LO gridpacks):
     // ttH
-    double sm_ttH_nlo = 0.4521;
-    ptsMap["ttH"]["ctG_nlo"] = { {-1,0.5731} , {0,sm_ttH_nlo} , {1,1.482} };
-    ptsMap["ttH"]["ctp_nlo"] = { {-5,0.7925} , {0,sm_ttH_nlo} , {5,0.2051} };
+    //double sm_ttH_nlo = 0.4521; // PDF 2.3
+    //ptsMap["ttH"]["ctG_nlo"] = { {-1,0.5731} , {0,sm_ttH_nlo} , {1,1.482} };  // PDF 2.3
+    //ptsMap["ttH"]["ctp_nlo"] = { {-5,0.7925} , {0,sm_ttH_nlo} , {5,0.2051} }; // PDF 2.3
     // ttW
-    double sm_ttW_nlo = 0.5591;
-    ptsMap["ttW"]["ctG_nlo"] = { {-1,0.4192} , {0,sm_ttW_nlo} , {5,0.7272} };
+    //double sm_ttW_nlo = 0.5591; // PDF 2.3
+    //ptsMap["ttW"]["ctG_nlo"] = { {-1,0.4192} , {0,sm_ttW_nlo} , {5,0.7272} }; // PDF 2.3
     // ttZ
-    double sm_ttZ_nlo = 0.7441;
-    ptsMap["ttZ"]["ctG_nlo"]   = { {-1,0.6725} , {0,sm_ttZ_nlo} , {1,1.206} };
-    ptsMap["ttZ"]["cpQM_nlo"]  = { {-5,1.208}  , {0,sm_ttZ_nlo} , {5,0.4392} };
-    ptsMap["ttZ"]["cpt_nlo"]   = { {-5,0.5757} , {0,sm_ttZ_nlo} , {5,1.068} };
-    ptsMap["ttZ"]["ctZ_nlo"]   = { {-5,2.261}  , {0,sm_ttZ_nlo} , {5,2.238} };
+    //double sm_ttZ_nlo = 0.7441; // PDF 2.3
+    //ptsMap["ttZ"]["ctG_nlo"]   = { {-1,0.6725} , {0,sm_ttZ_nlo} , {1,1.206} };  // PDF 2.3
+    //ptsMap["ttZ"]["cpQM_nlo"]  = { {-5,1.208}  , {0,sm_ttZ_nlo} , {5,0.4392} }; // PDF 2.3
+    //ptsMap["ttZ"]["cpt_nlo"]   = { {-5,0.5757} , {0,sm_ttZ_nlo} , {5,1.068} };  // PDF 2.3
+    //ptsMap["ttZ"]["ctZ_nlo"]   = { {-5,2.261}  , {0,sm_ttZ_nlo} , {5,2.238} };  // PDF 2.3
 
-    double sm_ttZ_lo = 0.5841;
-    ptsMap["ttZ"]["cpt_lo"]   = { {-5,0.4395}  , {0,sm_ttZ_lo} , {5,0.8523} };
-    ptsMap["ttZ"]["ctp_lo"]   = { {-5,0.5855}  , {0,sm_ttZ_lo} , {5,0.586} };
-    ptsMap["ttZ"]["ctZ_lo"]   = { {-5,1.903}  , {0,sm_ttZ_lo} , {5,1.896} };
-    ptsMap["ttZ"]["ctW_lo"]   = { {-5,0.5842}  , {0,sm_ttZ_lo} , {5,0.5846} };
+    //double sm_ttZ_lo = 0.5841; //PDF 2.3
+    //ptsMap["ttZ"]["cpt_lo"]   = { {-5,0.4395}  , {0,sm_ttZ_lo} , {5,0.8523} }; // PDF 2.3
+    //ptsMap["ttZ"]["ctp_lo"]   = { {-5,0.5855}  , {0,sm_ttZ_lo} , {5,0.586} };  // PDF 2.3
+    //ptsMap["ttZ"]["ctZ_lo"]   = { {-5,1.903}  , {0,sm_ttZ_lo} , {5,1.896} };   // PDF 2.3
+    //ptsMap["ttZ"]["ctW_lo"]   = { {-5,0.5842}  , {0,sm_ttZ_lo} , {5,0.5846} }; // PDF 2.3
+    */
+    // NNPDF31_nnlo_hessian_pdfas PDF which has LHAPDF ID 306000
+    //sm_ttZ_nlo = .7365;
+    //ptsMap["ttZ"]["ctZ_nlo"]   = { {-2,.9671}  , {0,sm_ttZ_nlo} , {3,1.244} };
+    //sm_ttZ_lo = .5219205;
+    //ptsMap["ttZ"]["ctZ_lo"]   = { {-2,.7085581}  , {0,sm_ttZ_lo} , {3,.9369637} };
+
+    //////////////////////////
+    // Reza NLO SMEFT QED2, All previous had been QED1 (Note: QED=2 does not really seem to actually do anything, still just get QED=1 contributions)
+    sm_ttZ_nlo = .732;
+    ptsMap["ttZ"]["ctW_nlo"]   = { {-1.5,.7314}  , {0,sm_ttZ_nlo} , {.5,.7343} };
+    sm_ttZ_lo = 6.471;
+    ptsMap["ttZ"]["ctW_lo"]   = { {-1.5,6.482}  , {0,sm_ttZ_lo} , {.5,6.453} };
+
+    sm_ttH_nlo = .4529;
+    ptsMap["ttH"]["cpt_nlo"]   = { {-5,.4564}  , {0,sm_ttH_nlo} , {5,.449} };
+    ptsMap["ttH"]["ctZ_nlo"]   = { {-5,.4526}  , {0,sm_ttH_nlo} , {5,.4536} };
+    //////////////////////////
 
     // Make the WCFits
     for (auto wc : custom_fits_wc_lst){
@@ -236,20 +400,28 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
 
         int chain_entries = chain.GetEntries();
         int last_entry = chain_entries;
-        if (chain_entries > 100000) { // 100k takes about 10min
+        if (chain_entries > 300000) { // 100k takes about 10min
             std::cout << "Chain_entries: " << chain_entries << std::endl;
-            last_entry = 100000;
+            last_entry = 300000;
         }
-        last_entry = 100; // For testing
+        //last_entry = 100000; // For testing
+        last_entry = 500; // For testing
         std::cout << "Last_entry: " << last_entry << std::endl;
+
+        // Test LS stuff
+        //int num_LS = 200;
+        int num_LS = 10; // Testing
+        std::set<int> unique_runs;
 
         int first_entry = 0;
 
         WCFit* wcFit_intree = 0;
         double originalXWGTUP_intree = -1.;
+        int lumiBlock_intree;
 
         chain.SetBranchAddress("originalXWGTUP",&originalXWGTUP_intree);
         chain.SetBranchAddress("wcFit",&wcFit_intree);
+        chain.SetBranchAddress("lumiBlock",&lumiBlock_intree);
 
         bool skip_progress = false;
 
@@ -270,6 +442,9 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
         chain.SetBranchAddress("genLep_pt2",&genLep_pt2_intree);
         chain.SetBranchAddress("genLep_pt3",&genLep_pt3_intree);
         chain.SetBranchAddress("genJet_pt4",&genJet_pt4_intree);
+
+        // Variables for 
+        int lumiBlock_first;
 
         // Set up the wc point string (depends a lot on the naming scheme)
         std::map<string,string> ref_pts_dict;
@@ -299,6 +474,22 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
             chain.GetEntry(i);
             sw.lap("Get Entry");
 
+            /*
+            // Check for LS info for just running over one block:
+            ////std::cout << lumiBlock_intree << std::endl;
+            ////if (i == first_entry){
+                ////lumiBlock_first = lumiBlock_intree;
+            ////}
+            ////if (lumiBlock_intree != lumiBlock_first){
+                ////std::cout << "Breanking the loop!" << std::endl;
+                ////break;
+            ////}
+            unique_runs.insert(lumiBlock_intree);
+            if (unique_runs.size()+1 > num_LS) {
+                break;
+            }
+            */
+
             sw.start("Add Fit");
             inclusive_fit.addFit(*wcFit_intree);
             sw.lap("Add Fit");
@@ -314,6 +505,7 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
                 //std::cout << "Skip; pt: " << genLep_pt3_intree << " , " << genJet_pt4_intree << std::endl;
             }
 
+
         }
         sw.stop("Full Loop");
 
@@ -325,11 +517,17 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
         double SM_xsec_incl = inclusive_fit.evalPoint(&sm_pt);
         double SM_xsec_sel = selection_fit.evalPoint(&sm_pt);
         inclusive_fit.scale(1.0/SM_xsec_incl);
+        /*
+        // TMP LS stuff
+        //inclusive_fit.scale(1.0/SM_xsec_incl); // TMP!!! do not norm to SM, LS stuff
+        inclusive_fit.scale(1.0/unique_runs.size()); // TMP!! LS stuff
+        std::cout << "\n\nnormalizing to LS!!! " << unique_runs.size() << "\n\n" << std::endl;
         selection_fit.scale(1.0/SM_xsec_sel);
+        */
 
         //std::cout << "\nAfter all norm!!! incl SM xsec: " << inclusive_fit.evalPoint(&sm_pt) << " selection SM xsec: " << selection_fit.evalPoint(&sm_pt) << std::endl;
 
-        /* // Dump the fit functions
+        ///* // Dump the fit functions
         //std::vector<std::string> list_of_WC = {"ctG","ctW"};
         std::vector<std::string> list_of_WC = {"ctp","cpQM","ctW","ctZ","ctG","cbW","cpQ3","cptb","cpt","cQl3i","cQlMi","cQei","ctli","ctei","ctlSi","ctlTi"};
         std::cout << " " << std:: endl;
@@ -338,7 +536,8 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
             //selection_fit.dump(false,153,WC);
             std::cout << " " << std:: endl;
         }
-        */
+        //*/
+        
 
         // Normalize ref pt and add to list
         std::cout << "Is ref? " << is_ref << std::endl;
@@ -356,18 +555,19 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
             TString tmp_tag = grp_tag;
 
             // This will set up the names in the legend
-            //TString comp_type = "0p1pComp";
+            TString comp_type = "0p1pComp"; // ResultsSec
             //TString comp_type = "qCutScan";
             //TString comp_type = "matchScaleScan";
             //TString comp_type = "startPtComp";
-            TString comp_type = "ttWttZchecks";
+            //TString comp_type = "ttWttZchecks"; // NLOCompSec
 
             // Get cleaned up version of process name
             if (process_TStr.Index("ttH") != -1){
                 leg_tag = "tth";
-            } else if (process_TStr.Index("ttll") != -1) {
+            // Note, do we still want ttll and ttlnu to show up at ttW and ttZ? Should re evalueate next time we want to plot ttll an ttlnu
+            } else if (process_TStr.Index("ttZ") != -1 or process_TStr.Index("ttll") != -1) { 
                 leg_tag = "ttZ";
-            } else if (process_TStr.Index("ttlnu") != -1) {
+            } else if (process_TStr.Index("ttW") != -1 or process_TStr.Index("ttlnu") != -1) {
                 leg_tag = "ttW";
             } else {
                 std::cout << "Note: process " << process << " is not ttH, ttll, or ttlnu. Not cleaning up process name." << std::endl;
@@ -386,9 +586,17 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
                 leg_tag = tmp_tag + " " + run_label;
             } else if (comp_type == "ttWttZchecks"){
                 leg_tag = process;
+                cout << "tmp_tag" << tmp_tag << std::endl;
                 if (tmp_tag.Index("QED1QCD2") != -1){
                     leg_tag = leg_tag + " qed=1 qcd=2";
                 }
+                if (tmp_tag.Index("QED1QCD3") != -1){
+                    leg_tag = leg_tag + " qed=1";
+                }
+                if (tmp_tag.Index("QED2") != -1){
+                    leg_tag = leg_tag + " qed=2";
+                }
+                //leg_tag = leg_tag + " " + run_label;
             }
 
             /* Misc legend settings
@@ -433,7 +641,14 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
         run_idx++;
     }
 
-    //print_xsec(target_fits.at(0));
+    /*
+    // TestPrint
+    print_xsec(target_fits.at(0));
+    std::cout << "\nThe size of the target fits: " << target_fits.size() << "\n" << std::endl;
+    for (size_t i=0; i<target_fits.size(); i++){
+        print_xsec(target_fits.at(i));
+    }
+    */
 
     bool print_stopwatch = 0;
     if (print_stopwatch) {    
@@ -466,6 +681,7 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
     for (auto& wc_name: wc_names) {
         arxiv_fit_comps_vect = {};
         std::vector<WCFit> subset_fits; // These are the fits we are actually going to plot
+        std::vector<customPointInfo> points_to_plot_with_errorbars; // This is what we'll pass to the plotting script
         for (uint i = 0; i < target_fits.size(); i++) {
             if (target_fits.at(i).hasCoefficient(wc_name)) {
                 // For comparing 1D fits to each other
@@ -524,17 +740,36 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
             for (auto wc : custom_fits_wc_lst){
                 if (wc == wc_name and custom_fits_map["ttH"].find(wc_name) != custom_fits_map["ttH"].end() ){
                     for (auto fit : custom_fits_map["ttH"][wc_name]){
-                        subset_fits.push_back(fit);
+                        //subset_fits.push_back(fit);
                     }
                 }
             }
+            // Reza smeft
+            for (auto points_vects: reza_pts_info_vect){
+                for (auto point: points_vects){
+                    if (point.proc_name == "tth" and point.wc_name == wc_name){
+                        std::cout << "point.wc: " << point.wc_name << std::endl;
+                        points_to_plot_with_errorbars.push_back(point);
+                    }
+                }
+            }
+
         } else if (curr_process.find("ttlnu") != std::string::npos or curr_process.find("ttW") != std::string::npos){
             std::cout << "Current proc is ttW:" << curr_process << std::endl;
             for (auto wc : custom_fits_wc_lst){
                 //if (wc == wc_name and custom_fits_map["ttW"].find(wc_name) != custom_fits_map["ttW"].end() ){
                 if (wc == wc_name ){
                     for (auto fit : custom_fits_map["ttW"][wc_name]){
-                        subset_fits.push_back(fit);
+                        //subset_fits.push_back(fit);
+                    }
+                }
+            }
+            // Reza smeft
+            for (auto points_vects: reza_pts_info_vect){
+                for (auto point: points_vects){
+                    if (point.proc_name == "ttW" and point.wc_name == wc_name){
+                        std::cout << "point.wc: " << point.wc_name << std::endl;
+                        points_to_plot_with_errorbars.push_back(point);
                     }
                 }
             }
@@ -542,33 +777,40 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
             std::cout << "Current proc is ttZ: " << curr_process << std::endl;
             LO_pair.first  = "1601.08193 LO";
             NLO_pair.first = "1601.08193 NLO";
-            //LO_pair.first  = "1601.08193 LO (mumu)";
-            //NLO_pair.first = "1601.08193 NLO (mumu)";
             if (wc_name=="ctG"){
-                LO_pair.second  = {1,0.376,0.339}; // ttZ (Tab 3)
-                NLO_pair.second = {1,0.353,0.278}; // ttZ (Tab 3)
-                //LO_pair.second  = {1,0.356,0.283}; // ttmu+mu- (Tab 6)
-                //NLO_pair.second = {1,0.335,0.226}; // ttmu+mu- (Tab 6)
+                //LO_pair.second  = {1,0.376,0.339}; // ttZ (Tab 3)
+                //NLO_pair.second = {1,0.353,0.278}; // ttZ (Tab 3)
+                LO_pair.second  = {1,0.37634549750590707, 0.33932790758729325}; // ttZ more precision (Tab 3)
+                NLO_pair.second = {1,0.3532423208191126, 0.2781569965870307}; // ttZ more precision (Tab 3)
             } else if (wc_name=="cpQ3"){
-                LO_pair.second  = {1,0.103,0.00368}; // ttZ (Tab 3)
-                NLO_pair.second = {1,0.103,0.00432}; // ttZ (Tab 3)
-                //LO_pair.second  = {1,0.0816,0.00319}; // ttmu+mu- (Tab 6)
-                //NLO_pair.second = {1,0.0793,0.00311}; // ttmu+mu- (Tab 6)
+                //LO_pair.second  = {1,0.103,0.00368}; // ttZ (Tab 3)
+                //NLO_pair.second = {1,0.103,0.00432}; // ttZ (Tab 3)
+                LO_pair.second  = {1,0.10278288264636387, 0.0036755053819900237}; // ttZ more precision (Tab 3)
+                NLO_pair.second = {1,0.1030716723549488, 0.004323094425483504}; // ttZ more precision (Tab 3)
             } else if (wc_name=="cpt"){
-                LO_pair.second  = {1,0.0677,0.00381}; // ttZ (Tab 3)
-                NLO_pair.second = {1,0.0654,0.00444}; // ttZ (Tab 3)
-                //LO_pair.second  = {1,0.0537,0.00315}; // ttmu+mu- (Tab 6)
-                //NLO_pair.second = {1,0.0504,0.00299}; // ttmu+mu- (Tab 6)
+                //LO_pair.second  = {1,0.0677,0.00381}; // ttZ (Tab 3)
+                //NLO_pair.second = {1,0.0654,0.00444}; // ttZ (Tab 3)
+                LO_pair.second  = {1,0.06773431346810187, 0.00380677343134681}; // ttZ more precision (Tab 3)
+                NLO_pair.second = {1,0.06541524459613197, 0.004436860068259386}; // ttZ more precision (Tab 3)
             } else if (wc_name=="ctW"){
-                LO_pair.second   = {1,-0.000263,0.0274}; // ttZ (Tab 3)
-                NLO_pair.second  = {1,-0.00193,0.0275};  // ttZ (Tab 3)
-                //LO_pair.second  = {1,0.000789,0.0235}; // ttmu+mu- (Tab 6)
-                //NLO_pair.second = {1,-0.00112,0.0227}; // ttmu+mu- (Tab 6)
+                //LO_pair.second   = {1,-0.000263,0.0274}; // ttZ (Tab 3)
+                //NLO_pair.second  = {1,-0.00193,0.0275};  // ttZ (Tab 3)
+                LO_pair.second  = {1,-0.00026253609871357313, 0.02743502231556839}; // ttZ more precision (Tab 3)
+                NLO_pair.second = {1,-0.0019340159271899885, 0.027531285551763367}; // ttZ more precision (Tab 3)
             }
             for (auto wc : custom_fits_wc_lst){
                 if (wc == wc_name and custom_fits_map["ttZ"].find(wc_name) != custom_fits_map["ttZ"].end()){
                     for (auto fit : custom_fits_map["ttZ"][wc_name]){
-                        subset_fits.push_back(fit);
+                        //subset_fits.push_back(fit);
+                    }
+                }
+            }
+            // Reza smeft
+            for (auto points_vects: reza_pts_info_vect){
+                for (auto point: points_vects){
+                    if (point.proc_name == "ttZ" and point.wc_name == wc_name){
+                        std::cout << "point.wc: " << point.wc_name << std::endl;
+                        points_to_plot_with_errorbars.push_back(point);
                     }
                 }
             }
@@ -583,7 +825,9 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
             wc_name,
             subset_fits,
             ref_pts,
-            arxiv_fit_comps_vect
+            arxiv_fit_comps_vect,
+            points_to_plot_with_errorbars,
+            curr_process
         );
         //*/
     }
