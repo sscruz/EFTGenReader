@@ -170,6 +170,7 @@ class EFTGenHistsWithCuts: public edm::EDAnalyzer
 
 	TH2EFT* h_2lss_jetbjetEFT; TH2D* h_2lss_jetbjetSM;
 	TH2EFT* h_3l_jetbjetEFT;   TH2D* h_3l_jetbjetSM;
+	TH2EFT* h_3l_sfz_jetbjetEFT;   TH2D* h_3l_sfz_jetbjetSM;
 	TH2EFT* h_4l_jetbjetEFT;   TH2D* h_4l_jetbjetSM;
 
         // declare the tree

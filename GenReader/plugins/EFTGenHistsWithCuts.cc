@@ -65,7 +65,7 @@ void EFTGenHistsWithCuts::beginJob()
                             if (k<l){
                                 TString hist_name = constructHistName(lep_cat,h_type,{k+1,l+1});
                                 hist_dict[hist_name] = newfs->make<TH1EFT>(hist_name,hist_name,h_bins,h_min,h_max);
-                                std::cout << hist_name << std::endl;
+                                //std::cout << hist_name << std::endl;
                             }
                         }
                     }
@@ -100,6 +100,8 @@ void EFTGenHistsWithCuts::beginJob()
     h_2lss_jetbjetSM =	newfs->make<TH2D>("h_2lss_jetbjetSM","h_2lss_jetbjetSM;N_{jets};N_{bjets}",njet_bins_jetbjet,0,njet_bins_jetbjet,nbjet_bins_jetbjet,0,nbjet_bins_jetbjet);
     h_3l_jetbjetEFT =	newfs->make<TH2EFT>("h_3l_jetbjetEFT","h_3l_jetbjetEFT;N_{jets};N_{bjets}",njet_bins_jetbjet,0,njet_bins_jetbjet,nbjet_bins_jetbjet,0,nbjet_bins_jetbjet);
     h_3l_jetbjetSM =	newfs->make<TH2D>("h_3l_jetbjetSM","h_3l_jetbjetSM;N_{jets};N_{bjets}",njet_bins_jetbjet,0,njet_bins_jetbjet,nbjet_bins_jetbjet,0,nbjet_bins_jetbjet);
+    h_3l_sfz_jetbjetEFT =	newfs->make<TH2EFT>("h_3l_sfz_jetbjetEFT","h_3l_sfz_jetbjetEFT;N_{jets};N_{bjets}",njet_bins_jetbjet,0,njet_bins_jetbjet,nbjet_bins_jetbjet,0,nbjet_bins_jetbjet);
+    h_3l_sfz_jetbjetSM =	newfs->make<TH2D>("h_3l_sfz_jetbjetSM","h_3l_sfz_jetbjetSM;N_{jets};N_{bjets}",njet_bins_jetbjet,0,njet_bins_jetbjet,nbjet_bins_jetbjet,0,nbjet_bins_jetbjet);
     h_4l_jetbjetEFT =	newfs->make<TH2EFT>("h_4l_jetbjetEFT","h_4l_jetbjetEFT;N_{jets};N_{bjets}",njet_bins_jetbjet,0,njet_bins_jetbjet,nbjet_bins_jetbjet,0,nbjet_bins_jetbjet);
     h_4l_jetbjetSM =	newfs->make<TH2D>("h_4l_jetbjetSM","h_4l_jetbjetSM;N_{jets};N_{bjets}",njet_bins_jetbjet,0,njet_bins_jetbjet,nbjet_bins_jetbjet,0,nbjet_bins_jetbjet);
 
@@ -370,28 +372,72 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
         double pt3 = p3.p4().Pt();
 	if(pt1 > 25 && pt2 > 15 && pt3 > 10)
 	{
+            bool isSFOSZ = false;
+            //look for OS
+            if(abs(p1.charge() + p2.charge() + p3.charge()) == 1) {
+                //loop over all leptons
+                for(size_t i = 0; i < pl_leptons.size(); i++) {
+                    //loop over leptons not seen yet (prevents (1,2) (2,1) duplicates)
+                    for(size_t j = i+1; j < pl_leptons.size(); j++) {
+                        //look for same flavor only (Z->ee or Z->mumu)
+                        if(abs(pl_leptons.at(i).pdgId()) != abs(pl_leptons.at(j).pdgId())) continue;
+                        //look for opposite sign only (e+e- or mu+mu-)
+                        if(pl_leptons.at(i).charge() * pl_leptons.at(j).charge() > 0) continue;
+                        //look for M(ll) - M(Z) < 10 GeV
+                        if(((pl_leptons.at(i).p4() + pl_leptons.at(j).p4()).M() - 91.2) < 10) {
+                            isSFOSZ = true;
+                            break; //done searching
+                        }
+                    }
+                    if(isSFOSZ) break; //no need to search any further
+                }
+            }
             if(pl_jets.size()<njet_max && pl_bjets.size()<nbjet_max)
             {
+                if(isSFOSZ) {
+                h_3l_sfz_jetbjetEFT->Fill(pl_jets.size(),pl_bjets.size(),1.0,eft_fit);
+                h_3l_sfz_jetbjetSM->Fill(pl_jets.size(),pl_bjets.size(),sm_wgt);
+                }
+                else {
                 h_3l_jetbjetEFT->Fill(pl_jets.size(),pl_bjets.size(),1.0,eft_fit);
                 h_3l_jetbjetSM->Fill(pl_jets.size(),pl_bjets.size(),sm_wgt);
+                }
             }
 
 	    else if(pl_jets.size()<njet_max && pl_bjets.size()>nbjet_max)
             {
+                if(isSFOSZ) {
+                h_3l_sfz_jetbjetEFT->Fill(pl_jets.size(),nbjet_max-1,1.0,eft_fit);
+                h_3l_sfz_jetbjetSM->Fill(pl_jets.size(),nbjet_max-1,sm_wgt);
+                }
+                else {
                 h_3l_jetbjetEFT->Fill(pl_jets.size(),nbjet_max-1,1.0,eft_fit);
                 h_3l_jetbjetSM->Fill(pl_jets.size(),nbjet_max-1,sm_wgt);
+                }
             }
 
 	    else if(pl_jets.size()>njet_max && pl_bjets.size()>nbjet_max)
             {
+                if(isSFOSZ) {
+                h_3l_sfz_jetbjetEFT->Fill(njet_max-1,pl_bjets.size(),1.0,eft_fit);
+                h_3l_sfz_jetbjetSM->Fill(njet_max-1,pl_bjets.size(),sm_wgt);
+                }
+                else {
                 h_3l_jetbjetEFT->Fill(njet_max-1,pl_bjets.size(),1.0,eft_fit);
                 h_3l_jetbjetSM->Fill(njet_max-1,pl_bjets.size(),sm_wgt);
+                }
             }
 
 	    else
 	    {
+                if(isSFOSZ) {
+                h_3l_sfz_jetbjetEFT->Fill(njet_max-1,nbjet_max-1,1.0,eft_fit);
+                h_3l_sfz_jetbjetSM->Fill(njet_max-1,nbjet_max-1,sm_wgt);
+                }
+                else {
                 h_3l_jetbjetEFT->Fill(njet_max-1,nbjet_max-1,1.0,eft_fit);
                 h_3l_jetbjetSM->Fill(njet_max-1,nbjet_max-1,sm_wgt);
+                }
             }
 	}
     }
