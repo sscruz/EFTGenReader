@@ -455,8 +455,8 @@ public:
                 this->coeffs.at(i) = c_x(i);
             }
             idx_pair = this->err_pairs.at(i);
-            //this->err_coeffs.at(i) = (idx_pair.first == idx_pair.second) ? c_x(idx_pair.first)*c_x(idx_pair.second) : 2*c_x(idx_pair.first)*c_x(idx_pair.second);
-            this->err_coeffs.at(i) = c_x(idx_pair.first)*c_x(idx_pair.second);
+            this->err_coeffs.at(i) = (idx_pair.first == idx_pair.second) ? c_x(idx_pair.first)*c_x(idx_pair.second) : 2*c_x(idx_pair.first)*c_x(idx_pair.second);
+            //this->err_coeffs.at(i) = c_x(idx_pair.first)*c_x(idx_pair.second);
         }
         //for (uint i = 0; i < this->size(); i++) {
         //    this->coeffs.at(i) = c_x(i);

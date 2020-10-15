@@ -4,6 +4,27 @@
 
 // run with: root -l -b -q run_unit_tests.C
 
+double fval(std::vector<double> xvals, std::vector<double> svals) {
+    // Ordering convention for the structure constants:
+    // Dim=0 (0,0)
+    // Dim=1 (0,0) (1,0) (1,1)
+    // Dim=2 (0,0) (1,0) (1,1) (2,0) (2,1) (2,2)
+    double y = 0.0;
+    int idx = 0;
+    for (int i=0; i < xvals.size(); i++) {
+        for (int j=0; j <= i ; j++) {
+            double c1 = xvals.at(i);
+            double c2 = xvals.at(j);
+            double s  = svals.at(idx);
+            y += s*c1*c2;
+            //std::cout << TString::Format("(%d,%d) ",i,j);
+            idx++;
+        }
+    }
+    //std::cout << std::endl;
+    return y;
+}
+
 bool test_wcfit() {
     std::string chk_str;
 
@@ -87,6 +108,152 @@ bool test_wcfit() {
     return (all_chks == units);
 }
 
+bool test_stats() {
+    std::string chk_str;
+    bool unit_chk;
+    int all_chks,units;
+    double result,expected,diff,tolerance;
+
+    // Basically the SM 'strength'
+    double x0 = 1.0;
+
+    // Dummy WC names to use (needs to match dimension of pt
+    std::vector<std::string> wc_names {"sm","ctG","ctZ"};
+
+    // The structure constants, need to match dimension of pt
+    std::vector<double> svals {
+        1.15, // (00)
+        1.35,1.25, // (10) (11)
+        0.25,0.75,1.00, // (20) (21) (22)
+    };
+    // Make sure there are enough pts to fully determine the fit!
+    std::vector<std::vector<double> > pts {
+        {x0,-1.00, 0.00},
+        {x0,-0.50, 0.25},
+        {x0, 0.00, 0.35},
+        {x0, 0.25, 0.05},
+        {x0, 0.50,-0.05},
+        {x0, 0.75, 0.25},
+        {x0, 1.00,-0.35},
+    };
+
+    std::vector<WCPoint> wc_pts;
+    for (auto pt: pts) {
+        double y = fval(pt,svals);
+        TString str = "wgt";
+        for (int i=1; i < pt.size(); i++) { // NOTE: pt better not be size 0!!
+            std::string wc_str = wc_names.at(i);
+            str += TString::Format("_%s_%.2f",wc_str.c_str(),pt.at(i));
+        }
+        wc_pts.push_back(WCPoint(str.Data(),y));
+    }
+
+    WCFit fit_1(wc_pts,"f1");
+    WCFit fit_2 = WCFit();
+    fit_2.setTag("f2");
+
+    int nevents = 5000;
+    for (int i=0; i < nevents; i++) {
+        fit_2.addFit(fit_1);
+    }
+
+    //////////////////////////////////////////////////////
+
+    std::cout << "Running unit tests for stats unc." << std::endl;
+    all_chks = 0;
+    units = 0;
+
+    // Needs to be the same size as wc_names
+    std::vector<double> chk_x {x0,1.2,0.4};
+    double chk_y = 0.0;
+    double chk_e = 0.0;
+    for (int i=0; i < nevents; i++) {
+        double v = fval(chk_x,svals);
+        chk_y += v;
+        chk_e += v*v;
+    }   
+    chk_e = sqrt(chk_e);
+
+    TString chk_wcstr("wgt");
+    int sidx = 0;
+    for (int i=0; i < wc_names.size(); i++) {
+        if (i) { // Need to skip first entry since that's the SM 'strength'
+            chk_wcstr += TString::Format("_%s_%.2f",wc_names.at(i).c_str(),chk_x.at(i));
+        }
+        for (int j=0; j <= i; j++) {
+            double v = svals.at(sidx);
+            std::cout << TString::Format("s%d%d: %.2f",i,j,v) << std::endl;
+            sidx++;
+        }
+    }
+    std::cout << std::endl;
+    WCPoint chk_pt(chk_wcstr.Data(),0.0);
+
+    //////////////////////////////////////////////////////
+
+    // Basic check for proper adding of quadratic structure constants
+    // Note: We expect the diff to grow with increased number of events due to the numeric precison
+    expected = chk_y;
+    result = fit_2.evalPoint(&chk_pt);
+    diff = abs(expected - result);
+    tolerance = 1e-4;
+
+    unit_chk = (diff < tolerance); all_chks += unit_chk; units += 1;
+    chk_str = unit_chk ? "Passed" : "Failed";
+    std::cout << "--- UNIT 1 ---" << std::endl;
+    std::cout << "evts     : " << nevents << std::endl;
+    std::cout << "chk_wcstr: " << chk_wcstr << std::endl;
+    std::cout << "expected : " << expected << std::endl;
+    std::cout << "result   : " << result << std::endl;
+    std::cout << "diff     : " << diff << std::endl;
+    std::cout << "tolerance: " << tolerance << std::endl;
+    std::cout << "test: " << chk_str << std::endl;
+    std::cout << "--------------\n" <<std::endl;
+
+
+    // Check the error calculation
+    // Note: We expect the diff to grow with increased number of events due to the numeric precison
+    expected = chk_e;
+    result = fit_2.evalPointError(&chk_pt);
+    diff = abs(expected - result);
+    tolerance = 1e-05*sqrt(10*nevents);
+
+    unit_chk = (diff < tolerance); all_chks += unit_chk; units += 1;
+    chk_str = unit_chk ? "Passed" : "Failed";
+    std::cout << "--- UNIT 2 ---" << std::endl;
+    std::cout << "evts     : " << nevents << std::endl;
+    std::cout << "chk_wcstr: " << chk_wcstr << std::endl;
+    std::cout << "expected : " << expected << std::endl;
+    std::cout << "result   : " << result << std::endl;
+    std::cout << "diff     : " << diff << std::endl;
+    std::cout << "tolerance: " << tolerance << std::endl;
+    std::cout << "test: " << chk_str << std::endl;
+    std::cout << "--------------\n" <<std::endl;
+
+    // Now do the percent error
+    // Note: The diff here also appears to grow apparently due to numeric precison, but much more slowly (it is still kind of concerning)
+    expected = chk_e / chk_y;
+    result = fit_2.evalPointError(&chk_pt) / fit_2.evalPoint(&chk_pt);
+    diff = abs(expected - result);
+    tolerance = 1e-04;
+
+    unit_chk = (diff < tolerance); all_chks += unit_chk; units += 1;
+    chk_str = unit_chk ? "Passed" : "Failed";
+    std::cout << "--- UNIT 3 ---" << std::endl;
+    std::cout << "evts     : " << nevents << std::endl;
+    std::cout << "chk_wcstr: " << chk_wcstr << std::endl;
+    std::cout << "expected : " << expected << std::endl;
+    std::cout << "result   : " << result << std::endl;
+    std::cout << "diff     : " << diff << std::endl;
+    std::cout << "tolerance: " << tolerance << std::endl;
+    std::cout << "test: " << chk_str << std::endl;
+    std::cout << "--------------\n" <<std::endl;
+
+    //////////////////////////////////////////////////////
+
+    std::cout << "Passed Checks: " << TString::Format("%d/%d",all_chks,units) << std::endl;
+    return (all_chks == units);
+}
 
 bool test_th1eft() {
     std::string chk_str;
@@ -296,6 +463,9 @@ void run_unit_tests() {
     bool all_chks = true;
 
     all_chks = test_wcfit() && all_chks;
+    std::cout << std::endl;
+
+    all_chks = test_stats() && all_chks;
     std::cout << std::endl;
 
     all_chks = test_th1eft() && all_chks;
