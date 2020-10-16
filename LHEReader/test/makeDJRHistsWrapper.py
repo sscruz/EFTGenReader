@@ -40,13 +40,51 @@ def make_plots(sample_loc,output_fn):
 
 def main():
 
-    # Han model orig, Han model v2 w/o 4 particel verts, Han model v4 comp
-    dir_loc = '/hadoop/store/user/kmohrman/summaryTree_LHE/2019_08_14_addPtBranches/ttHJet-ttWJet_R5B1-HanV4Model-Comp_analysisEtaCut-mAOD/v1'
-    dir_list = [
-        ("output_ttHJet_HanModel16DttllScanpoints_run1",               "ttHJet_Original_Model"),
-        ("output_ttHJet_HanV2ModelNOttggh16DttllScanpointsqCut19_run1","ttHJet_HanV2_NOttggh"),
-        ("output_ttHJet_HanV4lModel16DttllScanpointsqCut19_run1",      "ttHJet_HanV4"),
+    ### Directories for pheno paper ###
+
+    # Nominal ttH, ttW, ttZ
+    dir_loc_procs = '/hadoop/store/user/kmohrman/summaryTree_LHE/2020_03_03_addPSweights/ttX-ttXJet_HanV4_QED1-and-noConstraints_moreStats-goodStartPt-GEN/v1'
+    dir_list_procs = [
+        ("output_ttHJet_HanV4lModel16DttllScanpoints_run1" , "ttHJet_HanV4"),
+        ("output_ttWJet_HanV4goodStartPt_run1" , "ttWJet_HanV4"),
+        ("output_ttZJet_HanV4goodStartPt_run2" , "ttZJet_HanV4"),
     ]
+    # ttH q cut variations
+    dir_loc_ttHqCutScan = '/hadoop/store/user/kmohrman/summaryTree_LHE/2019_08_14_addPtBranches/ttXJet-HanV4Model-xqcut10qCutTests_analysisEtaCut-GEN/v1'
+    dir_list_ttHqCutScan = [
+        ("output_ttHJet_HanV4lModel16DttllScanpointsqCut15_run1", "ttHJet_xqcut10qCut15"),
+        ("output_ttHJet_HanV4lModel16DttllScanpointsqCut19_run1", "ttHJet_xqcut10qCut19"),
+        ("output_ttHJet_HanV4lModel16DttllScanpointsqCut25_run1", "ttHJet_xqcut10qCut25"),
+    ]
+
+    # ttHJet: xqCut=10 qCut Scan samples
+    dir_loc_ttHxqcutScan = '/hadoop/store/user/kmohrman/summaryTree_LHE/2019_08_14_addPtBranches/ttHJet_HanV4xqcutTests_analysisEtaCut-GEN/v1'
+    dir_list_ttHxqcutScan = [
+        ("output_ttHJet_HanV4ttXjetxqcut5qCut19_run1" , "ttHJet_HanV4_xqcut05qCut19"),
+        ("output_ttHJet_HanV4ttXjetxqcut10qCut19_run1", "ttHJet_HanV4_xqcut10qCut19"),
+        ("output_ttHJet_HanV4ttXjetxqcut15qCut19_run1", "ttHJet_HanV4_xqcut15qCut19"),
+    ]
+
+    # ttH missing 5 particle vertex
+    dir_loc_ttHmissing5PV = '/hadoop/store/user/kmohrman/summaryTree_LHE/2019_08_14_addPtBranches/ttHJet-xqcutStudies-xqcut10qCutTests_analysisEtaCut-GEN/v3/'
+    dir_list_ttHmissing5PV = [
+        ("output_ttHJet_HanModel16DttllScanpointsqCut19_run1" , "ttH_xqcut10qCut19_missing5PV"),
+    ]
+
+    #dir_loc , dir_list = dir_loc_procs, dir_list_procs
+    #dir_loc , dir_list = dir_loc_ttHqCutScan , dir_list_ttHqCutScan
+    #dir_loc , dir_list = dir_loc_ttHxqcutScan , dir_list_ttHxqcutScan
+    dir_loc , dir_list = dir_loc_ttHmissing5PV , dir_list_ttHmissing5PV
+
+    ##################################
+
+    ## Han model orig, Han model v2 w/o 4 particel verts, Han model v4 comp
+    #dir_loc = '/hadoop/store/user/kmohrman/summaryTree_LHE/2019_08_14_addPtBranches/ttHJet-ttWJet_R5B1-HanV4Model-Comp_analysisEtaCut-mAOD/v1'
+    #dir_list = [
+    #    ("output_ttHJet_HanModel16DttllScanpoints_run1",               "ttHJet_Original_Model"),
+    #    ("output_ttHJet_HanV2ModelNOttggh16DttllScanpointsqCut19_run1","ttHJet_HanV2_NOttggh"),
+    #    ("output_ttHJet_HanV4lModel16DttllScanpointsqCut19_run1",      "ttHJet_HanV4"),
+    #]
 
     # Han model v4
     #dir_loc = '/hadoop/store/user/kmohrman/summaryTree_LHE/2019_08_14_addPtBranches/ttXJet-HanV4Model-xqcut10qCutTests_analysisEtaCut-GEN/v1'
@@ -156,6 +194,7 @@ def main():
         #output_dir = '/afs/crc.nd.edu/user/k/kmohrman/www/EFT/DJRplots/WCtests/ctGscan/xqcut10qCut19'
         #output_dir = '/afs/crc.nd.edu/user/k/kmohrman/www/EFT/DJRplots/testing/FP_dir_test/{outf}WCvalsAN_noctGscan_djr'.format(outf=outf)
         #output_dir = '/afs/crc.nd.edu/user/k/kmohrman/www/EFT/DJRplots/ModelFileTests/dim6top_LO_UFO_HanV4_2/noCuts/{outf}ctGScan250'.format(outf=outf)
+        #output_dir = '/afs/crc.nd.edu/user/k/kmohrman/www/EFT/DJRplots/forPhenoFinalDraft/ttH_xqcut_scan/{outf}'.format(outf=outf)
 
         if output_dir == '':
             timestamp_tag = datetime.datetime.now().strftime('%Y%m%d_%H%M')
@@ -179,6 +218,7 @@ def main():
 
         #imgs = get_files('.',targets=["^ttHJet_.*\.png$"])
         imgs = get_files('.',targets=["^.*\.png$"])
+        imgs = imgs + get_files('.',targets=["^.*\.pdf$"])
         move_files(files=imgs,target=output_dir)
         make_html(output_dir)
 
