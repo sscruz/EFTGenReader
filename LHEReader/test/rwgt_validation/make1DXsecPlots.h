@@ -385,7 +385,8 @@ void make_1d_xsec_plot(
 
     // For ratio plots
     TString ratio_plot_title = "(0+1p)/0p";
-    double ratio_max_y = 1.5;
+    //double ratio_max_y = 1.5;
+    double ratio_max_y = 3;
     double ratio_min_y = 0.8;
     //TString ratio_plot_title = "ratio to qCut19";
     //double ratio_max_y = 1.03;
@@ -395,22 +396,27 @@ void make_1d_xsec_plot(
     bool include_legend = true;
     bool include_title = false;
     bool include_ratio = true;
-    bool include_error_bands = false;
+    bool include_error_bands = true;
     bool legend_centered = false;
     bool plotting_NLO_comp_fits = true;
 
     // X axis lims
     bool use_smefit_lims = true;
     bool use_asimov_lims = false;
+    bool use_10to10_lims = false;
     // Y axis lims
     double universal_ymin = 0;
-    bool use_hardcode_ylims = true;
+    bool use_hardcode_ylims = false;
 
     // Skip certain plots or fits
     bool skip_4f = true;
     bool skip_0p = false;
 
+    ///*
     // SPECIFIC TO PHENO RESULTS SECTION!!!
+    include_error_bands = false;
+    use_hardcode_ylims = true;
+    ratio_max_y = 1.5;
     if (points_to_plot_with_errorbars.size() == 0){
         include_ratio = true;
         skip_0p = false;
@@ -418,6 +424,7 @@ void make_1d_xsec_plot(
         include_ratio = false;
         skip_0p = true;
     }
+    //*/
 
     //// End setup ////
 
@@ -461,6 +468,7 @@ void make_1d_xsec_plot(
     // Setup the low and high limits for the plot
     std::vector<WCPoint> sorted_pts;
     double x_low,x_high,y_val;
+    /*
     int pts_sz;
     for (auto& wc_fit: wc_fits) {
         // Adjust plot axis for the rwgt points
@@ -494,6 +502,7 @@ void make_1d_xsec_plot(
             plt_ops.updateYLimits(ref_pt.wgt,ref_pt.wgt);
         }
     }
+    */
 
     // Fill dict with x axis ranges from AN
     std::map<string,double> xlims_dict;
@@ -564,6 +573,7 @@ void make_1d_xsec_plot(
     // Re-try setting axis ranges w/o using reference pts
     if (plt_ops.x_min == plt_ops.x_max) {
         for (auto& wc_fit: wc_fits) {
+            /*
             sorted_pts = wc_fit.getFitPoints();
             pts_sz = sorted_pts.size();
 
@@ -573,6 +583,7 @@ void make_1d_xsec_plot(
 
             x_low = std::max(x_low,-25.0);
             x_high = std::min(x_high,25.0);
+            */
 
             // Set x axis range to range AN range
             //x_low = -xlims_dict[wc_name];
@@ -587,6 +598,10 @@ void make_1d_xsec_plot(
                 //std::cout << asimov_lims_dict[wc_name].first << " , " << asimov_lims_dict[wc_name].first << std::endl;
                 x_low  = asimov_lims_dict[wc_name].first;
                 x_high = asimov_lims_dict[wc_name].second;
+            }
+            if (use_10to10_lims) {
+                x_low = -10;
+                x_high = 10;
             }
 
             plt_ops.updateXLimits(x_low,x_high);
@@ -667,7 +682,8 @@ void make_1d_xsec_plot(
     double r = 0.40;
     //double epsilon = 0.03;
     //double epsilon = 0.05;
-    double epsilon = 0.07;
+    //double epsilon = 0.07; // For paper
+    double epsilon = 0.0;
     double pad_left_edge;
     double pad_right_edge;
     double pad_top_edge;
