@@ -40,10 +40,8 @@ void setcanvas(TCanvas *c1, TPad **pad) {
 }
 
 void setlegend(TLegend *legend, TH1D *hall, TH1D *hmult0, TH1D *hmult1, TH1D *hmult2, TH1D *hmult3) {
-    //legend->SetTextSize(0.050);
     legend->SetTextSize(0.055);
     legend->SetBorderSize(0);
-    //legend->SetTextFont(62);
     legend->SetLineColor(0);
     legend->SetLineStyle(1);
     legend->SetLineWidth(1);
@@ -59,7 +57,6 @@ void setlegend(TLegend *legend, TH1D *hall, TH1D *hmult0, TH1D *hmult1, TH1D *hm
 }
 
 std::vector<TH1EFT*> makeTH1EFTs(const char *name, TChain *tree, int djr_idx, string rwgt_str, int nbins, double xlow, double xhigh) {
-////std::vector<TH1EFT> makeTH1EFTs(const char *name, TChain *tree, int djr_idx, string rwgt_str, int nbins, double xlow, double xhigh) {
 
     //std::string sample_type = "central_sample";
     std::string sample_type = "EFT_sample";
@@ -71,10 +68,8 @@ std::vector<TH1EFT*> makeTH1EFTs(const char *name, TChain *tree, int djr_idx, st
     // Set max number of events for event loop
     //int max_events = -1; // Run over all events
     //int max_events = 30000; // Debug
-    //int max_events = 100000; 
-    int max_events = 1000; 
-    //int max_events = 300000; // For FP files (for ttH, ttll, ttlnu)
-    //int max_events = 900000; // For FP files (for tHq, tllq)
+    //int max_events = 100000;
+    int max_events = 1000;
 
     Stopwatch sw;
     std::set<int> unique_runs;
@@ -234,33 +229,19 @@ std::vector<TH1EFT*> makeTH1EFTs(const char *name, TChain *tree, int djr_idx, st
               << ", rwgt_str: \"" << rwgt_str << "\")\n"
               << std::endl;
 
-    //hall->Scale(1.0/SM_norm)
-    //hmult->0Scale(1.0/SM_norm);
-    //hmult->1Scale(1.0/SM_norm);
-    //hmult->2Scale(1.0/SM_norm);
-    //hmult->3Scale(1.0/SM_norm);
-
     vector<TH1EFT*> hist_list; 
     hist_list.push_back(hall);
     hist_list.push_back(hmult0);
     hist_list.push_back(hmult1);
     hist_list.push_back(hmult2);
     hist_list.push_back(hmult3);
-    //vector<TH1EFT> hist_list; 
-    //hist_list.push_back(*hall);
-    //hist_list.push_back(*hmult0);
-    //hist_list.push_back(*hmult1);
-    //hist_list.push_back(*hmult2);
-    //hist_list.push_back(*hmult3);
 
     delete wc_pt;
     return hist_list;
 
 }
 
-//void makeplot(string rwgt_str,  const char *xlabel, std::vector<TH1EFT*> hist_list) {
-void makeplot(WCPoint *wc_pt,  const char *xlabel, std::vector<TH1EFT*> hist_list) {
-//void makeplot_Pointers(WCPoint *wc_pt,  const char *xlabel, std::vector<TH1EFT*> hist_list) {
+void makeplot(WCPoint* wc_pt,  const char* xlabel, std::vector<TH1EFT*> hist_list) {
 
     TH1EFT* hall   = hist_list[0];
     TH1EFT* hmult0 = hist_list[1];
@@ -300,10 +281,6 @@ void makeplot(WCPoint *wc_pt,  const char *xlabel, std::vector<TH1EFT*> hist_lis
         hmult3->SetBinError(bin_idx,wcfit_bin_err);
     }
 
-    //std::cout << "VALUE AT MAX BIN hall: " << hall->GetMaximumBin() << std::endl;
-    //std::cout << "VALUE AT MAX : " << hall->GetMaximum() << std::endl;
-    //std::cout << "VALUE AT MAX hmult1: " << hmult1->GetMaximum() << std::endl;
-    //std::cout << "VALUE AT MAX BIN for hmult1: " << hmult1->GetMaximumBin() << std::endl;
     double max_y = hall->GetBinContent(hall->GetMaximumBin());
     hall->GetYaxis()->SetRangeUser(0.01,50*(hall->GetBinContent(hall->GetMaximumBin()))); // Do not use GetMaximum() here since it will always be whatever we set it to first
 
@@ -334,7 +311,7 @@ void makeplot(WCPoint *wc_pt,  const char *xlabel, std::vector<TH1EFT*> hist_lis
     hall->GetXaxis()->SetLabelOffset(0.009);
     hall->GetYaxis()->SetLabelOffset(0.009);
 
-    //TLegend *legend=new TLegend(0.67,0.87-4*0.06,0.87,0.87);
+    //TLegend *legend=new TLegend(0.67,0.87-4*0.06,0.87,0.87); // left,top,right,bottom
     //TLegend *legend=new TLegend(0.14,0.87-3*0.06,0.32,0.87); // left,top,right,bottom
     TLegend *legend=new TLegend(0.14,0.89,0.32,0.9-0.07*3); // left,top,right,bottom
     setlegend(legend, hall, hmult0, hmult1, hmult2, hmult3);
@@ -348,102 +325,6 @@ void makeplot(WCPoint *wc_pt,  const char *xlabel, std::vector<TH1EFT*> hist_lis
     gPad->SetLogy(1);
 
     legend->Draw();
-    return;
-}
-
-// Version of this function with object instead of pointer
-void makeplot_obj(WCPoint *wc_pt,  const char *xlabel, std::vector<TH1EFT*> hist_list) {
-
-    TH1EFT hall   = *hist_list[0];
-    TH1EFT hmult0 = *hist_list[1];
-    TH1EFT hmult1 = *hist_list[2];
-    TH1EFT hmult2 = *hist_list[3];
-    TH1EFT hmult3 = *hist_list[4];
-
-    //WCPoint* wc_pt = new WCPoint(rwgt_str,0);
-    for (Int_t bin_idx = 0; bin_idx <= hall.GetNbinsX()+1; bin_idx++) {
-        double wcfit_bin_val = hall.GetBinFit(bin_idx).evalPoint(wc_pt);
-        double wcfit_bin_err = hall.GetBinFit(bin_idx).evalPointError(wc_pt);
-        //hall->SetBinContent(bin_idx,wcfit_bin_val);
-        //hall->SetBinError(bin_idx,wcfit_bin_err);
-        hall.SetBinContent(bin_idx,wcfit_bin_val);
-        hall.SetBinError(bin_idx,wcfit_bin_err);
-    }
-    for (Int_t bin_idx = 0; bin_idx <= hmult0.GetNbinsX()+1; bin_idx++) {
-        double wcfit_bin_val = hmult0.GetBinFit(bin_idx).evalPoint(wc_pt);
-        double wcfit_bin_err = hmult0.GetBinFit(bin_idx).evalPointError(wc_pt);
-        //hmult0->SetBinContent(bin_idx,wcfit_bin_val);
-        //hmult0->SetBinError(bin_idx,wcfit_bin_err);
-        hmult0.SetBinContent(bin_idx,wcfit_bin_val);
-        hmult0.SetBinError(bin_idx,wcfit_bin_err);
-    }
-    for (Int_t bin_idx = 0; bin_idx <= hmult1.GetNbinsX()+1; bin_idx++) {
-        double wcfit_bin_val = hmult1.GetBinFit(bin_idx).evalPoint(wc_pt);
-        double wcfit_bin_err = hmult1.GetBinFit(bin_idx).evalPointError(wc_pt);
-        //hmult1->SetBinContent(bin_idx,wcfit_bin_val);
-        //hmult1->SetBinError(bin_idx,wcfit_bin_err);
-        hmult1.SetBinContent(bin_idx,wcfit_bin_val);
-        hmult1.SetBinError(bin_idx,wcfit_bin_err);
-    }
-    for (Int_t bin_idx = 0; bin_idx <= hmult2.GetNbinsX()+1; bin_idx++) {
-        double wcfit_bin_val = hmult2.GetBinFit(bin_idx).evalPoint(wc_pt);
-        double wcfit_bin_err = hmult2.GetBinFit(bin_idx).evalPointError(wc_pt);
-        //hmult2->SetBinContent(bin_idx,wcfit_bin_val);
-        //hmult2->SetBinError(bin_idx,wcfit_bin_err);
-        hmult2.SetBinContent(bin_idx,wcfit_bin_val);
-        hmult2.SetBinError(bin_idx,wcfit_bin_err);
-    }
-    for (Int_t bin_idx = 0; bin_idx <= hmult3.GetNbinsX()+1; bin_idx++) {
-        double wcfit_bin_val = hmult3.GetBinFit(bin_idx).evalPoint(wc_pt);
-        double wcfit_bin_err = hmult3.GetBinFit(bin_idx).evalPointError(wc_pt);
-        //hmult3->SetBinContent(bin_idx,wcfit_bin_val);
-        //hmult3->SetBinError(bin_idx,wcfit_bin_err);
-        hmult3.SetBinContent(bin_idx,wcfit_bin_val);
-        hmult3.SetBinError(bin_idx,wcfit_bin_err);
-    }
-
-    std::cout << "VALUE AT MAX BIN hall: " << hall.GetMaximumBin() << std::endl;
-    std::cout << "VALUE AT MAX : " << hall.GetMaximum() << std::endl;
-    std::cout << "VALUE AT MAX hmult1: " << hmult1.GetMaximum() << std::endl;
-    std::cout << "VALUE AT MAX BIN for hmult1: " << hmult1.GetMaximumBin() << std::endl;
-    hall.GetYaxis()->SetRangeUser(0.001,hall.GetMaximum());
-    hall.Draw("EHIST");
-    std::cout << hall.GetBinContent(23) << std::endl;
-
-    /*
-    hall.SetLineColor(921);
-    hmult0.SetLineColor(600);
-    hmult1.SetLineColor(629);
-    hmult2.SetLineColor(419);
-    hmult3.SetLineColor(810);
-
-    hall.SetLineWidth(2);
-    hmult0.SetLineStyle(2);
-    hmult1.SetLineStyle(2);
-    hmult2.SetLineStyle(2);
-    hmult3.SetLineStyle(2);
-
-    hall.GetXaxis()->SetTitle(xlabel);
-
-    // Adjust sizes
-    hall.GetXaxis()->SetTitleSize(0.09);
-    hall.GetXaxis()->SetTitleOffset(0.8);
-    hall.GetXaxis()->SetLabelSize(0.06);
-    hall.GetYaxis()->SetLabelSize(0.06);
-
-    TLegend *legend=new TLegend(0.67,0.87-4*0.06,0.87,0.87);
-    setlegend(legend, &hall, &hmult0, &hmult1, &hmult2, &hmult3);
-
-    hall.Draw("EHIST");
-    hmult0.Draw("EHISTSAME");
-    hmult1.Draw("EHISTSAME");
-    //hmult2.Draw("EHISTSAME");
-    //hmult3.Draw("EHISTSAME");
-    gStyle->SetOptStat(0);
-    gPad->SetLogy(1);
-
-    legend->Draw();
-    */
     return;
 }
 
