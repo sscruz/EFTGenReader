@@ -196,50 +196,6 @@ std::string getRunDirectory(std::string str) {
     }
 }
 
-// Attempts to construct path to the scanpoints directory for a particular gridpack run
-std::string getScanPointsDirectory(std::string summary_tree_path) {
-    //NOTE: Assumes that the gridpack sub-directory is encoded into the summary tree directory path
-    //NOTE: This won't work if the directory structure underneath 'grp_tag' directory is changed
-    // Example Input: /hadoop/store/user/awightma/summaryTree_LHE/2018_05_06/ctW1dim/v1/output_ttH_ctW1dim_run6
-    // Example Input: /hadoop/store/user/awightma/summaryTree_LHE/reference_scans/HanModel_1jet/ttH-tllq4f-tHq4f-ttlnu-GEN/v1/output_tllq4fMatchedNoHiggs_cpQ3HanModel1DRef_run0
-    std::string base_dir = "/hadoop/store/user/awightma/gridpack_scans/";
-
-    std::vector<std::string> words;
-    split_string(summary_tree_path,words,"/");
-    if (words.size() < 6) {
-        std::cout << "[ERROR] Unable to parse summary tree path: " << summary_tree_path << std::endl;
-        return "";
-    } else if (words.at(5) != "summaryTree_LHE") {
-        std::cout << "[ERROR] Invalid summary tree path (bad name): " << summary_tree_path << std::endl;
-        return "";
-    }
-
-    uint start_idx = 0;
-    uint end_idx = words.size() - 4;
-    for (uint i=0; i < words.size(); i++) {
-        if (words.at(i) == "summaryTree_LHE") {
-            start_idx = i+1;
-            break;
-        }
-    }
-
-    if (start_idx > end_idx) {
-        std::cout << "[ERROR] Invalid summary tree path (bad idx): " << summary_tree_path << std::endl;
-    }
-
-    std::string sub_path = "";
-    for (uint i=start_idx; i <= end_idx; i++) {
-        sub_path += words.at(i);
-        if (i != end_idx) {
-            sub_path += "/";
-        }
-    }
-
-    //std::string scanpoints_dir = base_dir + words.at(6) + "/scanpoints/";
-    std::string scanpoints_dir = base_dir + sub_path + "/scanpoints/";
-    return scanpoints_dir;
-}
-
 // Reads a scanpoints file and returns a vector of WC points
 std::vector<WCPoint> parseScanPointsFile(std::string fpath) {
     std::string line,header;
@@ -363,7 +319,7 @@ void make_1d_xsec_plot(
     std::string proc_name = ""
 ) {
 
-    //// Setup the plots ////
+    //////// Setup the plots ////////
 
     // Colors
     // TMP: for making the private/arxiv/smeft LO vs NLO plots
@@ -379,18 +335,12 @@ void make_1d_xsec_plot(
     int ttWttZ_color = 4;          // Blue
 
     // Misc
-    //double y_axis_min = .8;
-    //double y_axis_min = 0;
     bool color_auto = false;
 
     // For ratio plots
     TString ratio_plot_title = "(0+1p)/0p";
-    //double ratio_max_y = 1.5;
     double ratio_max_y = 3;
     double ratio_min_y = 0.8;
-    //TString ratio_plot_title = "ratio to qCut19";
-    //double ratio_max_y = 1.03;
-    //double ratio_min_y = .97;
 
     // Plot features
     bool include_legend = true;
@@ -426,7 +376,7 @@ void make_1d_xsec_plot(
     }
     //*/
 
-    //// End setup ////
+    //////// End setup ////////
 
     if (skip_4f and wc_name.find("i") != std::string::npos){
         return;
@@ -437,7 +387,6 @@ void make_1d_xsec_plot(
         include_ratio = false;
     }
 
-    //plt_ops.x_name = "NP Strength";
     // Name the x axis
     TString x_axis_title = wc_name;
     if (wc_name.back() == 'i') {
@@ -466,43 +415,8 @@ void make_1d_xsec_plot(
     //plt_ops.setYLimits(-0.01,0.1);
 
     // Setup the low and high limits for the plot
-    std::vector<WCPoint> sorted_pts;
+    //std::vector<WCPoint> sorted_pts;
     double x_low,x_high,y_val;
-    /*
-    int pts_sz;
-    for (auto& wc_fit: wc_fits) {
-        // Adjust plot axis for the rwgt points
-        sorted_pts = wc_fit.getFitPoints();
-        pts_sz = sorted_pts.size();
-
-        if (wc_fit.getDim() <= 1) {
-            // For multi-dim fits the fit points aren't normally along the axis being displayed
-            sorted_pts = sortByWeight(sorted_pts);
-            plt_ops.updateYLimits(sorted_pts.at(0).wgt,sorted_pts.at(pts_sz - 1).wgt);
-        }
-
-        // Adjust plot axis for the ref points
-        //for (uint j = 0; j < ref_pts.size(); j++) {
-        for (auto& ref_pt: ref_pts) {
-            if (!ref_pt.isSMPoint()) {
-                // Always include a SM point
-                if (ref_pt.getDim() != 1) {
-                    // Don't try to plot pts which are in n-Dim WC phase space
-                    continue;
-                } else if (ref_pt.getStrength(wc_name) == 0.0) {
-                    // The point is 1-D, but not for the WC we are plotting
-                    continue;
-                }
-            }
-            //WCPoint orig_pt = ref_pts.at(j);
-            y_val = wc_fit.evalPoint(&ref_pt);
-
-            plt_ops.updateXLimits(1.2*ref_pt.getStrength(wc_name),1.2*ref_pt.getStrength(wc_name));
-            plt_ops.updateYLimits(y_val,y_val);
-            plt_ops.updateYLimits(ref_pt.wgt,ref_pt.wgt);
-        }
-    }
-    */
 
     // Fill dict with x axis ranges from AN
     std::map<string,double> xlims_dict;
@@ -573,18 +487,6 @@ void make_1d_xsec_plot(
     // Re-try setting axis ranges w/o using reference pts
     if (plt_ops.x_min == plt_ops.x_max) {
         for (auto& wc_fit: wc_fits) {
-            /*
-            sorted_pts = wc_fit.getFitPoints();
-            pts_sz = sorted_pts.size();
-
-            sorted_pts = sortByStrength(sorted_pts,wc_name);
-            x_low  = sorted_pts.at(0).getStrength(wc_name);
-            x_high = sorted_pts.at(pts_sz - 1).getStrength(wc_name);
-
-            x_low = std::max(x_low,-25.0);
-            x_high = std::min(x_high,25.0);
-            */
-
             // Set x axis range to range AN range
             //x_low = -xlims_dict[wc_name];
             //x_high = xlims_dict[wc_name];
@@ -619,71 +521,12 @@ void make_1d_xsec_plot(
 
     TCanvas *c1 = new TCanvas("c1","",1000,1000);
 
-    /*
-    double pad_left_edge;
-    double pad_right_edge;
-    //Float_t small = .04;
-    //Float_t small = .08;
-    //Float_t small = .3;
-    //const float padding = 1e-5;
-    if (include_ratio) {
-        const float ydiv = 0.28;
-        //c1->Divide(1,2,small,small);
-        c1->Divide(1,2);
-
-        c1->GetPad(1)->SetPad(0,ydiv,1,1); // xlow, ylow, xup, yup
-        //c1->GetPad(1)->SetPad(padding,ydiv+padding,1-padding,1-padding);
-        //c1->GetPad(1)->SetLeftMargin(.08);
-        //c1->GetPad(1)->SetRightMargin(.08);
-        c1->GetPad(1)->SetRightMargin(0.06);
-        c1->GetPad(1)->SetLeftMargin(0.15);
-        //c1->GetPad(1)->SetBottomMargin(.3);
-        c1->GetPad(1)->SetBottomMargin(.14);
-        c1->GetPad(1)->SetGrid(1,1);
-        c1->GetPad(1)->Modified();
-        
-        //c1->GetPad(2)->SetLeftMargin(.08);
-        //c1->GetPad(2)->SetRightMargin(.08);
-        c1->GetPad(2)->SetRightMargin(0.06);
-        c1->GetPad(2)->SetLeftMargin(0.15);
-        //c1->GetPad(2)->SetBottomMargin(.3);
-        c1->GetPad(2)->SetBottomMargin(.18);
-        //c1->GetPad(2)->SetPad(padding,padding,1-padding,ydiv-padding);
-        c1->GetPad(2)->SetPad(0,0,1,ydiv); // xlow, ylow, xup, yup
-        c1->GetPad(2)->SetTopMargin(.1);
-        c1->GetPad(2)->SetGrid(1,1);
-        c1->GetPad(2)->Modified();
-
-        c1->cd(2);
-        //gPad->SetTopMargin(small);
-        //gPad->SetTopMargin(.1);
-        gPad->SetTickx();
-        //gPad->Modified();
-        c1->cd(1);
-        //gPad->SetBottomMargin(small);
-        //gPad->SetBottomMargin(.1);
-        //gPad->Modified();
-        
-
-        pad_left_edge = c1->GetPad(1)->GetLeftMargin();
-        pad_right_edge = 1-c1->GetPad(1)->GetRightMargin();
-    } else {
-        c1->ToggleEventStatus();
-        c1->cd();
-        c1->SetGrid(1,1);
-        c1->GetPad(0)->SetRightMargin(0.06);
-        c1->GetPad(0)->SetLeftMargin(0.15);
-        c1->GetPad(0)->SetBottomMargin(0.14);
-        pad_left_edge = c1->GetPad(0)->GetLeftMargin();
-        pad_right_edge = 1-c1->GetPad(0)->GetRightMargin();
-    }
-    */
 
     double r = 0.40;
     //double epsilon = 0.03;
     //double epsilon = 0.05;
-    //double epsilon = 0.07; // For paper
-    double epsilon = 0.0;
+    double epsilon = 0.07; // For pheno paper
+    //double epsilon = 0.0;
     double pad_left_edge;
     double pad_right_edge;
     double pad_top_edge;
@@ -718,7 +561,6 @@ void make_1d_xsec_plot(
     // The legend
     double ledgend_width = 0.65;
     TLegend *legend;
-    //if (include_ratio or legend_centered) {
     if (legend_centered) {
         left  = (pad_right_edge-pad_left_edge)/2 + pad_left_edge - ledgend_width/2; // Center the legend on the pad, not canvas
         right = (pad_right_edge-pad_left_edge)/2 + pad_left_edge + ledgend_width/2; // Center the legend on the pad, not canvas
@@ -728,15 +570,6 @@ void make_1d_xsec_plot(
         legend->SetNColumns(wc_fits.size());
         legend->SetBorderSize(0);
     } else {
-        /*
-        left         = 0.81;
-        right        = 0.98;
-        top          = 0.9;
-        scale_factor = 0.05;
-        minimum      = 0.1;
-        bottom = std::max(top - scale_factor*(wc_fits.size()+1),minimum);
-        legend = new TLegend(left,top,right,bottom);
-        */
         // Top right
         left   = pad_right_edge-ledgend_width;
         right  = pad_right_edge-0.003;
@@ -775,18 +608,6 @@ void make_1d_xsec_plot(
         // Set axes name
         fit->GetXaxis()->SetTitle(x_axis_name);
         fit->GetYaxis()->SetTitle(y_axis_name);
-        /*
-        // Set size of axis lables and offset from axis
-        fit->GetXaxis()->SetTitleSize(0.060);
-        fit->GetYaxis()->SetTitleSize(0.075);
-        fit->GetYaxis()->SetTitleOffset(0.98);
-        fit->GetXaxis()->SetTitleOffset(0.98);
-        // Set the sizes of the numbers on the axes:
-        fit->GetYaxis()->SetLabelSize(0.045);
-        fit->GetXaxis()->SetLabelSize(0.045);
-        fit->GetYaxis()->SetLabelOffset(0.015);
-        fit->GetXaxis()->SetLabelOffset(0.015);
-        */
         fit->GetXaxis()->SetTitleSize(0.060);
         fit->GetYaxis()->SetTitleSize(0.12);
         fit->GetYaxis()->SetTitleOffset(0.68);
@@ -796,14 +617,6 @@ void make_1d_xsec_plot(
         fit->GetYaxis()->SetLabelOffset(0.015);
         fit->GetXaxis()->SetLabelOffset(0.015);
         if (not include_ratio){
-            /*
-            fit->GetXaxis()->SetTitleOffset(1.0);
-            fit->GetYaxis()->SetTitleOffset(0.8);
-            fit->GetXaxis()->SetLabelSize(0.061);
-            fit->GetYaxis()->SetLabelSize(0.061);
-            fit->GetXaxis()->SetTitleSize(0.065);
-            fit->GetYaxis()->SetTitleSize(0.092);
-            */
             fit->GetXaxis()->SetLabelSize(0.050);
             fit->GetYaxis()->SetLabelSize(0.050);
             fit->GetXaxis()->SetTitleOffset(1.1);
@@ -1013,23 +826,12 @@ void make_1d_xsec_plot(
         for (int i=0; i<hist_vect.size(); i++){
             ratio_hist = makeRatioHistogram("rhist",hist_vect.at(i),hist_vect.at(1)); // Need to choose which hist to divide w.r.t.
             //ratio_hist = makeRatioHistogram("rhist",hist_vect.at(i),hist_vect.at(0)); // Need to choose which hist to divide w.r.t.
-            //ratio_hist->GetYaxis()->SetNdivisions(010,true);
             //ratio_hist->GetYaxis()->SetNdivisions(4,1,0,true);
             ratio_hist->GetYaxis()->SetNdivisions(4,5,0,true);
             ratio_hist->GetYaxis()->SetTitle(ratio_plot_title);
-            /*
-            ratio_hist->GetYaxis()->SetTitleOffset(0.4);
-            //ratio_hist->GetYaxis()->SetTitleSize(0.12);
-            ratio_hist->GetYaxis()->SetTitleSize(0.19);
-            ratio_hist->GetYaxis()->SetLabelSize(0.15);
-            ratio_hist->GetXaxis()->SetLabelSize(0.15);
-            ratio_hist->GetYaxis()->SetLabelOffset(0.015);
-            ratio_hist->GetXaxis()->SetLabelOffset(0.015);
-            */
 
             ratio_hist->GetYaxis()->SetTitleOffset(0.50);
             ratio_hist->GetXaxis()->SetTitleSize(0.16);
-            //ratio_hist->GetYaxis()->SetTitleSize(0.18);
             ratio_hist->GetYaxis()->SetTitleSize(0.16);
             ratio_hist->GetXaxis()->SetLabelSize(0.15);
             ratio_hist->GetYaxis()->SetLabelSize(0.10);
@@ -1041,7 +843,6 @@ void make_1d_xsec_plot(
             ratio_hist->SetLineWidth(3);
             ratio_hist->SetLineColor(fit_color_vect.at(i));
             ratio_hist->SetLineStyle(fit_style_vect.at(i));
-            //ratio_hist->SetLineColor(plt_ops.getColor(i));
             ratio_hist->SetMaximum(ratio_max_y);
             ratio_hist->SetMinimum(ratio_min_y);
             ratio_hist->Draw("SAME C");
@@ -1090,27 +891,22 @@ void make_1d_xsec_plot(
         }
     }
 
+    /*
     double txt_x = 0.9;
     double txt_y = 0.93;
     double txt_sz = 0.02;
     double txt_xoff = 0.0;
     double txt_yoff = -0.02;
-
     TLatex CMS_text = TLatex(txt_x,txt_y,"CMS Preliminary Simulation");
     TLatex Lumi_text = TLatex(txt_x + txt_xoff,txt_y + txt_yoff,"Luminosity = 41.29 fb^{-1}");
-    
     CMS_text.SetNDC(1);
     CMS_text.SetTextSize(txt_sz);
     CMS_text.SetTextAlign(30);
-
     Lumi_text.SetNDC(1);
     Lumi_text.SetTextSize(txt_sz);
     Lumi_text.SetTextAlign(30);
-
-    //CMS_text.Draw("same");
-    //Lumi_text.Draw("same");
-
     c1->Update();
+    */
 
 
     TString save_name;
@@ -1164,46 +960,6 @@ void make_fitparams_file(
         }
     }
 }
-
-/*
-// For 1-D fits, generate a fit using only MadGraph starting points
-void make_dedicated_fits(
-    std::string process,
-    std::vector<std::string> wc_names,
-    std::vector<WCPoint> orig_pts
-)
-{
-    std::string output_dir = "read_lhe_outputs";
-    for (auto& wc_name: wc_names) {
-        std::vector<WCPoint> fit_pts;
-        for (uint i = 0; i < orig_pts.size(); i++) {
-            WCPoint wc_pt = orig_pts.at(i);
-            if (wc_pt.hasWC(wc_name) && wc_pt.isSMPoint()) {
-                // Always add SM points to the list
-                fit_pts.push_back(wc_pt);
-            } else if (wc_pt.hasWC(wc_name) && wc_pt.getDim() == 1 && wc_pt.getStrength(wc_name) != 0.0) {
-                // Add 1-D points which are non-zero for the WC of interest
-                fit_pts.push_back(wc_pt);
-            }
-        }
-
-        if (fit_pts.size() < 3) {
-            std::cout << "[ERROR] Not enough fit points for " << wc_name << ", skipping..." << std::endl;
-            continue;
-        }
-
-        std::string fit_tag = process + "_" + wc_name + "_" + "orig";
-        WCFit fit(fit_pts,fit_tag);
-        std::string save_path = output_dir + "/" + "fitparams_" + process + "_" + wc_name + ".txt";
-        fit.save(save_path);
-        for (uint i = 0; i < fit_pts.size(); i++) {
-            WCPoint wc_pt = fit_pts.at(i);
-            wc_pt.dump(wc_name,false);
-        }
-        std::cout << std::endl;
-    }
-}
-*/
 
 
 
