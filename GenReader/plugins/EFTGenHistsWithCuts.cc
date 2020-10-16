@@ -232,53 +232,62 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
     h_SMwgt_norm->Fill(sm_wgt);
 
     // Find what lepton category (if any) this even falls into
-    TString lep_cat = getLepCat(gen_leptons);
-
-    // Loop over jets and fill jet hists automatically
-    double ht=0;
-    for (size_t i = 0; i < gen_jets_clean.size(); i++) {
-        const reco::GenJet& p1= gen_jets.at(i);
-        double pt = p1.p4().Pt();
-        double eta = p1.p4().Eta();
-        //std::cout << pt << std::endl;
-        TString h_pt_name = constructHistName(lep_cat,"jet_pt",{i+1});
-        TString h_eta_name = constructHistName(lep_cat,"jet_eta",{i+1});
-        fillHistIfExists(h_pt_name,pt,eft_fit);
-        fillHistIfExists(h_eta_name,eta,eft_fit);
-        ht = ht + pt;
-        for (size_t j = 0; j < gen_jets_clean.size(); j++) {
-            const reco::GenJet& p2 = gen_jets.at(j);
-            double dR = getdR(p1,p2);
-            int hist_number = 10*(i+1)+(j+1);
-            TString h_dR_name = constructHistName(lep_cat,"jet_dR",{i+1,j+1});
-            fillHistIfExists(h_dR_name,dR,eft_fit);
-        }
+    TString lep_cat_name = getLepCat(gen_leptons);
+    std::vector<TString> cats_vect;
+    if (lep_cat_name != "none"){
+        cats_vect = {lep_cat_name,"anyLepCat"};
+    } else {
+        cats_vect = {lep_cat_name};
     }
 
-    // Fill jet hists that include info for all jets in event
-    TString h_ht_name = constructHistName(lep_cat,"ht",{});
-    fillHistIfExists(h_ht_name,ht,eft_fit);
-    TString h_njet_name = constructHistName(lep_cat,"njets",{});
-    fillHistIfExists(h_njet_name,gen_jets_clean.size(),eft_fit);
+    for (auto lep_cat: cats_vect){
+        std::cout << lep_cat << std::endl;
+        // Loop over jets and fill jet hists automatically
+        double ht=0;
+        for (size_t i = 0; i < gen_jets_clean.size(); i++) {
+            const reco::GenJet& p1= gen_jets.at(i);
+            double pt = p1.p4().Pt();
+            double eta = p1.p4().Eta();
+            //std::cout << pt << std::endl;
+            TString h_pt_name = constructHistName(lep_cat,"jet_pt",{i+1});
+            TString h_eta_name = constructHistName(lep_cat,"jet_eta",{i+1});
+            fillHistIfExists(h_pt_name,pt,eft_fit);
+            fillHistIfExists(h_eta_name,eta,eft_fit);
+            ht = ht + pt;
+            for (size_t j = 0; j < gen_jets_clean.size(); j++) {
+                const reco::GenJet& p2 = gen_jets.at(j);
+                double dR = getdR(p1,p2);
+                int hist_number = 10*(i+1)+(j+1);
+                TString h_dR_name = constructHistName(lep_cat,"jet_dR",{i+1,j+1});
+                fillHistIfExists(h_dR_name,dR,eft_fit);
+            }
+        }
 
-    // Loop over leptonss and fill hists automatically
-    for (size_t i = 0; i < gen_leptons_charged.size(); i++) {
-        const reco::GenParticle& p1 = gen_leptons_charged.at(i);
-        double pt = p1.p4().Pt();
-        double eta = p1.p4().Eta();
-        TString h_pt_name = constructHistName(lep_cat,"lep_pt",{i+1});
-        TString h_eta_name = constructHistName(lep_cat,"lep_eta",{i+1});
-        fillHistIfExists(h_pt_name,pt,eft_fit);
-        fillHistIfExists(h_eta_name,eta,eft_fit);
-        for (size_t j = 0; j < gen_leptons_charged.size(); j++) {
-            const reco::GenParticle& p2 = gen_leptons_charged.at(j);
-            double dR = getdR(p1,p2);
-            double mll = getInvMass(p1,p2);
-            int hist_number = 10*(i+1)+(j+1);
-            TString h_dR_name = constructHistName(lep_cat,"lep_dR",{i+1,j+1});
-            TString h_mll_name = constructHistName(lep_cat,"lep_mll",{i+1,j+1});
-            fillHistIfExists(h_dR_name,dR,eft_fit);
-            fillHistIfExists(h_mll_name,mll,eft_fit);
+        // Fill jet hists that include info for all jets in event
+        TString h_ht_name = constructHistName(lep_cat,"ht",{});
+        fillHistIfExists(h_ht_name,ht,eft_fit);
+        TString h_njet_name = constructHistName(lep_cat,"njets",{});
+        fillHistIfExists(h_njet_name,gen_jets_clean.size(),eft_fit);
+
+        // Loop over leptonss and fill hists automatically
+        for (size_t i = 0; i < gen_leptons_charged.size(); i++) {
+            const reco::GenParticle& p1 = gen_leptons_charged.at(i);
+            double pt = p1.p4().Pt();
+            double eta = p1.p4().Eta();
+            TString h_pt_name = constructHistName(lep_cat,"lep_pt",{i+1});
+            TString h_eta_name = constructHistName(lep_cat,"lep_eta",{i+1});
+            fillHistIfExists(h_pt_name,pt,eft_fit);
+            fillHistIfExists(h_eta_name,eta,eft_fit);
+            for (size_t j = 0; j < gen_leptons_charged.size(); j++) {
+                const reco::GenParticle& p2 = gen_leptons_charged.at(j);
+                double dR = getdR(p1,p2);
+                double mll = getInvMass(p1,p2);
+                int hist_number = 10*(i+1)+(j+1);
+                TString h_dR_name = constructHistName(lep_cat,"lep_dR",{i+1,j+1});
+                TString h_mll_name = constructHistName(lep_cat,"lep_mll",{i+1,j+1});
+                fillHistIfExists(h_dR_name,dR,eft_fit);
+                fillHistIfExists(h_mll_name,mll,eft_fit);
+            }
         }
     }
     

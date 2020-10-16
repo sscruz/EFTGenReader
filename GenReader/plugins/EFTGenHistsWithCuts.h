@@ -196,7 +196,7 @@ class EFTGenHistsWithCuts: public edm::EDAnalyzer
         // Set up the categories we want to consider and histogram types we want to make
 
         std::map<TString,TH1EFT*> hist_dict;
-        std::vector<std::string> lep_cats_vect {"2lss","3l","4l"};
+        std::vector<std::string> lep_cats_vect {"2lss","3l","4l","anyLepCat"};
 
         int n_eta_bins = 12;
         int eta_min = -3;
@@ -496,8 +496,7 @@ TString EFTGenHistsWithCuts::constructHistName(TString lep_cat, TString hist_typ
 void EFTGenHistsWithCuts::fillHistIfExists(TString h_name, double val, WCFit eft_fit){
     if (hist_dict.find(h_name) != hist_dict.end()){
         hist_dict[h_name]->Fill(val,1.0,eft_fit);
-        if (h_name == "h_3l_njets_1"){
-        }
+        //std::cout << "Filling hist " << h_name << std::endl;
     }
 }
 
