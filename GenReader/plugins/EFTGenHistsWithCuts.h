@@ -39,7 +39,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
+//#include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
+#include "FWCore/PythonParameterSet/interface/PyBind11ProcessDesc.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 // Physics
