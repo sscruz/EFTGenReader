@@ -1,9 +1,9 @@
 ### Set up the Repo
 To install this package:
-
+    cmsrel CMSSW_10_6_8
     cd $CMSSW_BASE/src/
     cmsenv
-    git clone https://github.com/Andrew42/EFTGenReader.git EFTGenReader
+    git clone https://github.com/TopEFT/EFTGenReader.git EFTGenReader
     scram b
 **Note:** In the `wrapperEFTGenPlots.py` file, make sure the `GEN_PLOTS_DIR` variable points to the directory that you want the output directory to be created.
 
