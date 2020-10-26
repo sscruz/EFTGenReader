@@ -17,6 +17,7 @@ class TH2EFT : public TH2D
         
         // usual constructor:
         TH2EFT(const char *name, const char *title, Int_t nbinsx, Double_t xlow, Double_t xup, Int_t nbinsy, Double_t ylow, Double_t yup);
+        TH2EFT(const char *name, const char *title, Int_t nbinsx, Double_t *x, Int_t nbinsy, Double_t* y);
         
         std::vector<WCFit> hist_fits;
         //TODO(maybe?): Add over/underflow bin fit functions and update Fill to use them accordingly
@@ -32,10 +33,13 @@ class TH2EFT : public TH2D
         WCFit GetSumFit(Int_t axis);
         Double_t GetBinContent(Int_t binx, Int_t biny, WCPoint wc_pt);
         Double_t GetBinContent(Int_t bin, WCPoint wc_pt);
+        TH2EFT* Rebin(Int_t nbinsx, Double_t *x, Int_t nbinsy, Double_t* y);
         //TH2EFT* Scale(WCPoint wc_pt);
         void Scale(WCPoint wc_pt);
         void ScaleFits(double amt, Int_t axis);
+        void AddBinFit(Int_t bin, WCFit &fit);
         void DumpFits();
+        void SetBinFit(Int_t bin, WCFit &fits);
         
         void SetBins(Int_t nx, Double_t xmin, Double_t xmax, Int_t ny, Double_t ymin, Double_t ymax);  // overriding virtual function from TH2
         Bool_t Add(const TH2 *h1, Double_t c1=1); // overriding virtual function from TH2

@@ -13,6 +13,15 @@ TH2EFT::TH2EFT(const char *name, const char *title, Int_t nbinsx, Double_t xlow,
         this->hist_fits.push_back(new_fit);
     }
 }
+TH2EFT::TH2EFT(const char *name, const char *title, Int_t nbinsx, Double_t *x, Int_t nbinsy, Double_t* y)
+ : TH2D (name, title, nbinsx, x, nbinsy, y) 
+{
+    // Create/Initialize a fit function for each bin in the histogram
+    WCFit new_fit;
+    for (Int_t i = 0; i < this->FindFixBin(x[nbinsx-1],y[nbinsy-1]); i++) {
+        this->hist_fits.push_back(new_fit);
+    }
+}
 void TH2EFT::SetBins(Int_t nx, Double_t xmin, Double_t xmax, Int_t ny, Double_t ymin, Double_t ymax)
 {
     // Use this function with care! Non-over/underflow bins are simply
@@ -68,7 +77,27 @@ Bool_t TH2EFT::NormalizeTo(const TH2D *h1, Double_t c1)
             double thisbinerror = this->GetBinError(bin);
             double h1bin = h1->GetBinContent(bin);
             double h1binerror = h1->GetBinError(bin);
-            h1binerror = (thisbin - h1bin) / pow(h1bin, c1) * sqrt((h1binerror/h1bin)*(h1binerror/h1bin) + (thisbinerror/thisbin)*(thisbinerror/thisbin));
+            //h1binerror = (thisbin - h1bin) / pow(h1bin, c1) * sqrt((h1binerror/h1bin)*(h1binerror/h1bin) + (thisbinerror/thisbin)*(thisbinerror/thisbin));
+            //h1binerror = (thisbin - h1bin) / pow(h1bin, c1) * sqrt( pow(1/(thisbin - h1bin),2) * (thisbinerror*thisbinerror + h1binerror*h1binerror) + 1/4 * pow(h1binerror/h1bin, 2) ); //dependent, sigmaD^2 = fom^2 * ( sigmaE^2 + sigmaS^2 )
+            double fom = (thisbin - h1bin) / pow(h1bin, c1);
+            double efterrsq = thisbinerror*thisbinerror;
+            double smerrsq = h1binerror*h1binerror;
+            double diff = abs(thisbin - h1bin);
+            double diffsq = diff * diff;
+            //int bval = 36;
+            int bval = 58;
+            if(bin == bval) std::cout << fom << "\t" << h1binerror << "\t" << diff << "\t" << diffsq << std::endl;
+            //h1binerror = fom * sqrt( abs(efterrsq - smerrsq) / diffsq + 1/4 * smerrsq/(h1bin*h1bin));
+            if(bin == bval) std::cout << abs(efterrsq - smerrsq) << std::endl;
+            if(bin == bval) std::cout << abs(efterrsq - smerrsq) / diffsq << std::endl;
+            if(bin == bval) std::cout << smerrsq/(h1bin*h1bin) << std::endl;
+            if(bin == bval) std::cout << abs(efterrsq - smerrsq) / diffsq + 1/4 * smerrsq/(h1bin*h1bin) << std::endl;
+            if(bin == bval) std::cout << sqrt(abs(efterrsq - smerrsq) / diffsq + 1/4 * smerrsq/(h1bin*h1bin)) << std::endl;
+            if(bin == bval) std::cout << fom*sqrt(abs(efterrsq - smerrsq) / diffsq + 1/4 * smerrsq/(h1bin*h1bin)) << std::endl;
+            h1binerror = fom * sqrt( abs(efterrsq - smerrsq) / diffsq + 1/4 * smerrsq/(h1bin*h1bin) );
+            //h1binerror = (thisbin - h1bin) / pow(h1bin, c1) * sqrt( (thisbinerror*thisbinerror + h1binerror*h1binerror) / ((thisbin - h1bin)*(thisbin - h1bin)) + 1/4 * h1binerror*h1binerror / (h1bin*h1bin) );
+            //h1binerror = sqrt(pow(thisbinerror, 2)/h1bin + ( 1/4 * pow(thisbin + h1bin, 2) / pow(h1bin, 3)) * pow(h1binerror, 3)); //independent
+            //h1binerror = fom * sqrt( abs(thisbinerror*thisbinerror - h1binerror*h1binerror) / ( (thisbin - h1bin)*(thisbin - h1bin) ) + 1/4 * (h1binerror*h1binerror) / (h1bin*h1bin) );
             this->SetBinContent(bin, (thisbin - h1bin) / pow(h1bin, c1)); //Set this bin to (this - h1) / pow(h1, c1) ((this - h1)) / sqrt(h1) by default)
             this->SetBinError(bin, h1binerror); //Set this bin error to quad sum
         }
@@ -219,4 +248,48 @@ void TH2EFT::DumpFits()
     for (uint i = 0; i < this->hist_fits.size(); i++) {
         this->hist_fits.at(i).dump();
     }
+}
+
+// Set a fit function for a particular bin (no checks are made if the bin is an over/underflow bin)
+void TH2EFT::SetBinFit(Int_t bin, WCFit &fit)
+{
+    Int_t nhists = this->hist_fits.size();
+    if (bin <= 0) {
+        underflow_fit = fit;
+    } else if (bin > nhists) {
+        overflow_fit = fit;
+    }
+    else this->hist_fits.at(bin - 1) = fit;
+}
+
+void TH2EFT::AddBinFit(Int_t bin, WCFit &fit)
+{
+    auto thisfit = this->GetBinFit(bin);
+    thisfit.dump();
+    thisfit.addFit(fit);
+    thisfit.dump();
+    this->SetBinFit(bin, thisfit);
+
+}
+
+//Create a new bin with rebinned range
+TH2EFT* TH2EFT::Rebin(Int_t nbinsx, Double_t *x, Int_t nbinsy, Double_t* y)
+{
+    TH2EFT *h = new TH2EFT(TString::Format("%s_%s", this->GetName(), "rebin"), TString::Format("%s_%s",this->GetTitle(), "rebin"), nbinsx, x, nbinsy, y);
+    for(int i = 0; i < this->GetNbinsX(); i++) {
+        for(int j = 0; j < this->GetNbinsY(); j++) {
+            int thisbin = this->FindBin(i, j);
+            int newbin = h->FindBin(i, j);
+            double thisval = this->GetBinContent(thisbin);
+            double thiserr = this->GetBinError(thisbin);
+            double newval = h->GetBinContent(newbin);
+            double newerr = h->GetBinError(newbin);
+            auto thisfit = this->GetBinFit(thisbin);
+            h->SetBinContent(newbin, thisval + newval);
+            h->SetBinError(newbin, sqrt(thiserr*thiserr + newerr*newerr));
+            h->AddBinFit(newbin, thisfit);
+        }
+    }
+
+    return h;
 }
