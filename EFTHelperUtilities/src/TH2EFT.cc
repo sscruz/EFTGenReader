@@ -265,9 +265,7 @@ void TH2EFT::SetBinFit(Int_t bin, WCFit &fit)
 void TH2EFT::AddBinFit(Int_t bin, WCFit &fit)
 {
     auto thisfit = this->GetBinFit(bin);
-    thisfit.dump();
     thisfit.addFit(fit);
-    thisfit.dump();
     this->SetBinFit(bin, thisfit);
 
 }
