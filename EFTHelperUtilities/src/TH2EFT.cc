@@ -98,6 +98,7 @@ Bool_t TH2EFT::NormalizeTo(const TH2D *h1, Double_t c1)
             //h1binerror = (thisbin - h1bin) / pow(h1bin, c1) * sqrt((h1binerror/h1bin)*(h1binerror/h1bin) + (thisbinerror/thisbin)*(thisbinerror/thisbin));
             //h1binerror = (thisbin - h1bin) / pow(h1bin, c1) * sqrt( pow(1/(thisbin - h1bin),2) * (thisbinerror*thisbinerror + h1binerror*h1binerror) + 1/4 * pow(h1binerror/h1bin, 2) ); //dependent, sigmaD^2 = fom^2 * ( sigmaE^2 + sigmaS^2 )
             double fom = (thisbin - h1bin) / pow(h1bin, c1);
+            std::cout << "fom=" << fom << " EFT=" << thisbin << " SM=" << h1bin << std::endl;
             double efterrsq = thisbinerror*thisbinerror;
             double smerrsq = h1binerror*h1binerror;
             double diff = abs(thisbin - h1bin);
@@ -291,7 +292,7 @@ void TH2EFT::AddBinFit(Int_t bin, WCFit &fit)
 //Create a new bin with rebinned range
 TH2EFT* TH2EFT::Rebin(Int_t nbinsx, Double_t *x, Int_t nbinsy, Double_t* y)
 {
-    TH2EFT *h = new TH2EFT(TString::Format("%s_%s", this->GetName(), "rebin"), TString::Format("%s_%s",this->GetTitle(), "rebin"), nbinsx, x, nbinsy, y);
+    TH2EFT *h = new TH2EFT(this->GetName(), this->GetTitle(), nbinsx, x, nbinsy, y);
     for(int i = 0; i < this->GetNbinsX(); i++) {
         for(int j = 0; j < this->GetNbinsY(); j++) {
             int thisbin = this->FindBin(i, j);
