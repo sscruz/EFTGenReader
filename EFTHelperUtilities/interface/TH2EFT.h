@@ -40,6 +40,7 @@ class TH2EFT : public TH2D
         void AddBinFit(Int_t bin, WCFit &fit);
         void DumpFits();
         void SetBinFit(Int_t bin, WCFit &fits);
+        void Copy(TObject &obj) const;
         
         void SetBins(Int_t nx, Double_t xmin, Double_t xmax, Int_t ny, Double_t ymin, Double_t ymax);  // overriding virtual function from TH2
         Bool_t Add(const TH2 *h1, Double_t c1=1); // overriding virtual function from TH2
