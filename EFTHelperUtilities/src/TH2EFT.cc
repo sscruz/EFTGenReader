@@ -307,5 +307,25 @@ TH2EFT* TH2EFT::Rebin(Int_t nbinsx, Double_t *x, Int_t nbinsy, Double_t* y)
         }
     }
 
+    //Handle overflow
+    int thisbin = this->FindBin(this->GetNbinsX()+1, this->GetNbinsY()+1);
+    int newbin = h->FindBin(h->GetNbinsX()+1, h->GetNbinsY()+1);
+    double thisval = this->GetBinContent(thisbin);
+    double thiserr = this->GetBinError(thisbin);
+    double newval = h->GetBinContent(newbin);
+    double newerr = h->GetBinError(newbin);
+    h->SetBinContent(newbin, thisval + newval);
+    h->SetBinError(newbin, sqrt(thiserr*thiserr + newerr*newerr));
+    h->AddBinFit(newbin, this->overflow_fit);
+
+    //Handle underflow
+    thisval = this->GetBinContent(0);
+    thiserr = this->GetBinError(0);
+    newval = h->GetBinContent(0);
+    newerr = h->GetBinError(0);
+    h->SetBinContent(0, thisval + newval);
+    h->SetBinError(0, sqrt(thiserr*thiserr + newerr*newerr));
+    h->AddBinFit(0, this->underflow_fit);
+
     return h;
 }
