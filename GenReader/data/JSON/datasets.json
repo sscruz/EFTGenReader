@@ -879,6 +879,16 @@
     "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/ttXJet-HanV4Model-xqcut10qCutTests/v1/gen_step_ttHJet_HanV4lModel16DttllScanpointsqCut19_run1", 
     "on_das": false
   }, 
+  "ttHJet_HanV4Model-xqcut10qcut19-MAOD": {
+    "central_xsec": 0, 
+    "dataset": "", 
+    "datatier": "MINIAODSIM", 
+    "description": "", 
+    "files_per_task": 1, 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/kmohrman/postLHE_step/2019_04_19/ttXJetTests-HanV4Model-xqcut10qCut19/v3/mAOD_step_ttHJet_HanV4lModel16DttllScanpointsqCut19_run1", 
+    "on_das": false
+  }, 
   "ttHJet_HanV4Model-xqcut10qcut25": {
     "central_xsec": 0, 
     "dataset": "", 
