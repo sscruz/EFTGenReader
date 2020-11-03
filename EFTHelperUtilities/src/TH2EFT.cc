@@ -77,7 +77,7 @@ Bool_t TH2EFT::NormalizeTo(const TH2D *h1, Double_t c1)
 {
     // check whether the object pointed to inherits from (or is a) TH2EFT:
     if (h1->IsA()->InheritsFrom(TH2EFT::Class())) {
-        if ((this->hist_fits.size() == ((TH2EFT*)h1)->hist_fits.size())) {
+        if ((this->hist_fits.size() == ((TH2EFT*)h1)->hist_fits.size()) && (this->GetNbinsX() == h1->GetNbinsX()) && (this->GetNbinsY() == h1->GetNbinsY())) {
             //Do nothing, just check
         } else { 
             std::cout << "Attempt to add 2 TH2EFTs with different # of fits!" << std::endl;
@@ -87,8 +87,8 @@ Bool_t TH2EFT::NormalizeTo(const TH2D *h1, Double_t c1)
     }
 
     //Loop over all bins, and divide by h1->GetBinContent ^ c1 (sqrt by default)
-    for(int i = 0; i < this->GetNbinsX(); i++) {
-        for(int j = 0; j < this->GetNbinsY(); j++) {
+    for(int i = 0; i < this->GetNbinsX()+2; i++) {
+        for(int j = 0; j < this->GetNbinsY()+2; j++) {
             int bin = this->FindBin(i,j); //Find the corresonding bin
             //Get bin contents and errors from this and h1
             double thisbin = this->GetBinContent(bin);
@@ -103,7 +103,9 @@ Bool_t TH2EFT::NormalizeTo(const TH2D *h1, Double_t c1)
             double diff = abs(thisbin - h1bin);
             double diffsq = diff * diff;
             //int bval = 36;
-            int bval = 58;
+            int bval = 13;
+            std::cout << "FoM=" << fom << " for " << thisbin << " " << h1bin << std::endl;
+            if(bin == bval) std::cout << "FoM=" << fom << " for " << thisbin << " " << h1bin << std::endl;
             if(bin == bval) std::cout << fom << "\t" << h1binerror << "\t" << diff << "\t" << diffsq << std::endl;
             //h1binerror = fom * sqrt( abs(efterrsq - smerrsq) / diffsq + 1/4 * smerrsq/(h1bin*h1bin));
             if(bin == bval) std::cout << abs(efterrsq - smerrsq) << std::endl;
