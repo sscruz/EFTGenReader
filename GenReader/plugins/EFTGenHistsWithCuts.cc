@@ -392,8 +392,8 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
                         if(abs(pl_leptons.at(i).pdgId()) != abs(pl_leptons.at(j).pdgId())) continue;
                         //look for opposite sign only (e+e- or mu+mu-)
                         if(pl_leptons.at(i).charge() * pl_leptons.at(j).charge() > 0) continue;
-                        //look for M(ll) - M(Z) < 10 GeV
-                        if(((pl_leptons.at(i).p4() + pl_leptons.at(j).p4()).M() - 91.2) < 10) {
+                        //look for |M(ll) - M(Z)| < 10 GeV
+                        if(fabs((pl_leptons.at(i).p4() + pl_leptons.at(j).p4()).M() - 91.2) < 10) {
                             isSFOSZ = true;
                             break; //done searching
                         }
