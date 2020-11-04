@@ -241,7 +241,6 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
     }
 
     for (auto lep_cat: cats_vect){
-        std::cout << lep_cat << std::endl;
         // Loop over jets and fill jet hists automatically
         double ht=0;
         for (size_t i = 0; i < gen_jets_clean.size(); i++) {
