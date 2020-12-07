@@ -190,10 +190,10 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
     std::vector<reco::GenJet> pl_leptons = MakePtEtaCuts(*particleLevelLeptonsHandle_,min_pt_lep,max_eta_lep);
     std::vector<reco::GenJet> pl_bjets = GetGenBJets(pl_jets);
 
-    std::vector<reco::GenJet> pl_jets_clean = CleanGenJets(pl_jets,*particleLevelLeptonsHandle_,0.4); // Clean gen jets
+    std::vector<reco::GenJet> pl_jets_clean = CleanCollection(pl_jets,*particleLevelLeptonsHandle_,0.4); // Clean gen jets
 
     // Clean jets
-    std::vector<reco::GenJet> gen_jets_clean = CleanGenJets(gen_jets,gen_leptons,0.4);
+    std::vector<reco::GenJet> gen_jets_clean = CleanCollection(gen_jets,gen_leptons,0.4);
 
     // Make pt, eta cuts on jets (after doing jet cleaning)
     gen_leptons = MakePtEtaCuts(gen_leptons,min_pt_lep,max_eta_lep);
