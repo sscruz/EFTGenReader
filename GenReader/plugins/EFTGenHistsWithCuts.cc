@@ -73,6 +73,17 @@ void EFTGenHistsWithCuts::beginJob()
             }
         }
     }
+    // Testing analysis catetory yield hists (for PL vs RECO)
+    for (size_t i=0; i<ana_cats_vct.size(); i++){
+        TString ana_cat = ana_cats_vct.at(i);
+        TString hist_name = constructHistName(ana_cat,"yield",{});
+        hist_dict[hist_name] = newfs->make<TH1EFT>(hist_name,hist_name,1,0,1);
+        TString h_pl_njet_name = constructHistName(ana_cat,"yield-njets",{});
+        hist_dict[h_pl_njet_name] = newfs->make<TH1EFT>(h_pl_njet_name,h_pl_njet_name,12,0,12);
+        // TH1Ds for event sums
+        TString h_ana_cat_pass_name = constructHistName(ana_cat,"n-events-pass",{});
+        hist_TH1D_dict[h_ana_cat_pass_name] = newfs->make<TH1D>(h_ana_cat_pass_name,h_ana_cat_pass_name,1,0,1);
+    }
 
     //// Declare histograms by hand ////
 
@@ -94,6 +105,31 @@ void EFTGenHistsWithCuts::beginJob()
     //bin sizes for 2D jet vs. bjet hist
     int njet_bins_jetbjet = 8; //number of jet bins 
     int nbjet_bins_jetbjet = 5; //number of bjet bins
+
+    // TEST PLvsGEN //
+    h_PLvsGEN_gen_njetsclean    = newfs->make<TH1EFT>("h_PLvsGEN_gen_njetsclean","h_PLvsGEN_gen_njetsclean",12,0,12);
+    h_PLvsGEN_gen_nbjets0p1        = newfs->make<TH1EFT>("h_PLvsGEN_gen_nbjets0p1","h_PLvsGEN_gen_nbjets0p1",10,0,10);
+    h_PLvsGEN_gen_nbjets0p01        = newfs->make<TH1EFT>("h_PLvsGEN_gen_nbjets0p01","h_PLvsGEN_gen_nbjets0p01",10,0,10);
+    h_PLvsGEN_gen_nchleps       = newfs->make<TH1EFT>("h_PLvsGEN_gen_nchleps","h_PLvsGEN_gen_nchleps",8,0,8);
+    h_PLvsGEN_gen_nchlepsnotau  = newfs->make<TH1EFT>("h_PLvsGEN_gen_nchlepsnotau","h_PLvsGEN_gen_nchlepsnotau",8,0,8);
+    h_PLvsGEN_gen_lepIDs        = newfs->make<TH1EFT>("h_PLvsGEN_gen_lepIDs","h_PLvsGEN_gen_lepIDs",8,10,18);
+    h_PLvsGEN_gen_lepIDsnotau   = newfs->make<TH1EFT>("h_PLvsGEN_gen_lepIDsnotau","h_PLvsGEN_gen_lepIDsnotau",8,10,18);
+    h_PLvsGEN_gen_sumallpt      = newfs->make<TH1EFT>("h_PLvsGEN_gen_sumallpt","h_PLvsGEN_gen_sumallpt",20,0,1500); 
+    h_PLvsGEN_gen_sumallptnotau = newfs->make<TH1EFT>("h_PLvsGEN_gen_sumallptnotau","h_PLvsGEN_gen_sumallptnotau",20,0,1500); 
+    h_PLvsGEN_gen_sumallleppt      = newfs->make<TH1EFT>("h_PLvsGEN_gen_sumallleppt","h_PLvsGEN_gen_sumallleppt",10,0,600);
+    h_PLvsGEN_gen_sumalllepptnotau = newfs->make<TH1EFT>("h_PLvsGEN_gen_sumalllepptnotau","h_PLvsGEN_gen_sumalllepptnotau",10,0,600);
+    h_PLvsGEN_gen_ht               = newfs->make<TH1EFT>("h_PLvsGEN_gen_ht","h_PLvsGEN_gen_ht",20,0,1500);
+
+    h_PLvsGEN_pl_njets      = newfs->make<TH1EFT>("h_PLvsGEN_pl_njets","h_PLvsGEN_pl_njets",12,0,12);
+    h_PLvsGEN_pl_njetsclean = newfs->make<TH1EFT>("h_PLvsGEN_pl_njetsclean","h_PLvsGEN_pl_njetsclean",12,0,12);
+    h_PLvsGEN_pl_nbjets     = newfs->make<TH1EFT>("h_PLvsGEN_pl_nbjets","h_PLvsGEN_pl_nbjets",10,0,10);
+    h_PLvsGEN_pl_nbjetsclean = newfs->make<TH1EFT>("h_PLvsGEN_pl_nbjetsclean","h_PLvsGEN_pl_nbjetsclean",10,0,10);
+    h_PLvsGEN_pl_nleps      = newfs->make<TH1EFT>("h_PLvsGEN_pl_nleps","h_PLvsGEN_pl_nleps",8,0,8);
+    h_PLvsGEN_pl_lepIDs     = newfs->make<TH1EFT>("h_PLvsGEN_pl_lepIDs","h_PLvsGEN_pl_lepIDs",8,10,18);
+    h_PLvsGEN_pl_sumallpt   = newfs->make<TH1EFT>("h_PLvsGEN_pl_sumallpt","h_PLvsGEN_pl_sumallpt",20,0,1500); 
+    h_PLvsGEN_pl_sumallleppt= newfs->make<TH1EFT>("h_PLvsGEN_pl_sumallleppt","h_PLvsGEN_pl_sumallleppt",10,0,600);
+    h_PLvsGEN_pl_ht         = newfs->make<TH1EFT>("h_PLvsGEN_pl_ht","h_PLvsGEN_pl_ht",20,0,1500);
+    ////
 
     //2D jets vs. bjets hists for various leptons categories
     h_2lss_jetbjetEFT = newfs->make<TH2EFT>("h_2lss_jetbjetEFT","h_2lss_jetbjetEFT;N_{jets};N_{bjets}",njet_bins_jetbjet,0,njet_bins_jetbjet,nbjet_bins_jetbjet,0,nbjet_bins_jetbjet);
@@ -179,7 +215,7 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
     reco::GenParticleCollection gen_leptons = GetGenLeptons(*prunedParticles);
     reco::GenParticleCollection gen_b = GetGenParticlesSubset(*prunedParticles, 5);
     std::vector<reco::GenJet> gen_jets = GetGenJets(*genJets);
-    std::vector<reco::GenJet> gen_bjets = GetGenBJets(*genJets);
+    //std::vector<reco::GenJet> gen_bjets = GetGenBJets(*genJets); // Does not work
 
     // Particle level stuff:
     edm::Handle<std::vector<reco::GenJet>> particleLevelJetsHandle_;
@@ -190,12 +226,23 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
     std::vector<reco::GenJet> pl_leptons = MakePtEtaCuts(*particleLevelLeptonsHandle_,min_pt_lep,max_eta_lep);
     std::vector<reco::GenJet> pl_bjets = GetGenBJets(pl_jets);
 
+    // Do not use!!! Should clean the PL leptons, not the PL jets
     std::vector<reco::GenJet> pl_jets_clean = CleanCollection(pl_jets,*particleLevelLeptonsHandle_,0.4); // Clean gen jets
+    std::vector<reco::GenJet> pl_bjets_clean = GetGenBJets(pl_jets_clean);
+
+    // Clean PL leptons
+    pl_leptons = CleanCollection(pl_leptons,pl_jets,0.4);
 
     // Clean jets
     std::vector<reco::GenJet> gen_jets_clean = CleanCollection(gen_jets,gen_leptons,0.4);
+    // Get gen b jets from cleaned gen jets
+    //std::vector<reco::GenJet> gen_bjets = GetGenBJets(gen_jets_clean); // Does not work for gen, only pl
+    // Find the b particles
+    gen_b = MakePtEtaCuts(gen_b,min_pt_jet,max_eta_jet);
+    std::vector<reco::GenJet> gen_bjets_fromDRtest0p1 = GetGenJetsFromDR(gen_jets_clean,gen_b,0.1);
+    std::vector<reco::GenJet> gen_bjets_fromDRtest0p01 = GetGenJetsFromDR(gen_jets_clean,gen_b,0.01);
 
-    // Make pt, eta cuts on jets (after doing jet cleaning)
+    // Make pt, eta cuts on leptons (after doing jet cleaning)
     gen_leptons = MakePtEtaCuts(gen_leptons,min_pt_lep,max_eta_lep);
 
     // Get just charged leptons (recall std::vector<reco::GenParticle>> is an alias for std::vector<reco::GenParticle>>)
@@ -323,6 +370,99 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
     if (gen_leptons_charged.size() == 3) {
         h_pl_clean_nJets_3Lep_EFT->Fill(pl_jets_clean.size(),1.0,eft_fit);
     }
+
+    //////////////////////////////////
+    ////////// TEST PLvsGEN //////////
+    //////////////////////////////////
+
+    /*
+    std::cout << "\tgen_leptons: " << gen_leptons.size() << std::endl;
+    std::cout << "\tgen_leptons_charged: " << gen_leptons_charged.size() << std::endl;
+    for (auto l: gen_leptons_charged){
+        std::cout << "\tcharge, id : " << l.charge() << " " << l.pdgId() << std::endl;
+    }
+    std::cout << "\tgen_jets: " << gen_jets.size() << std::endl;
+    std::cout << "\tgen_jets_clean: " << gen_jets_clean.size() << std::endl;
+    std::cout << "\tgen_b: " << gen_b.size() << std::endl;
+    //std::cout << "\tgen_bjets: " << gen_bjets.size() << std::endl;
+
+    std::cout << " " << std::endl;
+    std::cout << "\tpl_leptons: " << pl_leptons.size() << std::endl;
+    for (auto l: pl_leptons){
+        std::cout << "\tcharge, id : " << l.charge() << " " << l.pdgId() << std::endl;
+    }
+    std::cout << "\tpl_jets: " << pl_jets.size() << std::endl;
+    std::cout << "\tpl_jets_clean: " << pl_jets_clean.size() << std::endl;
+    std::cout << "\tpl_bjets: " << pl_bjets.size() << std::endl;
+    */
+
+    //std::cout << "\t" << .size() << std::endl;
+    //Fill->(,1.0,eft_fit);
+
+    double gen_leppt = 0;
+    double gen_leppt_notau = 0;
+    double gen_ht = 0;
+    double pl_leppt = 0;
+    double pl_ht = 0;
+    reco::GenParticleCollection gen_leptons_charged_notau;
+
+    // GEN
+    h_PLvsGEN_gen_njetsclean->Fill(gen_jets_clean.size(),1.0,eft_fit);
+    h_PLvsGEN_gen_nchleps->Fill(gen_leptons_charged.size(),1.0,eft_fit);
+    h_PLvsGEN_gen_nbjets0p1->Fill(gen_bjets_fromDRtest0p1.size(),1.0,eft_fit);
+    h_PLvsGEN_gen_nbjets0p01->Fill(gen_bjets_fromDRtest0p01.size(),1.0,eft_fit);
+    for (auto l: gen_leptons_charged){
+        h_PLvsGEN_gen_lepIDs->Fill(abs(l.pdgId()),1.0,eft_fit);
+        gen_leppt = gen_leppt + l.p4().Pt();
+        if (abs(l.pdgId()) != 15){
+            gen_leptons_charged_notau.push_back(l);
+            h_PLvsGEN_gen_lepIDsnotau->Fill(abs(l.pdgId()),1.0,eft_fit);
+            gen_leppt_notau = gen_leppt_notau + l.p4().Pt();
+        }
+    }
+    h_PLvsGEN_gen_nchlepsnotau->Fill(gen_leptons_charged_notau.size(),1.0,eft_fit);
+    for (auto j: gen_jets_clean){
+        gen_ht = gen_ht + j.p4().Pt();
+    }
+    h_PLvsGEN_gen_sumallleppt->Fill(gen_leppt,1.0,eft_fit);
+    h_PLvsGEN_gen_sumalllepptnotau->Fill(gen_leppt_notau,1.0,eft_fit);
+    h_PLvsGEN_gen_ht->Fill(gen_ht,1.0,eft_fit);
+    h_PLvsGEN_gen_sumallpt->Fill(gen_ht+gen_leppt,1.0,eft_fit);
+    h_PLvsGEN_gen_sumallptnotau->Fill(gen_ht+gen_leppt_notau,1.0,eft_fit);
+
+    // PL
+    h_PLvsGEN_pl_njets->Fill(pl_jets.size(),1.0,eft_fit);
+    h_PLvsGEN_pl_njetsclean->Fill(pl_jets_clean.size(),1.0,eft_fit);
+    h_PLvsGEN_pl_nbjets->Fill(pl_bjets.size(),1.0,eft_fit);
+    h_PLvsGEN_pl_nbjetsclean->Fill(pl_bjets_clean.size(),1.0,eft_fit);
+    h_PLvsGEN_pl_nleps->Fill(pl_leptons.size(),1.0,eft_fit);
+    for (auto l: pl_leptons){
+        h_PLvsGEN_pl_lepIDs->Fill(abs(l.pdgId()),1.0,eft_fit);
+        pl_leppt = pl_leppt + l.p4().Pt();
+    }
+    for (auto j: pl_jets_clean){
+        pl_ht = pl_ht + j.p4().Pt();
+    }
+    h_PLvsGEN_pl_sumallleppt->Fill(pl_leppt,1.0,eft_fit);
+    h_PLvsGEN_pl_ht->Fill(pl_ht,1.0,eft_fit);
+    h_PLvsGEN_pl_sumallpt->Fill(pl_leppt+pl_ht,1.0,eft_fit);
+
+    //////////////////////////////////////////
+
+    // Testing analysis catetory yield hists (for PL vs RECO)
+    TString ana_cat = getAnaCat(pl_leptons,pl_jets,pl_bjets);
+    // Yield hist
+    TString ana_cat_hist_name = constructHistName(ana_cat,"yield",{});
+    fillHistIfExists(ana_cat_hist_name,0.5,eft_fit);
+    // Yield njets hists
+    TString h_pl_njet_name = constructHistName(ana_cat,"yield-njets",{});
+    fillHistIfExists(h_pl_njet_name,GetNJetsForLepCat(pl_leptons,pl_jets),eft_fit);
+    // N events passing hist
+    TString h_ana_cat_pass_name = constructHistName(ana_cat,"n-events-pass",{});
+    fillTH1DHistIfExists(h_ana_cat_pass_name,0.5);
+
+    //////////////////////////////////////////
+    //////////////////////////////////////////
 
 
     //Filling the 2D hists for jets vs. bjets (different lepton categories). Overblow bins taken care of. 

@@ -97,7 +97,7 @@ class EFTGenHistsWithCuts: public edm::EDAnalyzer
         reco::GenParticleCollection GetGenParticlesSubset(const reco::GenParticleCollection& gen_particles, int pdg_id);
         std::vector<reco::GenJet> GetGenJets(const std::vector<reco::GenJet>& inputs);
         std::vector<reco::GenJet> GetGenBJets(const std::vector<reco::GenJet>& inputs);
-        //std::vector<reco::GenJet> GetGenJetsFromDR(const std::vector<reco::GenJet>& gen_jets, const reco::GenParticleCollection& b_quarks, double dR_threshold);
+        std::vector<reco::GenJet> GetGenJetsFromDR(const std::vector<reco::GenJet>& gen_jets, const reco::GenParticleCollection& b_quarks, double dR_threshold);
 
         ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>> getSumTLV(reco::GenParticleCollection col);
         double getdPhi(reco::GenParticle p1, reco::GenParticle p2);
@@ -444,31 +444,31 @@ reco::GenParticleCollection EFTGenHistsWithCuts::GetGenParticlesSubset(const rec
 }
 
 
-//// TEST function for identifying GEN b jets with DR matching
-//// Not currently used, and if we eventually do want to use it, should probably test it further
-//// One thing in particular, shoul add check to make sure there is no double counting
-//std::vector<reco::GenJet> EFTGenHistsWithCuts::GetGenJetsFromDR(const std::vector<reco::GenJet>& gen_jets, const reco::GenParticleCollection& b_quarks, double dR_threshold) {
-//    //std::cout << "Threshold: " << dR_threshold << std::endl;
-//    std::vector<reco::GenJet> b_gen_jets;
-//    double min_dR;
-//    for(auto &j: gen_jets){
-//        //std::cout << "\nstarting new jet..." << std::endl;
-//        min_dR = 999990;
-//        for(auto &b: b_quarks){
-//            //std::cout << "\t dr is: " << getdR(j,b) << std::endl;
-//            if (getdR(j,b) < min_dR){
-//                min_dR = getdR(j,b);
-//                //std::cout << "\t\t NEW MIN dr is: " << getdR(j,b) << std::endl;
-//            }
-//        }
-//        //std::cout << "\t Min dr was: " << min_dR << std::endl;
-//        if (min_dR < dR_threshold){
-//            b_gen_jets.push_back(j);
-//            //std::cout << "\tPushing back this jet, id as b jet" << std::endl;
-//        }
-//    }
-//    return b_gen_jets;
-//}
+// TEST function for identifying GEN b jets with DR matching
+// Not currently used, and if we eventually do want to use it, should probably test it further
+// One thing in particular, shoul add check to make sure there is no double counting
+std::vector<reco::GenJet> EFTGenHistsWithCuts::GetGenJetsFromDR(const std::vector<reco::GenJet>& gen_jets, const reco::GenParticleCollection& b_quarks, double dR_threshold) {
+    //std::cout << "Threshold: " << dR_threshold << std::endl;
+    std::vector<reco::GenJet> b_gen_jets;
+    double min_dR;
+    for(auto &j: gen_jets){
+        //std::cout << "\nstarting new jet..." << std::endl;
+        min_dR = 999990;
+        for(auto &b: b_quarks){
+            //std::cout << "\t dr is: " << getdR(j,b) << std::endl;
+            if (getdR(j,b) < min_dR){
+                min_dR = getdR(j,b);
+                //std::cout << "\t\t NEW MIN dr is: " << getdR(j,b) << std::endl;
+            }
+        }
+        //std::cout << "\t Min dr was: " << min_dR << std::endl;
+        if (min_dR < dR_threshold){
+            b_gen_jets.push_back(j);
+            //std::cout << "\tPushing back this jet, id as b jet" << std::endl;
+        }
+    }
+    return b_gen_jets;
+}
 
 
 std::vector<reco::GenJet> EFTGenHistsWithCuts::GetGenJets(const std::vector<reco::GenJet>& inputs) {
