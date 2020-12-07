@@ -899,6 +899,16 @@
     "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/ttXJet-HanV4Model-xqcut10qCutTests/v1/gen_step_ttHJet_HanV4lModel16DttllScanpointsqCut25_run1", 
     "on_das": false
   }, 
+  "ttHJet_HanV4Model_LargeStats5M": {
+    "central_xsec": 0, 
+    "dataset": "", 
+    "datatier": "GEN", 
+    "description": "", 
+    "files_per_task": 5, 
+    "is_eft": true, 
+    "loc": "/hadoop/store/user/kmohrman/genOnly_step/2019_04_19/ttHJet_HanV4-5M/v1/gen_step_ttHJet_HanV4ttXJetStartPtChecks_run0", 
+    "on_das": false
+  }, 
   "ttHJet_HanV4SMCheck-b2-fromMAOD": {
     "central_xsec": 0, 
     "dataset": "", 
