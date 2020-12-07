@@ -97,14 +97,13 @@ class EFTGenHistsWithCuts: public edm::EDAnalyzer
         reco::GenParticleCollection GetGenParticlesSubset(const reco::GenParticleCollection& gen_particles, int pdg_id);
         std::vector<reco::GenJet> GetGenJets(const std::vector<reco::GenJet>& inputs);
         std::vector<reco::GenJet> GetGenBJets(const std::vector<reco::GenJet>& inputs);
-        std::vector<reco::GenJet> GetGenJetsFromDR(const std::vector<reco::GenJet>& gen_jets, const reco::GenParticleCollection& b_quarks, double dR_threshold);
+        //std::vector<reco::GenJet> GetGenJetsFromDR(const std::vector<reco::GenJet>& gen_jets, const reco::GenParticleCollection& b_quarks, double dR_threshold);
 
         ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>> getSumTLV(reco::GenParticleCollection col);
         double getdPhi(reco::GenParticle p1, reco::GenParticle p2);
         //double getdR(reco::GenParticle p1, reco::GenParticle p2);
         double getInvMass(reco::GenParticle p1, reco::GenParticle p2);
 
-        //TString constructHistName(TString lep_cat, TString hist_type, int hist_no);
         TString constructHistName(TString lep_cat, TString hist_type, std::vector<size_t> hist_idx_vect);
         void fillHistIfExists(TString h_name, double val, WCFit eft_fit);
         void fillTH1DHistIfExists(TString h_name, double val);
@@ -148,31 +147,6 @@ class EFTGenHistsWithCuts: public edm::EDAnalyzer
         edm::EDGetTokenT<reco::GenParticleCollection> genParticles_token_;  // reco::GenParticlesCollection is an alias for std::vector<reco::GenParticle>>
         edm::EDGetTokenT<std::vector<reco::GenJet> > genJets_token_;
 
-        // TEST PLvsGEN stuff //
-        TH1EFT* h_PLvsGEN_gen_njetsclean;
-        TH1EFT* h_PLvsGEN_gen_nbjets0p1;
-        TH1EFT* h_PLvsGEN_gen_nbjets0p01;
-        TH1EFT* h_PLvsGEN_gen_nchleps;
-        TH1EFT* h_PLvsGEN_gen_nchlepsnotau;
-        TH1EFT* h_PLvsGEN_gen_lepIDs;
-        TH1EFT* h_PLvsGEN_gen_lepIDsnotau;
-        TH1EFT* h_PLvsGEN_gen_sumallpt;
-        TH1EFT* h_PLvsGEN_gen_sumallptnotau;
-        TH1EFT* h_PLvsGEN_gen_sumalllepptnotau;
-        TH1EFT* h_PLvsGEN_gen_sumallleppt;
-        TH1EFT* h_PLvsGEN_gen_ht;
-
-        TH1EFT* h_PLvsGEN_pl_njets;
-        TH1EFT* h_PLvsGEN_pl_nbjets;
-        TH1EFT* h_PLvsGEN_pl_nbjetsclean;
-        TH1EFT* h_PLvsGEN_pl_njetsclean;
-        TH1EFT* h_PLvsGEN_pl_nleps;
-        TH1EFT* h_PLvsGEN_pl_lepIDs;
-        TH1EFT* h_PLvsGEN_pl_sumallpt;
-        TH1EFT* h_PLvsGEN_pl_sumallleppt;
-        TH1EFT* h_PLvsGEN_pl_ht;
-        ////
-
         // Particel level stuff:
         edm::EDGetTokenT<std::vector<reco::GenJet>> particleLevelJetsToken_;
         edm::EDGetTokenT<std::vector<reco::GenJet>> particleLevelLeptonsToken_;
@@ -181,28 +155,16 @@ class EFTGenHistsWithCuts: public edm::EDAnalyzer
         TH1D* h_SMwgt_norm;
         TH1EFT* h_eventsumEFT;
 
-        // Jet Histograms
-        //TH1EFT* h_nJetsEFT; TH1D* h_nJetsSM;
-
-        // njets histograms with some selecitons
-        //TH1EFT* h_nJets_3orMoreLep_EFT;           TH1D* h_nJets_3orMoreLep_SM;
-        //TH1EFT* h_nJets_3Lep_EFT;                 TH1D* h_nJets_3Lep_SM;
-        //TH1EFT* h_nJets_cleanJets_3orMoreLep_EFT; TH1D* h_nJets_cleanJets_3orMoreLep_SM;
-        //TH1EFT* h_nJets_cleanJets_3Lep_EFT;       TH1D* h_nJets_cleanJets_3Lep_SM;
-
         // Particle level jets hists
-        //TH1EFT* h_pl_nJets_EFT; TH1D* h_pl_nJets_SM;
-        TH1EFT* h_pl_nJets_3Lep_EFT; TH1D* h_pl_nJets_3Lep_SM;
-        TH1EFT* h_pl_clean_nJets_3Lep_EFT;
         TH2EFT* h_bjet_jetEFT; TH2D* h_bjet_jetSM;
         TH2EFT* h_bjet_jet2lEFT; TH2D* h_bjet_jet2lSM;
         TH2EFT* h_bjet_jet3lEFT; TH2D* h_bjet_jet3lSM;
         TH2EFT* h_bjet_jet4lEFT; TH2D* h_bjet_jet4lSM;
 
-	TH2EFT* h_2lss_jetbjetEFT; TH2D* h_2lss_jetbjetSM;
-	TH2EFT* h_3l_jetbjetEFT;   TH2D* h_3l_jetbjetSM;
-	TH2EFT* h_3l_sfz_jetbjetEFT;   TH2D* h_3l_sfz_jetbjetSM;
-	TH2EFT* h_4l_jetbjetEFT;   TH2D* h_4l_jetbjetSM;
+        TH2EFT* h_2lss_jetbjetEFT; TH2D* h_2lss_jetbjetSM;
+        TH2EFT* h_3l_jetbjetEFT;   TH2D* h_3l_jetbjetSM;
+        TH2EFT* h_3l_sfz_jetbjetEFT;   TH2D* h_3l_sfz_jetbjetSM;
+        TH2EFT* h_4l_jetbjetEFT;   TH2D* h_4l_jetbjetSM;
 
         // declare the tree
         TTree * summaryTree;
@@ -444,6 +406,7 @@ reco::GenParticleCollection EFTGenHistsWithCuts::GetGenParticlesSubset(const rec
 }
 
 
+/*
 // TEST function for identifying GEN b jets with DR matching
 // Not currently used, and if we eventually do want to use it, should probably test it further
 // One thing in particular, shoul add check to make sure there is no double counting
@@ -469,6 +432,7 @@ std::vector<reco::GenJet> EFTGenHistsWithCuts::GetGenJetsFromDR(const std::vecto
     }
     return b_gen_jets;
 }
+*/
 
 
 std::vector<reco::GenJet> EFTGenHistsWithCuts::GetGenJets(const std::vector<reco::GenJet>& inputs) {
@@ -525,19 +489,6 @@ double EFTGenHistsWithCuts::getInvMass(reco::GenParticle p1, reco::GenParticle p
 }
 
 // Make a standardized hist name out of category info and hist type and hist number
-/*
-TString EFTGenHistsWithCuts::constructHistName(TString lep_cat, TString hist_type, int hist_no){
-    TString ret_str;
-    TString hist_no_str;
-    if (hist_no == -1){
-        hist_no_str = "";
-    } else {
-        hist_no_str = std::to_string(hist_no);
-    }
-    ret_str = "h_"+lep_cat+"_"+hist_type+"_"+hist_no_str;
-    return ret_str;
-}
-*/
 TString EFTGenHistsWithCuts::constructHistName(TString lep_cat, TString hist_type, std::vector<size_t> hist_idx_vect){
     TString ret_str;
     TString hist_no_str = "";
