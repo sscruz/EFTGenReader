@@ -12,6 +12,14 @@ EFTGenHistsWithCuts::EFTGenHistsWithCuts(const edm::ParameterSet& iConfig)
     min_pt_lep  = iConfig.getParameter<double> ("min_pt_lep");
     max_eta_jet = iConfig.getParameter<double> ("max_eta_jet");
     max_eta_lep = iConfig.getParameter<double> ("max_eta_lep");
+    staggered_pt_cuts_lep = iConfig.getParameter<std::vector<double>> ("staggered_pt_cuts_lep");
+    min_njets_2lss  = iConfig.getParameter<int> ("min_njets_2lss");
+    min_njets_3l    = iConfig.getParameter<int> ("min_njets_3l");
+    min_njets_4l    = iConfig.getParameter<int> ("min_njets_4l");
+    max_njet_bins_2lss = iConfig.getParameter<int> ("max_njet_bins_2lss");
+    max_njet_bins_3l   = iConfig.getParameter<int> ("max_njet_bins_3l");
+    max_njet_bins_4l   = iConfig.getParameter<int> ("max_njet_bins_4l");
+
     
     parse_params(); // Currently doesn't do anything
     lheInfo_token_      = consumes<LHEEventProduct>(iConfig.getParameter<edm::InputTag>("LHEInfo"));
@@ -48,22 +56,22 @@ void EFTGenHistsWithCuts::beginJob()
             int     h_max  = hist_info_vec.at(j).h_max;
             size_t  h_no   = abs(hist_info_vec.at(j).h_no);
            if (multiplicity_type == "all"){
-                //TString hist_name = constructHistName(lep_cat,h_type,-1);
-                TString hist_name = constructHistName(lep_cat,h_type,{});
+                //TString hist_name = ConstructHistName(lep_cat,h_type,-1);
+                TString hist_name = ConstructHistName(lep_cat,h_type,{});
                 hist_dict[hist_name] = newfs->make<TH1EFT>(hist_name,hist_name,h_bins,h_min,h_max);
             }
             else{
                 for (size_t k=0; k<h_no; k++){
                     if (multiplicity_type == "single"){
-                        //TString hist_name = constructHistName(lep_cat,h_type,k+1);
-                        TString hist_name = constructHistName(lep_cat,h_type,{k+1});
+                        //TString hist_name = ConstructHistName(lep_cat,h_type,k+1);
+                        TString hist_name = ConstructHistName(lep_cat,h_type,{k+1});
                         //std::cout << hist_name << std::endl;
                         hist_dict[hist_name] = newfs->make<TH1EFT>(hist_name,hist_name,h_bins,h_min,h_max);
                     }
                     if (multiplicity_type == "pair"){
                         for (size_t l=0; l<h_no; l++){
                             if (k<l){
-                                TString hist_name = constructHistName(lep_cat,h_type,{k+1,l+1});
+                                TString hist_name = ConstructHistName(lep_cat,h_type,{k+1,l+1});
                                 hist_dict[hist_name] = newfs->make<TH1EFT>(hist_name,hist_name,h_bins,h_min,h_max);
                                 //std::cout << hist_name << std::endl;
                             }
@@ -76,12 +84,12 @@ void EFTGenHistsWithCuts::beginJob()
     // Testing analysis catetory yield hists (for PL vs RECO)
     for (size_t i=0; i<ana_cats_vct.size(); i++){
         TString ana_cat = ana_cats_vct.at(i);
-        TString hist_name = constructHistName(ana_cat,"yield",{});
+        TString hist_name = ConstructHistName(ana_cat,"yield",{});
         hist_dict[hist_name] = newfs->make<TH1EFT>(hist_name,hist_name,1,0,1);
-        TString h_pl_njet_name = constructHistName(ana_cat,"yield-njets",{});
+        TString h_pl_njet_name = ConstructHistName(ana_cat,"yield-njets",{});
         hist_dict[h_pl_njet_name] = newfs->make<TH1EFT>(h_pl_njet_name,h_pl_njet_name,12,0,12);
         // TH1Ds for event sums
-        TString h_ana_cat_pass_name = constructHistName(ana_cat,"n-events-pass",{});
+        TString h_ana_cat_pass_name = ConstructHistName(ana_cat,"n-events-pass",{});
         hist_TH1D_dict[h_ana_cat_pass_name] = newfs->make<TH1D>(h_ana_cat_pass_name,h_ana_cat_pass_name,1,0,1);
     }
 
@@ -176,8 +184,9 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
     edm::Handle<std::vector<reco::GenJet>> particleLevelLeptonsHandle_;
     event.getByToken(particleLevelJetsToken_,particleLevelJetsHandle_);
     event.getByToken(particleLevelLeptonsToken_,particleLevelLeptonsHandle_);
-    std::vector<reco::GenJet> pl_jets    = MakePtEtaCuts(*particleLevelJetsHandle_,min_pt_jet,max_eta_jet);
-    std::vector<reco::GenJet> pl_leptons = MakePtEtaCuts(*particleLevelLeptonsHandle_,min_pt_lep,max_eta_lep);
+    std::vector<reco::GenJet> pl_jets    = MakeBaselinePtEtaCuts(*particleLevelJetsHandle_,min_pt_jet,max_eta_jet);
+    std::vector<reco::GenJet> pl_leptons = MakeBaselinePtEtaCuts(*particleLevelLeptonsHandle_,min_pt_lep,max_eta_lep);
+    pl_leptons = MakeStaggeredPtCuts(pl_leptons,staggered_pt_cuts_lep,min_pt_lep);
     std::vector<reco::GenJet> pl_bjets = GetGenBJets(pl_jets);
 
     // Do not use!!! Should clean the PL leptons, not the PL jets
@@ -192,15 +201,15 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
     // Get gen b jets from cleaned gen jets
     //std::vector<reco::GenJet> gen_bjets = GetGenBJets(gen_jets_clean); // Does not work for gen, only pl
     // Find the b particles
-    gen_b = MakePtEtaCuts(gen_b,min_pt_jet,max_eta_jet);
+    gen_b = MakeBaselinePtEtaCuts(gen_b,min_pt_jet,max_eta_jet);
     //std::vector<reco::GenJet> gen_bjets_fromDRtest0p1 = GetGenJetsFromDR(gen_jets_clean,gen_b,0.1);
     //std::vector<reco::GenJet> gen_bjets_fromDRtest0p01 = GetGenJetsFromDR(gen_jets_clean,gen_b,0.01);
 
     // Make pt, eta cuts on leptons (after doing jet cleaning)
-    gen_leptons = MakePtEtaCuts(gen_leptons,min_pt_lep,max_eta_lep);
+    gen_leptons = MakeBaselinePtEtaCuts(gen_leptons,min_pt_lep,max_eta_lep);
 
     // Get just charged leptons (recall std::vector<reco::GenParticle>> is an alias for std::vector<reco::GenParticle>>)
-    reco::GenParticleCollection gen_leptons_charged = getChargedParticles(gen_leptons);
+    reco::GenParticleCollection gen_leptons_charged = GetChargedParticles(gen_leptons);
 
 
     originalXWGTUP_intree = LHEInfo->originalXWGTUP();  // original cross-section
@@ -233,7 +242,7 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
     h_SMwgt_norm->Fill(sm_wgt);
 
     // Find what lepton category (if any) this even falls into
-    TString lep_cat_name = getLepCat(gen_leptons);
+    TString lep_cat_name = GetLepCat(gen_leptons);
     std::vector<TString> cats_vect;
     if (lep_cat_name != "none"){
         cats_vect = {lep_cat_name,"anyLepCat"};
@@ -249,44 +258,44 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
             double pt = p1.p4().Pt();
             double eta = p1.p4().Eta();
             //std::cout << pt << std::endl;
-            TString h_pt_name = constructHistName(lep_cat,"jet_pt",{i+1});
-            TString h_eta_name = constructHistName(lep_cat,"jet_eta",{i+1});
-            fillHistIfExists(h_pt_name,pt,eft_fit);
-            fillHistIfExists(h_eta_name,eta,eft_fit);
+            TString h_pt_name = ConstructHistName(lep_cat,"jet_pt",{i+1});
+            TString h_eta_name = ConstructHistName(lep_cat,"jet_eta",{i+1});
+            FillHistIfExists(h_pt_name,pt,eft_fit);
+            FillHistIfExists(h_eta_name,eta,eft_fit);
             ht = ht + pt;
             for (size_t j = 0; j < gen_jets_clean.size(); j++) {
                 const reco::GenJet& p2 = gen_jets.at(j);
                 double dR = getdR(p1,p2);
                 int hist_number = 10*(i+1)+(j+1);
-                TString h_dR_name = constructHistName(lep_cat,"jet_dR",{i+1,j+1});
-                fillHistIfExists(h_dR_name,dR,eft_fit);
+                TString h_dR_name = ConstructHistName(lep_cat,"jet_dR",{i+1,j+1});
+                FillHistIfExists(h_dR_name,dR,eft_fit);
             }
         }
 
         // Fill jet hists that include info for all jets in event
-        TString h_ht_name = constructHistName(lep_cat,"ht",{});
-        fillHistIfExists(h_ht_name,ht,eft_fit);
-        TString h_njet_name = constructHistName(lep_cat,"njets",{});
-        fillHistIfExists(h_njet_name,gen_jets_clean.size(),eft_fit);
+        TString h_ht_name = ConstructHistName(lep_cat,"ht",{});
+        FillHistIfExists(h_ht_name,ht,eft_fit);
+        TString h_njet_name = ConstructHistName(lep_cat,"njets",{});
+        FillHistIfExists(h_njet_name,gen_jets_clean.size(),eft_fit);
 
         // Loop over leptonss and fill hists automatically
         for (size_t i = 0; i < gen_leptons_charged.size(); i++) {
             const reco::GenParticle& p1 = gen_leptons_charged.at(i);
             double pt = p1.p4().Pt();
             double eta = p1.p4().Eta();
-            TString h_pt_name = constructHistName(lep_cat,"lep_pt",{i+1});
-            TString h_eta_name = constructHistName(lep_cat,"lep_eta",{i+1});
-            fillHistIfExists(h_pt_name,pt,eft_fit);
-            fillHistIfExists(h_eta_name,eta,eft_fit);
+            TString h_pt_name = ConstructHistName(lep_cat,"lep_pt",{i+1});
+            TString h_eta_name = ConstructHistName(lep_cat,"lep_eta",{i+1});
+            FillHistIfExists(h_pt_name,pt,eft_fit);
+            FillHistIfExists(h_eta_name,eta,eft_fit);
             for (size_t j = 0; j < gen_leptons_charged.size(); j++) {
                 const reco::GenParticle& p2 = gen_leptons_charged.at(j);
                 double dR = getdR(p1,p2);
-                double mll = getInvMass(p1,p2);
+                double mll = GetInvMass(p1,p2);
                 int hist_number = 10*(i+1)+(j+1);
-                TString h_dR_name = constructHistName(lep_cat,"lep_dR",{i+1,j+1});
-                TString h_mll_name = constructHistName(lep_cat,"lep_mll",{i+1,j+1});
-                fillHistIfExists(h_dR_name,dR,eft_fit);
-                fillHistIfExists(h_mll_name,mll,eft_fit);
+                TString h_dR_name = ConstructHistName(lep_cat,"lep_dR",{i+1,j+1});
+                TString h_mll_name = ConstructHistName(lep_cat,"lep_mll",{i+1,j+1});
+                FillHistIfExists(h_dR_name,dR,eft_fit);
+                FillHistIfExists(h_mll_name,mll,eft_fit);
             }
         }
     }
@@ -297,16 +306,16 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
     //////////////////////////////////////////
 
     // Testing analysis catetory yield hists (for PL vs RECO)
-    TString ana_cat = getAnaCat(pl_leptons,pl_jets,pl_bjets);
+    TString ana_cat = GetAnaCat(pl_leptons,pl_jets,pl_bjets);
     // Yield hist
-    TString ana_cat_hist_name = constructHistName(ana_cat,"yield",{});
-    fillHistIfExists(ana_cat_hist_name,0.5,eft_fit);
+    TString ana_cat_hist_name = ConstructHistName(ana_cat,"yield",{});
+    FillHistIfExists(ana_cat_hist_name,0.5,eft_fit);
     // Yield njets hists
-    TString h_pl_njet_name = constructHistName(ana_cat,"yield-njets",{});
-    fillHistIfExists(h_pl_njet_name,GetNJetsForLepCat(pl_leptons,pl_jets),eft_fit);
+    TString h_pl_njet_name = ConstructHistName(ana_cat,"yield-njets",{});
+    FillHistIfExists(h_pl_njet_name,GetNJetsForLepCat(pl_leptons,pl_jets),eft_fit);
     // N events passing hist
-    TString h_ana_cat_pass_name = constructHistName(ana_cat,"n-events-pass",{});
-    fillTH1DHistIfExists(h_ana_cat_pass_name,0.5);
+    TString h_ana_cat_pass_name = ConstructHistName(ana_cat,"n-events-pass",{});
+    FillTH1DHistIfExists(h_ana_cat_pass_name,0.5);
 
     //////////////////////////////////////////
 

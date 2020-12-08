@@ -99,14 +99,13 @@ class EFTGenHistsWithCuts: public edm::EDAnalyzer
         std::vector<reco::GenJet> GetGenBJets(const std::vector<reco::GenJet>& inputs);
         //std::vector<reco::GenJet> GetGenJetsFromDR(const std::vector<reco::GenJet>& gen_jets, const reco::GenParticleCollection& b_quarks, double dR_threshold);
 
-        ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>> getSumTLV(reco::GenParticleCollection col);
-        double getdPhi(reco::GenParticle p1, reco::GenParticle p2);
-        //double getdR(reco::GenParticle p1, reco::GenParticle p2);
-        double getInvMass(reco::GenParticle p1, reco::GenParticle p2);
+        ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>> GetSumTLV(reco::GenParticleCollection col);
+        double GetdPhi(reco::GenParticle p1, reco::GenParticle p2);
+        double GetInvMass(reco::GenParticle p1, reco::GenParticle p2);
 
-        TString constructHistName(TString lep_cat, TString hist_type, std::vector<size_t> hist_idx_vect);
-        void fillHistIfExists(TString h_name, double val, WCFit eft_fit);
-        void fillTH1DHistIfExists(TString h_name, double val);
+        TString ConstructHistName(TString lep_cat, TString hist_type, std::vector<size_t> hist_idx_vect);
+        void FillHistIfExists(TString h_name, double val, WCFit eft_fit);
+        void FillTH1DHistIfExists(TString h_name, double val);
 
         bool has_substr(TString s, TString substr);
 
@@ -116,15 +115,16 @@ class EFTGenHistsWithCuts: public edm::EDAnalyzer
         ~EFTGenHistsWithCuts();
 
         template <typename T> edm::Handle<T> get_collection(const edm::Event& event, const edm::EDGetTokenT<T>& token);
-        template <typename T> std::vector<T> MakePtEtaCuts(const std::vector<T>& input, double min_pt, double max_eta);
+        template <typename T> std::vector<T> MakeBaselinePtEtaCuts(const std::vector<T>& input, double min_pt, double max_eta);
+        template <typename T> std::vector<T> MakeStaggeredPtCuts(const std::vector<T>& particles, std::vector<double> pt_vector, double pt_min);
         template <typename T1, typename T2> std::vector<T1> CleanCollection(const std::vector<T1>& obj1_vector, const std::vector<T2>& obj2_vector, const double coneSize);
         template <typename T1, typename T2> double getdR(T1 p1, T2 p2);
 
-        template <typename T> TString getLepCat(const std::vector<T>& leptons);
-        template <typename T> int getChargeSum(const std::vector<T>& particles_vect);
-        template <typename T> std::vector<T> getChargedParticles(const std::vector<T>& particles_vect);
-        template <typename T1, typename T2, typename T3> TString getAnaCat(const std::vector<T1>& leptons, const std::vector<T2>& jets, const std::vector<T3>& bjets);
-        template <typename T> bool isSFOZ(const std::vector<T>& leptons);
+        template <typename T> TString GetLepCat(const std::vector<T>& leptons);
+        template <typename T> int GetChargeSum(const std::vector<T>& particles_vect);
+        template <typename T> std::vector<T> GetChargedParticles(const std::vector<T>& particles_vect);
+        template <typename T1, typename T2, typename T3> TString GetAnaCat(const std::vector<T1>& leptons, const std::vector<T2>& jets, const std::vector<T3>& bjets);
+        template <typename T> bool IsSFOSZ(const std::vector<T>& leptons);
         template <typename T1, typename T2> int GetNJetsForLepCat(const std::vector<T1>& leptons, const std::vector<T2>& jets);
 
         std::ofstream fout;
@@ -137,10 +137,19 @@ class EFTGenHistsWithCuts: public edm::EDAnalyzer
         // runtime configurable parameters
         bool iseft;
         bool debug;
+
+        // Cuts and parameters
         double min_pt_jet;
         double min_pt_lep;
         double max_eta_jet;
         double max_eta_lep;
+        std::vector<double> staggered_pt_cuts_lep;
+        int min_njets_2lss;
+        int min_njets_3l;
+        int min_njets_4l;
+        int max_njet_bins_2lss;
+        int max_njet_bins_3l;
+        int max_njet_bins_4l;
 
         edm::EDGetTokenT<LHEEventProduct> lheInfo_token_;
         edm::EDGetTokenT<GenEventInfoProduct> genInfo_token_;
@@ -358,24 +367,11 @@ reco::GenParticleCollection EFTGenHistsWithCuts::GetGenLeptons(const reco::GenPa
             continue;
         }
 
-        /*
-        // Note: The kinematic cuts could realistically go anywhere in this loop
-        if (p.p4().Pt() < min_pt_lep) {
-            continue;
-        } else if (max_eta_lep > 0.0 && fabs(p.eta()) >= max_eta_lep) {
-            continue;
-        }
-        */
-
         int mom_id = id;    // If no mother, set to own id
         if (p_mom) mom_id = p_mom->pdgId();
 
         bool is_fromEWBoson = (abs(mom_id) >= 22 && abs(mom_id) <= 25);
         bool is_fromTopSystem = (abs(mom_id) == 24 && abs(gmom_noFSR_id) == 6);
-
-        //if (is_fromTopSystem) {
-        //    continue;
-        //}
 
         bool is_hard_process = p.isHardProcess();
         bool is_fromHardGluon = (abs(mom_id) == 21 && p_mom->status() == 21);   // status == 21 corresponds to incoming hard particle
@@ -405,7 +401,6 @@ reco::GenParticleCollection EFTGenHistsWithCuts::GetGenParticlesSubset(const rec
     return gen_subset;
 }
 
-
 /*
 // TEST function for identifying GEN b jets with DR matching
 // Not currently used, and if we eventually do want to use it, should probably test it further
@@ -433,7 +428,6 @@ std::vector<reco::GenJet> EFTGenHistsWithCuts::GetGenJetsFromDR(const std::vecto
     return b_gen_jets;
 }
 */
-
 
 std::vector<reco::GenJet> EFTGenHistsWithCuts::GetGenJets(const std::vector<reco::GenJet>& inputs) {
     std::vector<reco::GenJet> ret;
@@ -469,13 +463,13 @@ std::vector<reco::GenJet> EFTGenHistsWithCuts::GetGenBJets(const std::vector<rec
 }
 
 
-ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>> EFTGenHistsWithCuts::getSumTLV(reco::GenParticleCollection col) {
+ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>> EFTGenHistsWithCuts::GetSumTLV(reco::GenParticleCollection col) {
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>> p4vec;
     for (const auto it: col) p4vec += it.p4();
     return p4vec;
 }
 
-double EFTGenHistsWithCuts::getdPhi(reco::GenParticle p1, reco::GenParticle p2) {
+double EFTGenHistsWithCuts::GetdPhi(reco::GenParticle p1, reco::GenParticle p2) {
     double dPhi = p2.p4().Phi() - p1.p4().Phi();
     double pi = 2.0*asin(1.0);
     if (dPhi>=pi) dPhi = dPhi - 2.0*pi;     // from TVector2
@@ -483,13 +477,13 @@ double EFTGenHistsWithCuts::getdPhi(reco::GenParticle p1, reco::GenParticle p2) 
     return dPhi;
 }
 
-double EFTGenHistsWithCuts::getInvMass(reco::GenParticle p1, reco::GenParticle p2) {
+double EFTGenHistsWithCuts::GetInvMass(reco::GenParticle p1, reco::GenParticle p2) {
     auto p4vec = p1.p4() + p2.p4();
     return p4vec.M();
 }
 
 // Make a standardized hist name out of category info and hist type and hist number
-TString EFTGenHistsWithCuts::constructHistName(TString lep_cat, TString hist_type, std::vector<size_t> hist_idx_vect){
+TString EFTGenHistsWithCuts::ConstructHistName(TString lep_cat, TString hist_type, std::vector<size_t> hist_idx_vect){
     TString ret_str;
     TString hist_no_str = "";
     int n_indices = hist_idx_vect.size();
@@ -507,14 +501,14 @@ TString EFTGenHistsWithCuts::constructHistName(TString lep_cat, TString hist_typ
 }
 
 // Fill TH1EFTs if they exist in the hist dictionary
-void EFTGenHistsWithCuts::fillHistIfExists(TString h_name, double val, WCFit eft_fit){
+void EFTGenHistsWithCuts::FillHistIfExists(TString h_name, double val, WCFit eft_fit){
     if (hist_dict.find(h_name) != hist_dict.end()){
         hist_dict[h_name]->Fill(val,1.0,eft_fit);
     }
 }
 
 // Fill TH1Ds if they exist in the hist dictionary
-void EFTGenHistsWithCuts::fillTH1DHistIfExists(TString h_name, double val){
+void EFTGenHistsWithCuts::FillTH1DHistIfExists(TString h_name, double val){
     if (hist_TH1D_dict.find(h_name) != hist_TH1D_dict.end()){
         hist_TH1D_dict[h_name]->Fill(val);
     }
@@ -527,7 +521,7 @@ bool EFTGenHistsWithCuts::has_substr(TString s, TString substr){
 
 // Template function for making pt and eta cuts
 template <typename T>
-std::vector<T> EFTGenHistsWithCuts::MakePtEtaCuts(const std::vector<T>& input, double min_pt, double max_eta) {
+std::vector<T> EFTGenHistsWithCuts::MakeBaselinePtEtaCuts(const std::vector<T>& input, double min_pt, double max_eta) {
     std::vector<T> ret;
     for (size_t i = 0; i < input.size(); i++) {
         const T& p = input.at(i);
@@ -539,6 +533,27 @@ std::vector<T> EFTGenHistsWithCuts::MakePtEtaCuts(const std::vector<T>& input, d
         ret.push_back(p);
     }
     std::sort(ret.begin(),ret.end(), [] (T a, T b) { return a.p4().Pt() > b.p4().Pt();});
+    return ret;
+}
+
+// Template function for making staggered pt cuts
+template <typename T>
+std::vector<T> EFTGenHistsWithCuts::MakeStaggeredPtCuts(const std::vector<T>& particles, std::vector<double> pt_vector, double pt_min) {
+    std::vector<T> sorted_particles = particles;
+    std::sort(sorted_particles.begin(),sorted_particles.end(), [] (T a, T b) { return a.p4().Pt() > b.p4().Pt();});
+    std::vector<T> ret;
+    for (size_t i = 0; i < sorted_particles.size(); i++) {
+        const T& p = sorted_particles.at(i);
+        double pt_threshold;
+        if (i < pt_vector.size()){
+            pt_threshold = pt_vector.at(i);
+        } else {
+            pt_threshold = pt_min;
+        }
+        if (p.p4().Pt() > pt_threshold) {
+            ret.push_back(p);
+        }
+    }
     return ret;
 }
 
@@ -567,7 +582,7 @@ std::vector<T1> EFTGenHistsWithCuts::CleanCollection(const std::vector<T1>& obj1
 template <typename T1, typename T2>
 double EFTGenHistsWithCuts::getdR(T1 p1, T2 p2) {
     double dR = (p1.p4().Eta() - p2.p4().Eta())*(p1.p4().Eta() - p2.p4().Eta());
-    dR += (getdPhi(p1,p2)*getdPhi(p1,p2));
+    dR += (GetdPhi(p1,p2)*GetdPhi(p1,p2));
     dR = sqrt(dR);
     return dR;
 }
@@ -575,67 +590,47 @@ double EFTGenHistsWithCuts::getdR(T1 p1, T2 p2) {
 // Get lepton category of event
 // NOTE: Right now just returns either 2lss, 3l, 4l (and 4l is for 4 or more l), or none
 template <typename T>
-TString EFTGenHistsWithCuts::getLepCat(const std::vector<T>& leptons) {
+TString EFTGenHistsWithCuts::GetLepCat(const std::vector<T>& leptons) {
 
-    // Make sure only looking at charged particles
-    const std::vector<T>& charged_leptons = getChargedParticles(leptons);
-
-    // Make sure cuts have been made, Note:
-    //     - The leptons pt passed should not be larger than the smallest value used below (10GeV)
-    //     - This function also makes sure that the leptons are ordered by pt
-    const std::vector<T>& charged_leptons_cut = MakePtEtaCuts(charged_leptons,min_pt_lep,max_eta_lep); // Make sure cuts have been made
-
-    // Put the pt of the leptons in a vecotr
-    std::vector<double> lep_pt_vect;
-    for (auto l: charged_leptons_cut){
-        lep_pt_vect.push_back(l.p4().Pt());
-    }
+    std::vector<T> leptons_ch;
+    leptons_ch = GetChargedParticles(leptons);                                     // Make sure only looking at charged particles
+    leptons_ch = MakeBaselinePtEtaCuts(leptons_ch,min_pt_lep,max_eta_lep);         // Make sure eta cuts have been made
+    leptons_ch = MakeStaggeredPtCuts(leptons_ch,staggered_pt_cuts_lep,min_pt_lep); // Make sure appropriate analysis pt cuts have been made
 
     // Check which lepton category, if any, the event satisfies
     TString lep_cat_name = "none";
-    int ch_sum = getChargeSum(charged_leptons_cut);
-    if (charged_leptons_cut.size() == 2 and ch_sum != 0){
-        if (lep_pt_vect.at(0) > 25 and lep_pt_vect.at(1) > 15){
-            lep_cat_name = "2lss";
-        }
-    } else if (charged_leptons_cut.size() == 3) {
-        if (lep_pt_vect.at(0) > 25 and lep_pt_vect.at(1) > 15 and lep_pt_vect.at(2) > 10){
-            lep_cat_name = "3l";
-        }
-    } else if (charged_leptons_cut.size() > 3) {
-        if (lep_pt_vect.at(0)> 25 and lep_pt_vect.at(1) > 15 and lep_pt_vect.at(2) > 10 and lep_pt_vect.at(3) > 10){
-            lep_cat_name = "4l";
-        }
+    int ch_sum = GetChargeSum(leptons_ch);
+    if (leptons_ch.size() == 2 and ch_sum != 0){
+        lep_cat_name = "2lss";
+    } else if (leptons_ch.size() == 3) {
+        lep_cat_name = "3l";
+    } else if (leptons_ch.size() > 3) {
+        lep_cat_name = "4l";
     }
     return lep_cat_name;
 }
 
 // Returns true if same flavor opposite sign pair in 3l event that's within z peak
 template <typename T>
-bool EFTGenHistsWithCuts::isSFOZ(const std::vector<T>& leptons) {
+bool EFTGenHistsWithCuts::IsSFOSZ(const std::vector<T>& leptons) {
     bool is_sfoz = false;
-    if (leptons.size() == 3){
+    if (GetLepCat(leptons) == "3l"){
         const T& p1 = leptons.at(0);
         const T& p2 = leptons.at(1);
         const T& p3 = leptons.at(2);
-        double pt1 = p1.p4().Pt();
-        double pt2 = p2.p4().Pt();
-        double pt3 = p3.p4().Pt();
-        if(pt1 > 25 && pt2 > 15 && pt3 > 10){ // These numbers should probably be stored somewhere else...
-            if(abs(p1.charge() + p2.charge() + p3.charge()) == 1) {
-                //loop over all leptons
-                for(size_t i = 0; i < leptons.size(); i++) {
-                    //loop over leptons not seen yet (prevents (1,2) (2,1) duplicates)
-                    for(size_t j = i+1; j < leptons.size(); j++) {
-                        if (abs(leptons.at(i).pdgId()) != abs(leptons.at(j).pdgId())) continue; //look for same flavor only (Z->ee or Z->mumu)
-                        if (leptons.at(i).charge() * leptons.at(j).charge() > 0) continue; //look for opposite sign only (e+e- or mu+mu-)
-                        if (fabs((leptons.at(i).p4() + leptons.at(j).p4()).M() - 91.2) < 10) {
-                            is_sfoz = true;
-                            break; //done searching
-                        }
+        if(abs(p1.charge() + p2.charge() + p3.charge()) == 1) {
+            //loop over all leptons
+            for(size_t i = 0; i < leptons.size(); i++) {
+                //loop over leptons not seen yet (prevents (1,2) (2,1) duplicates)
+                for(size_t j = i+1; j < leptons.size(); j++) {
+                    if (abs(leptons.at(i).pdgId()) != abs(leptons.at(j).pdgId())) continue; //look for same flavor only (Z->ee or Z->mumu)
+                    if (leptons.at(i).charge() * leptons.at(j).charge() > 0) continue; //look for opposite sign only (e+e- or mu+mu-)
+                    if (fabs((leptons.at(i).p4() + leptons.at(j).p4()).M() - 91.2) < 10) {
+                        is_sfoz = true;
+                        break; //done searching
                     }
-                    if (is_sfoz) break; //no need to search any further
                 }
+                if (is_sfoz) break; //no need to search any further
             }
         }
     }
@@ -645,12 +640,12 @@ bool EFTGenHistsWithCuts::isSFOZ(const std::vector<T>& leptons) {
 // Get the analysis cateogry the event falls into
 // Not sure if this is the right idea or not for how to set up this function...
 template <typename T1, typename T2, typename T3>
-TString EFTGenHistsWithCuts::getAnaCat(const std::vector<T1>& leptons, const std::vector<T2>& jets, const std::vector<T3>& bjets){
+TString EFTGenHistsWithCuts::GetAnaCat(const std::vector<T1>& leptons, const std::vector<T2>& jets, const std::vector<T3>& bjets){
 
     int njets = jets.size();
     int nbjets = bjets.size();
     TString cat = "none";
-    TString lepcat = getLepCat(leptons);
+    TString lepcat = GetLepCat(leptons);
 
     // Get nbjets catetory
     TString bcat = "";
@@ -662,15 +657,15 @@ TString EFTGenHistsWithCuts::getAnaCat(const std::vector<T1>& leptons, const std
 
     // Get the analysis category
     if (lepcat == "2lss"){
-        if (njets >= 4){
+        if (njets >= min_njets_2lss){
             if (nbjets >=2){
                 cat = lepcat+"-"+bcat;;
             }
         }
     } else if (lepcat == "3l"){
-        if (njets >= 2){
+        if (njets >= min_njets_3l){
             if (nbjets >= 1){
-                if (isSFOZ(leptons)){
+                if (IsSFOSZ(leptons)){
                     cat = lepcat+"-"+"sfz"+"-"+bcat;
                 } else {
                     cat = lepcat+"-"+bcat;
@@ -678,7 +673,7 @@ TString EFTGenHistsWithCuts::getAnaCat(const std::vector<T1>& leptons, const std
             }
         }
     } else if (lepcat == "4l"){
-        if (njets >= 2){
+        if (njets >= min_njets_4l){
             if (nbjets >= 2){
                 cat = lepcat+"-"+bcat;
             }
@@ -691,18 +686,15 @@ TString EFTGenHistsWithCuts::getAnaCat(const std::vector<T1>& leptons, const std
 template <typename T1, typename T2>
 int EFTGenHistsWithCuts::GetNJetsForLepCat(const std::vector<T1>& leptons, const std::vector<T2>& jets){
     // These things should probably go somewhere that's not here:
-    int max_jet_multiplicity_2lss = 7;
-    int max_jet_multiplicity_3l = 5;
-    int max_jet_multiplicity_4l = 4;
     int njets = jets.size();
     int njets_ret;
-    TString lepcat = getLepCat(leptons);
-    if ( (lepcat == "2lss") and (njets > max_jet_multiplicity_2lss) ){
-        njets_ret = max_jet_multiplicity_2lss;
-    } else if ( (lepcat == "3l") and (njets > max_jet_multiplicity_3l) ){
-        njets_ret = max_jet_multiplicity_3l;
-    } else if ( (lepcat == "4l") and (njets > max_jet_multiplicity_4l) ){
-        njets_ret = max_jet_multiplicity_4l;
+    TString lepcat = GetLepCat(leptons);
+    if ( (lepcat == "2lss") and (njets > max_njet_bins_2lss) ){
+        njets_ret = max_njet_bins_2lss;
+    } else if ( (lepcat == "3l") and (njets > max_njet_bins_3l) ){
+        njets_ret = max_njet_bins_3l;
+    } else if ( (lepcat == "4l") and (njets > max_njet_bins_4l) ){
+        njets_ret = max_njet_bins_4l;
     } else {
         njets_ret = njets;
     }
@@ -712,7 +704,7 @@ int EFTGenHistsWithCuts::GetNJetsForLepCat(const std::vector<T1>& leptons, const
 
 // Get charge sum of particles
 template <typename T>
-int EFTGenHistsWithCuts::getChargeSum(const std::vector<T>& particles_vect) {
+int EFTGenHistsWithCuts::GetChargeSum(const std::vector<T>& particles_vect) {
     int ch_sum = 0;
     for (size_t i = 0; i < particles_vect.size(); i++) {
         const T& p = particles_vect.at(i);
@@ -723,7 +715,7 @@ int EFTGenHistsWithCuts::getChargeSum(const std::vector<T>& particles_vect) {
 
 // Returns the charged particles from particles of type reco::GenParticleCollection
 template <typename T>
-std::vector<T> EFTGenHistsWithCuts::getChargedParticles(const std::vector<T>& particles_vect) {
+std::vector<T> EFTGenHistsWithCuts::GetChargedParticles(const std::vector<T>& particles_vect) {
     std::vector<T> ret;
     for (size_t i = 0; i < particles_vect.size(); i++) {
         const T& p =  particles_vect.at(i);
