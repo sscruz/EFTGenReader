@@ -45,7 +45,8 @@ def group_by(fn_lst,typ):
     # Returns: {'p1': [], 'p2': [], ...}
     ret = {}
     for fn in fn_lst:
-        p,c,r = fn.split('_')[:3]
+        #p,c,r = fn.split('_')[:3]
+        p,c = fn.split('_')[:2]
         if typ == 'process':
             grp = p
         elif typ == 'tag':
@@ -63,7 +64,7 @@ def move_rwgt_plots():
     force = False
     indent= ' '*4
     src_dir = "read_lhe_outputs"
-    dst_dir = os.path.join(USER_DIR,'www/eft_stuff/misc/rwgt_validation_plots/plus_1jet-GEN_withHanModel1DRef')
+    dst_dir = os.path.join(USER_DIR,'www/EFT/InclXsecRwgt/testing/test0')
 
     if not os.path.exists(dst_dir):
         print "Unknown destination directory: {dir}".format(dir=dst_dir)
@@ -71,6 +72,7 @@ def move_rwgt_plots():
 
 
     imgs = get_files(src_dir,ext='png')
+    imgs = imgs + get_files(src_dir,ext='pdf')
     grps = group_by(imgs,'process')
     for g,lst in grps.iteritems():
         fpath_lst = [os.path.join(src_dir,x) for x in lst]
