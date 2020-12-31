@@ -30,7 +30,8 @@
 #include "EFTGenReader/EFTHelperUtilities/interface/TH1EFT.h"
 #include "EFTGenReader/EFTHelperUtilities/interface/Stopwatch.h"
 #include "EFTGenReader/EFTHelperUtilities/interface/split_string.h"
-#include "makeEFTPlots.h"
+//#include "makeEFTPlots.h"
+#include "make1DXsecPlots.h"
 
 // // // //
 // NOTE the following: 
@@ -269,16 +270,23 @@ void makePlot(std::string wc_name, TString sys, vector<vector<WCPoint>> pts_vect
     std::cout << "\t" << sys << ":" << std::endl;
 
     bool include_ratio = true;
-    bool draw_errorband = true;
-    bool draw_updown = false;
-    bool draw_points = false;
+    bool draw_errorband = false;
+    bool draw_updown = true;
+    bool draw_points = true;
+
+    ///*
+    // For pheno paper formatting
+    draw_errorband = true;
+    draw_updown = false;
+    draw_points = false;
+    //*/
 
     TString save_name = sys;
     //TString save_name = sys+".png";
     //TString save_name_pdf = sys+".pdf";
     TString plot_name = "";
-    TString x_axis_name = wc_name+" Strength";
-    TString y_axis_name = "\\sigma_{NP}/\\sigma_{SM}";
+    TString x_axis_name = WC_LABEL_MAP[wc_name]+" Strength";
+    TString y_axis_name = "\\mu=\\sigma/\\sigma_{SM}";
     int nom_clr = kBlack;
     int u_clr = kGreen;
     int d_clr = kBlue;
@@ -286,11 +294,14 @@ void makePlot(std::string wc_name, TString sys, vector<vector<WCPoint>> pts_vect
     if (wc_name=="cpt"){
         //x_min = -20;
         //x_max = 20;
-        //y_min = .9;
+        //y_min = .0;
+        //y_max = 2.1;
+        ///*
         x_min = -13;
         x_max = 18;
         y_min = .95;
         y_max = 1.35;
+        //*/
     } else if (wc_name=="ctG"){
         //x_min = -2.5;
         //x_max = 2.5;
@@ -393,6 +404,7 @@ void makePlot(std::string wc_name, TString sys, vector<vector<WCPoint>> pts_vect
         WCFit* wc_fit_WgtU = new WCFit(pts_vect_WgtU,"test");
         WCFit* wc_fit_WgtD = new WCFit(pts_vect_WgtD,"test");
 
+
         // NOMINAL //
         double s0 = wc_fit->getCoefficient(wc_fit->kSMstr,wc_fit->kSMstr);
         double s1 = wc_fit->getCoefficient(wc_fit->kSMstr,wc_name);
@@ -423,7 +435,7 @@ void makePlot(std::string wc_name, TString sys, vector<vector<WCPoint>> pts_vect
             fit->GetYaxis()->SetLabelSize(0.050);
             fit->GetXaxis()->SetTitleOffset(1.1);
             fit->GetYaxis()->SetTitleOffset(1.0);
-            fit->GetYaxis()->SetTitleSize(0.10);
+            fit->GetYaxis()->SetTitleSize(0.100);
         }
         fit->SetTitle(plot_name);
         if (sample_idx==0){
@@ -433,12 +445,13 @@ void makePlot(std::string wc_name, TString sys, vector<vector<WCPoint>> pts_vect
         }
         if (tag != ""){
             legend->AddEntry(fit,tag,"l");
-            if (tag.Index("0+1p") != -1){
+            if (tag.Index("0+1p") != -1 or tag.Index("+j") != -1){
                 std::cout << "Custom 0+1p legend: " << tag << std::endl;
                 fit->SetLineColor(kBlue);
                 fit->SetLineWidth(3);
                 fit->SetLineStyle(7); // Plot the 0+1p lines as dashed
-            } else if (tag.Index("0p") != -1){
+            //} else if (tag.Index("0p") != -1){
+            } else {
                 std::cout << "Custom 0p legend: " << tag << std::endl;
                 fit->SetLineColor(kBlue);
                 fit->SetLineWidth(2);
@@ -453,6 +466,9 @@ void makePlot(std::string wc_name, TString sys, vector<vector<WCPoint>> pts_vect
             TGraph* ref_pt_gr = new TGraph(1);
             ref_pt_gr->SetPoint(0,ref_pt.getStrength(wc_name),ref_pt.wgt);
             std::cout << "NOMINAL VAL x:" << ref_pt.getStrength(wc_name) << " y: " << ref_pt.wgt << std::endl;
+
+            //std::cout << "ERROR at ref pt!!! " << wc_fit->evalPointError(&ref_pt) << std::endl;
+
             ref_pt_gr->SetMarkerStyle(4);
             ref_pt_gr->SetMarkerColor(1);
             if (draw_points){
@@ -562,8 +578,12 @@ void makePlot(std::string wc_name, TString sys, vector<vector<WCPoint>> pts_vect
             float ratio_y_lim = max( abs(u_ratio_hist->GetBinContent(1)-1), abs(d_ratio_hist->GetBinContent(1)-1) );
             //u_ratio_hist->SetMaximum(1.05*(1+ratio_y_lim));
             //u_ratio_hist->SetMinimum(0.95*(1-ratio_y_lim));
+            //u_ratio_hist->SetMaximum(1.05*ratio_y_lim);
+            //u_ratio_hist->SetMinimum(0.95*ratio_y_lim);
             nom_ratio_hist->SetMaximum(1.025); // Hard code (good for cpt)
             nom_ratio_hist->SetMinimum(0.975); // Hard code (good for cpt)
+            //nom_ratio_hist->SetMaximum(1.5); // Hard code (good for cpt)
+            //nom_ratio_hist->SetMinimum(0.5); // Hard code (good for cpt)
             if (draw_errorband){
                 auto ratio_band = getErrorBandFromTH1s(nom_ratio_hist,u_ratio_hist,d_ratio_hist);
                 ratio_band->SetFillStyle(3002);
@@ -610,8 +630,10 @@ void makePlot(std::string wc_name, TString sys, vector<vector<WCPoint>> pts_vect
 
     // Draw, save, delete
     legend->Draw();
-    c1->Print(save_name+".png","png");
-    c1->Print(save_name+".pdf","pdf");
+    //c1->Print(save_name+".png","png");
+    //c1->Print(save_name+".pdf","pdf");
+    c1->Print("sys_output/"+save_name+".png","png");
+    c1->Print("sys_output/"+save_name+".pdf","pdf");
     delete legend;
     delete c1;
 
@@ -806,6 +828,10 @@ std::vector<std::map<std::string,std::vector<WCPoint>>> get_WCpt_syst_maps(TStri
         wcpt_systs_U_map["qCut"] = WCPoint(pt_str);
         wcpt_systs_D_map["qCut"] = WCPoint(pt_str);
 
+        // Testing stat errors by hand
+        double wgt_sum_nom=0;
+        double wgt_sum_sqr_nom=0;
+
         // Event loop:
         int selection_events = 0;
         for (int i = first_entry; i < last_entry; i++) {
@@ -832,6 +858,8 @@ std::vector<std::map<std::string,std::vector<WCPoint>>> get_WCpt_syst_maps(TStri
                         wcpt_systs_U_map[sys].wgt += originalXWGTUP_intree*sys_map[sys]["u"];
                         wcpt_systs_D_map[sys].wgt += originalXWGTUP_intree*sys_map[sys]["d"];
                     }
+                    wgt_sum_nom += originalXWGTUP_intree;
+                    wgt_sum_sqr_nom += originalXWGTUP_intree*originalXWGTUP_intree;
                 } else if (f_type == "qCut_up"){
                     wcpt_systs_U_map["qCut"].wgt += originalXWGTUP_intree;
                 } else if (f_type == "qCut_down"){
@@ -840,6 +868,8 @@ std::vector<std::map<std::string,std::vector<WCPoint>>> get_WCpt_syst_maps(TStri
             }
         }
         std::cout << "\n Selected events over total: " << selection_events << "/" << last_entry << "->" << (float)selection_events/last_entry << "\n" << std::endl;
+
+        std::cout << "\nSum of the weight: " << wgt_sum_nom << " sqrt of sum of sqr of wgt: " << sqrt(wgt_sum_sqr_nom) << "\n" << std::endl;
 
         // Normalize and add to map
         if (f_type == "qCut_nom"){
@@ -920,6 +950,18 @@ void systWCdependenceCheck(TString proc_name, TString wc_name, TString run_dirs_
     gStyle->SetOptStat(0);
     std::cout << "\nThe WC we scan over in these files: " << wc_name << "\n" << std::endl;
 
+    TString format_name = "";
+    if (proc_name == "ttH" or proc_name == "tth") {
+        format_name = "t#bar{t}h";
+    } else if (proc_name == "ttW") {
+        format_name = "t#bar{t}W";
+    } else if (proc_name == "ttZ") {
+        format_name = "t#bar{t}Z";
+    } else {
+        std::cout << "\nUnknown process: " << proc_name << "Exiting...\n" << std::endl;
+        throw std::exception();
+    }
+
     // Fill the dictionaries of WC points for each syst, Note for the systs_pts_vect: 0 is nominal, 1 is up, 2 is down
     std::vector<std::string> sys_names {"psISR","psFSR","muR","muF","muRmuF","nnpdf","qCut"};
     std::vector<std::map<std::string,std::vector<WCPoint>>> systs_pts_vect;
@@ -959,8 +1001,10 @@ void systWCdependenceCheck(TString proc_name, TString wc_name, TString run_dirs_
     std::map<std::string,std::vector<WCPoint>> quad_sum_map_p0p;
     quad_sum_map_p1p = getQuadSums(string(wc_name),s_to_add_in_quad,systs_pts_vect_p1p.at(0),systs_pts_vect_p1p.at(1),systs_pts_vect_p1p.at(2));
     quad_sum_map_p0p = getQuadSums(string(wc_name),s_to_add_in_quad_noqCut,systs_pts_vect_p0p.at(0),systs_pts_vect_p0p.at(1),systs_pts_vect_p0p.at(2));
-    makePlot(string(wc_name),"quad_sum",{systs_pts_vect_p1p.at(0)["nominal"]},{quad_sum_map_p1p["inc"]},{quad_sum_map_p1p["dec"]},{proc_name+" 0+1p "});
-    makePlot(string(wc_name),"quad_sum_0p",{systs_pts_vect_p0p.at(0)["nominal"]},{quad_sum_map_p0p["inc"]},{quad_sum_map_p0p["dec"]},{proc_name+" 0+1p "});
+    //makePlot(string(wc_name),"quad_sum",{systs_pts_vect_p1p.at(0)["nominal"]},{quad_sum_map_p1p["inc"]},{quad_sum_map_p1p["dec"]},{proc_name+" 0+1p "});
+    //makePlot(string(wc_name),"quad_sum_0p",{systs_pts_vect_p0p.at(0)["nominal"]},{quad_sum_map_p0p["inc"]},{quad_sum_map_p0p["dec"]},{proc_name+" 0+1p "});
+    makePlot(string(wc_name),"quad_sum",{systs_pts_vect_p1p.at(0)["nominal"]},{quad_sum_map_p1p["inc"]},{quad_sum_map_p1p["dec"]},{format_name+"+j LO"});
+    makePlot(string(wc_name),"quad_sum_0p",{systs_pts_vect_p0p.at(0)["nominal"]},{quad_sum_map_p0p["inc"]},{quad_sum_map_p0p["dec"]},{format_name+"+j LO"});
 
     makePlot(
         string(wc_name),
@@ -968,7 +1012,8 @@ void systWCdependenceCheck(TString proc_name, TString wc_name, TString run_dirs_
         {systs_pts_vect_p1p.at(0)["nominal"],systs_pts_vect_p0p.at(0)["nominal"]},
         {quad_sum_map_p1p["inc"],quad_sum_map_p0p["inc"]},
         {quad_sum_map_p1p["dec"],quad_sum_map_p0p["dec"]},
-        {proc_name+" 0+1p ",proc_name+" 0p "} // Optional argument, each tag should correspond to the samples passed
+        //{proc_name+" 0+1p ",proc_name+" 0p "} // Optional argument, each tag should correspond to the samples passed
+        {format_name+"+j LO",format_name+" LO"} // Optional argument, each tag should correspond to the samples passed
     );
 
     // TEST print frac uncty
