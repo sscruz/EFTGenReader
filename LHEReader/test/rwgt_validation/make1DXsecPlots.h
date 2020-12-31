@@ -30,6 +30,30 @@ struct customPointInfo {
     double err;
 };
 
+std::unordered_map<std::string,std::string> WC_LABEL_MAP {
+    {"ctW"  , "#it{c}_{tW}"},
+    {"ctZ"  , "#it{c}_{tZ}"},
+    {"ctp"  , "#it{c}_{t#varphi}"},
+    {"cpQM" , "#it{c}^{#font[122]{\55}}_{#varphiQ}"},
+    {"ctG"  , "#it{c}_{tG}"},
+    {"cbW"  , "#it{c}_{bW}"},
+    {"cpQ3" , "#it{c}^{3}_{#varphiQ}"},
+    {"cptb" , "#it{c}_{#varphitb}"},
+    {"cpt"  , "#it{c}_{#varphit}"},
+    {"cQl3i", "#it{c}^{3(#it{l})}_{Ql}"},
+    {"cQlMi", "#it{c}^{#font[122]{\55}(#it{l})}_{Ql}"},
+    {"cQei" , "#it{c}^{(#it{l})}_{Qe}"},
+    {"ctli" , "#it{c}^{(#it{l})}_{tl}"},
+    {"ctei" , "#it{c}^{(#it{l})}_{te}"},
+    {"ctlSi", "#it{c}^{S(#it{l})}_{t}"},
+    {"ctlTi", "#it{c}^{T(#it{l})}_{t}"}
+};
+
+// Returns true if s has substr in it
+bool has_substr(TString s, TString substr){
+    return (s.Index(substr) != -1);
+}
+
 // Print info about customPointsInfo object
 void print_customPointInfo_object(std::vector<customPointInfo> points_info){
     for (int i=0; i<points_info.size(); i++){
@@ -319,7 +343,7 @@ void make_1d_xsec_plot(
     std::string proc_name = ""
 ) {
 
-    //////// Setup the plots ////////
+    //////// Set up the plots ////////
 
     // Colors
     // TMP: for making the private/arxiv/smeft LO vs NLO plots
@@ -335,20 +359,25 @@ void make_1d_xsec_plot(
     int ttWttZ_color = 4;          // Blue
 
     // Misc
-    bool color_auto = false;
+    bool color_auto = true;
 
     // For ratio plots
-    TString ratio_plot_title = "(0+1p)/0p";
+    //TString ratio_plot_title = "(0+1p)/0p";
+    //TString ratio_plot_title = "\\mu_{ttX+j} / \\mu_{ttX}";
+    //TString ratio_plot_title = "ttX+j/ttX";
+    TString ratio_plot_title = "Ratio";
+
     double ratio_max_y = 3;
     double ratio_min_y = 0.8;
 
     // Plot features
     bool include_legend = true;
     bool include_title = false;
-    bool include_ratio = true;
+    bool include_ratio = false;
+    double epsilon = 0.0; // Overlap between top and bottom pads (to remove issue with 0 being cut off)
     bool include_error_bands = true;
     bool legend_centered = false;
-    bool plotting_NLO_comp_fits = true;
+    bool plotting_NLO_comp_fits = false;
 
     // X axis lims
     bool use_smefit_lims = true;
@@ -359,22 +388,35 @@ void make_1d_xsec_plot(
     bool use_hardcode_ylims = false;
 
     // Skip certain plots or fits
-    bool skip_4f = true;
+    bool skip_4f = false;
     bool skip_0p = false;
 
-    ///*
-    // SPECIFIC TO PHENO RESULTS SECTION!!!
-    include_error_bands = false;
+    /*
+    /// TMP ///
+    include_error_bands = true;
     use_hardcode_ylims = true;
     ratio_max_y = 1.5;
+    //skip_4f = true;
+    include_ratio = true;
+    */
+
+    /*
+    // SPECIFIC TO PHENO RESULTS SECTION!!!
+    legend_centered = true;
+    include_error_bands = false;
+    //include_error_bands = true;
+    use_hardcode_ylims = true;
+    ratio_max_y = 1.5;
+    skip_4f = true;
     if (points_to_plot_with_errorbars.size() == 0){
         include_ratio = true;
+        epsilon = 0.07;
         skip_0p = false;
     } else {
         include_ratio = false;
         skip_0p = true;
     }
-    //*/
+    */
 
     //////// End setup ////////
 
@@ -393,6 +435,7 @@ void make_1d_xsec_plot(
         int len = wc_name.size();
         x_axis_title = wc_name.substr(0,len-1);
     }
+    x_axis_title = WC_LABEL_MAP[wc_name];
     plt_ops.x_name = x_axis_title + " Strength";
     //plt_ops.y_name = "\\sigma_{NP}/\\sigma_{SM}";
     plt_ops.y_name = "\\mu = \\sigma/\\sigma_{SM}";
@@ -495,11 +538,14 @@ void make_1d_xsec_plot(
                 //std::cout << smefit_lims_dict[wc_name].first << " , " << smefit_lims_dict[wc_name].first << std::endl;
                 x_low  = smefit_lims_dict[wc_name].first;
                 x_high = smefit_lims_dict[wc_name].second;
-            } else if (asimov_lims_dict.find(wc_name) != asimov_lims_dict.end() and use_asimov_lims){
+            //} else if (asimov_lims_dict.find(wc_name) != asimov_lims_dict.end() and use_asimov_lims){
+            } else if (asimov_lims_dict.find(wc_name) != asimov_lims_dict.end()){
                 //std::cout << "in asimov_lims_dict! " << wc_name << std::endl;
                 //std::cout << asimov_lims_dict[wc_name].first << " , " << asimov_lims_dict[wc_name].first << std::endl;
                 x_low  = asimov_lims_dict[wc_name].first;
                 x_high = asimov_lims_dict[wc_name].second;
+            } else{
+                std::cout << "WC NAME NOT FOUND: " << wc_name << std::endl;
             }
             if (use_10to10_lims) {
                 x_low = -10;
@@ -525,7 +571,7 @@ void make_1d_xsec_plot(
     double r = 0.40;
     //double epsilon = 0.03;
     //double epsilon = 0.05;
-    double epsilon = 0.07; // For pheno paper
+    //double epsilon = 0.07; // For pheno paper
     //double epsilon = 0.0;
     double pad_left_edge;
     double pad_right_edge;
@@ -559,13 +605,14 @@ void make_1d_xsec_plot(
     
     double left,right,top,bottom,scale_factor,minimum;
     // The legend
-    double ledgend_width = 0.65;
+    //double ledgend_width = 0.65;
+    double ledgend_width = 0.62;
     TLegend *legend;
     if (legend_centered) {
         left  = (pad_right_edge-pad_left_edge)/2 + pad_left_edge - ledgend_width/2; // Center the legend on the pad, not canvas
         right = (pad_right_edge-pad_left_edge)/2 + pad_left_edge + ledgend_width/2; // Center the legend on the pad, not canvas
         top    = 0.88;
-        bottom = 0.7;
+        bottom = 0.70;
         legend = new TLegend(left,top,right,bottom);
         legend->SetNColumns(wc_fits.size());
         legend->SetBorderSize(0);
@@ -574,7 +621,8 @@ void make_1d_xsec_plot(
         left   = pad_right_edge-ledgend_width;
         right  = pad_right_edge-0.003;
         top    = pad_top_edge-0.003;
-        bottom = 0.71;
+        //bottom = 0.70;
+        bottom = 0.80;
         legend = new TLegend(left,top,right,bottom);
         legend->SetNColumns(wc_fits.size());
         legend->SetBorderSize(0);        
@@ -593,7 +641,7 @@ void make_1d_xsec_plot(
         double s2 = wc_fit.getCoefficient(wc_name,wc_name);
 
         // TMP, usefule for making pheno paper plots, make 4.1 and 4.2 plots at same time...
-        if (skip_0p and (string(wc_fit.getTag()).find("0p") != std::string::npos) ){
+        if (skip_0p and ( (string(wc_fit.getTag()).find("0p") != std::string::npos) or string(wc_fit.getTag()).find("+j") == std::string::npos ) ){
             if (i==0){
                 std::cout << "\nCannot skip fit " << wc_fit.getTag() << " as it is the first and would mess up the drawing...\n" << std::endl;
             }
@@ -670,10 +718,12 @@ void make_1d_xsec_plot(
 
         // This is where figure out what color to draw the fit as. It's a mess.
         //std::cout << "\nThe leg str is: " << leg_str << "\n" << std::endl;
-        if (string(leg_str).find("Jet") != std::string::npos or string(leg_str).find("NLO") != std::string::npos or string(tmp_str).find("0+1p") != std::string::npos){
+        //if (string(leg_str).find("Jet") != std::string::npos or string(leg_str).find("NLO") != std::string::npos or string(tmp_str).find("0+1p") != std::string::npos){
+        if (has_substr(leg_str,"+j") or has_substr(leg_str,"Jet") or has_substr(leg_str,"NLO") or has_substr(leg_str,"0+1p")){
            fit->SetLineStyle(7); // Plot the 0+1p lines as dashed 
         }
-        if (string(leg_str).find("0p") != std::string::npos or string(tmp_str).find("0+1p") != std::string::npos){ // Private samples usually indicated this way
+        //if (string(leg_str).find("0p") != std::string::npos or string(tmp_str).find("0+1p") != std::string::npos){ // Private samples usually indicated this way
+        if (has_substr(leg_str,"0p") or has_substr(leg_str,"0+1p") or has_substr(leg_str,"LO")){ // Private samples usually indicated this way (not fool proof)
             fit->SetLineColor(private_color);
         //} else if (string(leg_str).find("ttlnu") != std::string::npos or string(leg_str).find("ttll") != std::string::npos or string(leg_str).find("ttH") != std::string::npos){ // If it's ttll or ttlnu, probably private
         } else if (string(leg_str).find("ttlnu") != std::string::npos or string(leg_str).find("ttll") != std::string::npos ){ // If it's ttll or ttlnu, probably private
@@ -714,7 +764,8 @@ void make_1d_xsec_plot(
             fit->GetYaxis()->SetRangeUser(hard_code_y_lims[wc_name].first,hard_code_y_lims[wc_name].second);
             std::cout << "\nSetting hard coded y lims to: " << hard_code_y_lims[wc_name].first << " , " << hard_code_y_lims[wc_name].second << std::endl;
         } else {
-            fit->SetMaximum(1.5*tmp_ymax);
+            //fit->SetMaximum(1.5*tmp_ymax);
+            fit->SetMaximum(2.0*tmp_ymax);
             fit->SetMinimum(universal_ymin);
         }
 
@@ -742,8 +793,10 @@ void make_1d_xsec_plot(
                 tmp_max_nlo_pt = points_struct.y;
             }
         }
-        if (not use_hardcode_ylims and tmp_max_nlo_pt*1.5 > fit->GetMaximum()){
-            fit->SetMaximum(tmp_max_nlo_pt*1.5);
+        //if (not use_hardcode_ylims and tmp_max_nlo_pt*1.5 > fit->GetMaximum()){
+        if (not use_hardcode_ylims and tmp_max_nlo_pt*2.0 > fit->GetMaximum()){
+            //fit->SetMaximum(tmp_max_nlo_pt*1.5);
+            fit->SetMaximum(tmp_max_nlo_pt*2.0);
         }
 
     }
@@ -799,7 +852,19 @@ void make_1d_xsec_plot(
             y_point_vals[npt]=points_struct.y;
             x_err_vals[npt]=0;
             y_err_vals[npt]=points_struct.err;
-            points_with_ebars_leg_str = points_struct.proc_name + " " + points_struct.type; // Should be the same for each point in stuct?
+            // Change nlo->NLO if necessary
+            TString type_for_leg = points_struct.type;
+            TString proc_for_leg = points_struct.proc_name;
+            if (points_struct.type == "nlo"){
+                type_for_leg = "NLO";
+            }
+            if (points_struct.proc_name == "tth" or points_struct.proc_name == "ttW" or points_struct.proc_name == "ttZ"){
+                //proc_for_leg = "t\\bar{t}";
+                proc_for_leg = "t#bar{t}";
+                proc_for_leg += points_struct.proc_name[2];
+            }
+            //points_with_ebars_leg_str = points_struct.proc_name + " " + points_struct.type; // Should be the same for each point in stuct?
+            points_with_ebars_leg_str = proc_for_leg + " " + type_for_leg; // Should be the same for each point in stuct?
             //if (y_point_vals[npt]*1.5 > fit->GetMaximum()){
                 //fit->SetMaximum(1.5*y_point_vals[npt]);
             //}
@@ -815,7 +880,6 @@ void make_1d_xsec_plot(
         //legend->AddEntry(points_with_ebars,points_with_ebars_leg_str,"l"); // Legend for points
 
     }
-
 
     // Calculate the ratio hists
     if (include_ratio){
