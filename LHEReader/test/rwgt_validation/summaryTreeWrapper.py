@@ -950,14 +950,14 @@ ALL_INFO = [
         #'include': False,
         #'p_wl': [],
         #'p_wl': ["ttH"],
-        #'p_wl': ["ttHJet"],
+        'p_wl': ["ttHJet"],
         #'p_wl': ["ttWJet"],
         #'p_wl': ["ttZJet"],
         #'p_wl': ["ttH","ttHJet"], 
         #'p_wl': ["ttW","ttWJet"], 
         #'p_wl': ["ttZ","ttZJet"], 
         #'p_wl': ["ttZ","ttZJet","ttW","ttWJet"], 
-        'p_wl': ["ttH","ttHJet","ttZ","ttZJet","ttW","ttWJet"], 
+        #'p_wl': ["ttH","ttHJet","ttZ","ttZJet","ttW","ttWJet"], 
         #'c_wl': [],
         #'c_wl': ["HanV4goodStartPt"], # ttV: HanV4goodStartPt, HanV4QED1QCD3goodStartPt
         #'c_wl': ["HanV4lModel16DttllScanpoints","HanV4ModelNoJets16DttllScanpoints"], # This is for ttH without any cuts
@@ -975,6 +975,46 @@ ALL_INFO = [
         'c_wl': [],
         'r_wl': [],
         'basepath' : "/hadoop/store/user/kmohrman/summaryTree_LHE/2020_03_03_addPSweights",
+    },
+
+    #####################################################
+    # New test samples made for the full run 2 analysis #
+    #####################################################
+
+    {# ttHJet, with new (May 2020) dim6Top model, but still using old (pre updated) genproductions scripts. Wiht gs norm T and F
+        # Note: Something seems to have gone wrong wiht these gridpacks (at least the gs True one), as it seems the integrate step ran very fast, and two of the 1d curves are flata. Possibly it ran into issues and skipped something.
+        # Do not use!
+        'tag': 'ttHJet_dim6TopMay20_testing-old-genprod-updated-model-GEN',
+        'grp_name': '',
+        'version': 'v1',
+        #'include': True,
+        'include': False,
+        'p_wl': [],
+        'c_wl': [],
+        'r_wl': [],
+        'basepath' : "/hadoop/store/user/kmohrman/summaryTree_LHE/FullR2Studies/PreliminaryStudies/",
+    },
+    {# ttHJet, with the new genprod framework and HanV4 as well as (May 2020) dim6Top model (with gs T and F)
+        'tag': 'ttHJet_testUpdateGenprod-testModels-GEN',
+        'grp_name': '',
+        'version': 'v1',
+        #'include': True,
+        'include': False,
+        'p_wl': [],
+        'c_wl': [],
+        'r_wl': [],
+        'basepath' : "/hadoop/store/user/kmohrman/summaryTree_LHE/FullR2Studies/PreliminaryStudies/",
+    },
+    {# ttHJet, with the old  genprod framework and HanV4 as well as (May 2020) dim6Top model (with gs T and F)
+        'tag': 'ttHJet_testOldGenprod-testModels-GEN',
+        'grp_name': '',
+        'version': 'v1',
+        'include': True,
+        #'include': False,
+        'p_wl': [],
+        'c_wl': [],
+        'r_wl': [],
+        'basepath' : "/hadoop/store/user/kmohrman/summaryTree_LHE/FullR2Studies/PreliminaryStudies/",
     },
 ]
 
