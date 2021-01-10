@@ -47,7 +47,7 @@ void EFTGenHistsWithCuts::beginJob()
 
     // Automatically declare histograms, store in hist_dict
     for (size_t i=0; i<ana_cats_vct.size(); i++){
-        TString lep_cat = ana_cats_vct.at(i);
+        TString ana_cat = ana_cats_vct.at(i);
         for (size_t j=0; j<hist_info_vec.size(); j++){
             TString multiplicity_type = hist_info_vec.at(j).h_multiplicity; // How many histogram per event, e.g. one hist for all event (like nJets), or a hist for pairs of evens (like dR histograms)
             TString h_type = hist_info_vec.at(j).h_type;
@@ -56,20 +56,20 @@ void EFTGenHistsWithCuts::beginJob()
             int     h_max  = hist_info_vec.at(j).h_max;
             size_t  h_no   = abs(hist_info_vec.at(j).h_no);
            if (multiplicity_type == "all"){
-                TString hist_name = ConstructHistName(lep_cat,h_type,{});
+                TString hist_name = ConstructHistName(ana_cat,h_type,{});
                 hist_dict[hist_name] = newfs->make<TH1EFT>(hist_name,hist_name,h_bins,h_min,h_max);
             }
             else{
                 for (size_t k=0; k<h_no; k++){
                     if (multiplicity_type == "single"){
-                        TString hist_name = ConstructHistName(lep_cat,h_type,{k+1});
+                        TString hist_name = ConstructHistName(ana_cat,h_type,{k+1});
                         //std::cout << hist_name << std::endl;
                         hist_dict[hist_name] = newfs->make<TH1EFT>(hist_name,hist_name,h_bins,h_min,h_max);
                     }
                     if (multiplicity_type == "pair"){
                         for (size_t l=0; l<h_no; l++){
                             if (k<l){
-                                TString hist_name = ConstructHistName(lep_cat,h_type,{k+1,l+1});
+                                TString hist_name = ConstructHistName(ana_cat,h_type,{k+1,l+1});
                                 hist_dict[hist_name] = newfs->make<TH1EFT>(hist_name,hist_name,h_bins,h_min,h_max);
                                 //std::cout << hist_name << std::endl;
                             }
