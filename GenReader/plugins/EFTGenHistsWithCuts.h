@@ -201,7 +201,8 @@ class EFTGenHistsWithCuts: public edm::EDAnalyzer
         std::map<TString,TH1D*> hist_TH1D_dict;
         std::vector<std::string> lep_cats_vect {"2lss","3l","4l","anyLepCat"};
 
-        std::vector<std::string> ana_cats_vct {"2lss-2b","3l-sfz-1b","3l-sfz-2b","3l-1b","3l-2b","4l-2b"}; // Sort of hard coded for now...
+        //std::vector<std::string> ana_cats_vct {"2lss-2b","3l-sfz-1b","3l-sfz-2b","3l-1b","3l-2b","4l-2b"}; // Sort of hard coded for now...
+        std::vector<std::string> ana_cats_vct {"2lss-2b","3l-sfz-1b","3l-sfz-2b","3l-1b","3l-2b","4l-2b","anyAnaCat"}; // Sort of hard coded for now...
 
         int n_eta_bins = 12;
         int eta_min = -3;
@@ -504,6 +505,7 @@ TString EFTGenHistsWithCuts::ConstructHistName(TString lep_cat, TString hist_typ
 void EFTGenHistsWithCuts::FillHistIfExists(TString h_name, double val, WCFit eft_fit){
     if (hist_dict.find(h_name) != hist_dict.end()){
         hist_dict[h_name]->Fill(val,1.0,eft_fit);
+        //std::cout << "Filling hist: " << h_name << std::endl;
     }
 }
 

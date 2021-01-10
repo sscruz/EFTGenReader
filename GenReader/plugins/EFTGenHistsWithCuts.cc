@@ -46,8 +46,8 @@ void EFTGenHistsWithCuts::beginJob()
     edm::Service<TFileService> newfs;
 
     // Automatically declare histograms, store in hist_dict
-    for (size_t i=0; i<lep_cats_vect.size(); i++){
-        TString lep_cat = lep_cats_vect.at(i);
+    for (size_t i=0; i<ana_cats_vct.size(); i++){
+        TString lep_cat = ana_cats_vct.at(i);
         for (size_t j=0; j<hist_info_vec.size(); j++){
             TString multiplicity_type = hist_info_vec.at(j).h_multiplicity; // How many histogram per event, e.g. one hist for all event (like nJets), or a hist for pairs of evens (like dR histograms)
             TString h_type = hist_info_vec.at(j).h_type;
@@ -230,18 +230,19 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
     h_eventsumEFT->Fill(0.5,1,eft_fit);
     h_SMwgt_norm->Fill(sm_wgt);
 
-    // Find what lepton categories (if any) this even falls into
-    // TODO: Probably here we should be using GetAnaCat, not GetLepCat
-    TString lep_cat_name = GetLepCat(pl_leptons);
+    // Find what analysis categories (if any) this even falls into
+    TString ana_cat_name = GetAnaCat(pl_leptons,pl_jets,pl_bjets);
+    //TString lep_cat_name = GetLepCat(pl_leptons);
+    //std::cout << "Lep cat: " << lep_cat_name << ", Ana cat: " << ana_cat_name << std::endl;
     std::vector<TString> cats_vect;
-    if (lep_cat_name != "none"){
-        cats_vect = {lep_cat_name,"anyLepCat"};
+    if (ana_cat_name != "none"){
+        cats_vect = {ana_cat_name,"anyAnaCat"};
     } else {
-        cats_vect = {lep_cat_name};
+        cats_vect = {ana_cat_name};
     }
 
     // Loop over leptop categories
-    for (auto lep_cat: cats_vect){
+    for (auto ana_cat: cats_vect){
 
         // Loop over jets and fill jet hists automatically
         double ht=0;
@@ -250,8 +251,8 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
             double pt = p1.p4().Pt();
             double eta = p1.p4().Eta();
             //std::cout << pt << std::endl;
-            TString h_pt_name = ConstructHistName(lep_cat,"jet_pt",{i+1});
-            TString h_eta_name = ConstructHistName(lep_cat,"jet_eta",{i+1});
+            TString h_pt_name = ConstructHistName(ana_cat,"jet_pt",{i+1});
+            TString h_eta_name = ConstructHistName(ana_cat,"jet_eta",{i+1});
             FillHistIfExists(h_pt_name,pt,eft_fit);
             FillHistIfExists(h_eta_name,eta,eft_fit);
             ht = ht + pt;
@@ -259,15 +260,15 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
                 const reco::GenJet& p2 = pl_jets.at(j);
                 double dR = getdR(p1,p2);
                 int hist_number = 10*(i+1)+(j+1);
-                TString h_dR_name = ConstructHistName(lep_cat,"jet_dR",{i+1,j+1});
+                TString h_dR_name = ConstructHistName(ana_cat,"jet_dR",{i+1,j+1});
                 FillHistIfExists(h_dR_name,dR,eft_fit);
             }
         }
 
         // Fill jet hists that include info for all jets in event
-        TString h_ht_name = ConstructHistName(lep_cat,"ht",{});
+        TString h_ht_name = ConstructHistName(ana_cat,"ht",{});
         FillHistIfExists(h_ht_name,ht,eft_fit);
-        TString h_njet_name = ConstructHistName(lep_cat,"njets",{});
+        TString h_njet_name = ConstructHistName(ana_cat,"njets",{});
         FillHistIfExists(h_njet_name,pl_jets.size(),eft_fit);
 
         // Loop over leptonss and fill hists automatically
@@ -275,8 +276,8 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
             const reco::GenJet& p1 = pl_leptons.at(i);
             double pt = p1.p4().Pt();
             double eta = p1.p4().Eta();
-            TString h_pt_name = ConstructHistName(lep_cat,"lep_pt",{i+1});
-            TString h_eta_name = ConstructHistName(lep_cat,"lep_eta",{i+1});
+            TString h_pt_name = ConstructHistName(ana_cat,"lep_pt",{i+1});
+            TString h_eta_name = ConstructHistName(ana_cat,"lep_eta",{i+1});
             FillHistIfExists(h_pt_name,pt,eft_fit);
             FillHistIfExists(h_eta_name,eta,eft_fit);
             for (size_t j = 0; j < pl_leptons.size(); j++) {
@@ -284,8 +285,8 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
                 double dR = getdR(p1,p2);
                 double mll = GetInvMass(p1,p2);
                 int hist_number = 10*(i+1)+(j+1);
-                TString h_dR_name = ConstructHistName(lep_cat,"lep_dR",{i+1,j+1});
-                TString h_mll_name = ConstructHistName(lep_cat,"lep_mll",{i+1,j+1});
+                TString h_dR_name = ConstructHistName(ana_cat,"lep_dR",{i+1,j+1});
+                TString h_mll_name = ConstructHistName(ana_cat,"lep_mll",{i+1,j+1});
                 FillHistIfExists(h_dR_name,dR,eft_fit);
                 FillHistIfExists(h_mll_name,mll,eft_fit);
             }
@@ -297,15 +298,14 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
     // These were some hists made for the PL vs RECO checks. Are they still useful?
 
     // Testing analysis catetory yield hists (for PL vs RECO)
-    TString ana_cat = GetAnaCat(pl_leptons,pl_jets,pl_bjets);
     // Yield hist
-    TString ana_cat_hist_name = ConstructHistName(ana_cat,"yield",{});
+    TString ana_cat_hist_name = ConstructHistName(ana_cat_name,"yield",{});
     FillHistIfExists(ana_cat_hist_name,0.5,eft_fit);
     // Yield njets hists
-    TString h_pl_njet_name = ConstructHistName(ana_cat,"yield-njets",{});
+    TString h_pl_njet_name = ConstructHistName(ana_cat_name,"yield-njets",{});
     FillHistIfExists(h_pl_njet_name,GetNJetsForLepCat(pl_leptons,pl_jets),eft_fit);
     // N events passing hist
-    TString h_ana_cat_pass_name = ConstructHistName(ana_cat,"n-events-pass",{});
+    TString h_ana_cat_pass_name = ConstructHistName(ana_cat_name,"n-events-pass",{});
     FillTH1DHistIfExists(h_ana_cat_pass_name,0.5);
 
     //////////////////////////////////////////
