@@ -56,14 +56,12 @@ void EFTGenHistsWithCuts::beginJob()
             int     h_max  = hist_info_vec.at(j).h_max;
             size_t  h_no   = abs(hist_info_vec.at(j).h_no);
            if (multiplicity_type == "all"){
-                //TString hist_name = ConstructHistName(lep_cat,h_type,-1);
                 TString hist_name = ConstructHistName(lep_cat,h_type,{});
                 hist_dict[hist_name] = newfs->make<TH1EFT>(hist_name,hist_name,h_bins,h_min,h_max);
             }
             else{
                 for (size_t k=0; k<h_no; k++){
                     if (multiplicity_type == "single"){
-                        //TString hist_name = ConstructHistName(lep_cat,h_type,k+1);
                         TString hist_name = ConstructHistName(lep_cat,h_type,{k+1});
                         //std::cout << hist_name << std::endl;
                         hist_dict[hist_name] = newfs->make<TH1EFT>(hist_name,hist_name,h_bins,h_min,h_max);
@@ -167,51 +165,41 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
     initialize_variables();
 
     edm::Handle<LHEEventProduct> LHEInfo;
+    event.getByToken(lheInfo_token_,LHEInfo);
+
+    /*
+    // Gen (no longer used)
     edm::Handle<reco::GenParticleCollection> prunedParticles;
     edm::Handle<std::vector<reco::GenJet> > genJets;
-
-    event.getByToken(lheInfo_token_,LHEInfo);
     event.getByToken(genParticles_token_,prunedParticles);
     event.getByToken(genJets_token_,genJets);
-
     reco::GenParticleCollection gen_leptons = GetGenLeptons(*prunedParticles);
-    reco::GenParticleCollection gen_b = GetGenParticlesSubset(*prunedParticles, 5);
+    //reco::GenParticleCollection gen_b = GetGenParticlesSubset(*prunedParticles, 5);
     std::vector<reco::GenJet> gen_jets = GetGenJets(*genJets);
-    //std::vector<reco::GenJet> gen_bjets = GetGenBJets(*genJets); // Does not work
+    // Clean jets
+    std::vector<reco::GenJet> gen_jets_clean = CleanCollection(gen_jets,gen_leptons,0.4);
+    // Get gen b jets (has not really been tested)
+    //gen_b = MakeBaselinePtEtaCuts(gen_b,min_pt_jet,max_eta_jet);
+    //std::vector<reco::GenJet> gen_bjets_fromDRtest0p1 = GetGenJetsFromDR(gen_jets_clean,gen_b,0.1);
+    // Make pt, eta cuts on leptons (after doing jet cleaning)
+    gen_leptons = MakeBaselinePtEtaCuts(gen_leptons,min_pt_lep,max_eta_lep);
+    // Get just charged gen leptons (recall std::vector<reco::GenParticle>> is an alias for std::vector<reco::GenParticle>>)
+    reco::GenParticleCollection gen_leptons_charged = GetChargedParticles(gen_leptons);
+    */
 
-    // Particle level stuff:
+    // Particle level //
     edm::Handle<std::vector<reco::GenJet>> particleLevelJetsHandle_;
     edm::Handle<std::vector<reco::GenJet>> particleLevelLeptonsHandle_;
     event.getByToken(particleLevelJetsToken_,particleLevelJetsHandle_);
     event.getByToken(particleLevelLeptonsToken_,particleLevelLeptonsHandle_);
     std::vector<reco::GenJet> pl_jets    = MakeBaselinePtEtaCuts(*particleLevelJetsHandle_,min_pt_jet,max_eta_jet);
+    std::vector<reco::GenJet> pl_bjets   = GetGenBJets(pl_jets);
     std::vector<reco::GenJet> pl_leptons = MakeBaselinePtEtaCuts(*particleLevelLeptonsHandle_,min_pt_lep,max_eta_lep);
     pl_leptons = MakeStaggeredPtCuts(pl_leptons,staggered_pt_cuts_lep,min_pt_lep);
-    std::vector<reco::GenJet> pl_bjets = GetGenBJets(pl_jets);
-
-    // Do not use!!! Should clean the PL leptons, not the PL jets
-    std::vector<reco::GenJet> pl_jets_clean = CleanCollection(pl_jets,*particleLevelLeptonsHandle_,0.4); // Clean gen jets
-    std::vector<reco::GenJet> pl_bjets_clean = GetGenBJets(pl_jets_clean);
-
-    // Clean PL leptons
-    pl_leptons = CleanCollection(pl_leptons,pl_jets,0.4);
-
-    // Clean jets
-    std::vector<reco::GenJet> gen_jets_clean = CleanCollection(gen_jets,gen_leptons,0.4);
-    // Get gen b jets from cleaned gen jets
-    //std::vector<reco::GenJet> gen_bjets = GetGenBJets(gen_jets_clean); // Does not work for gen, only pl
-    // Find the b particles
-    gen_b = MakeBaselinePtEtaCuts(gen_b,min_pt_jet,max_eta_jet);
-    //std::vector<reco::GenJet> gen_bjets_fromDRtest0p1 = GetGenJetsFromDR(gen_jets_clean,gen_b,0.1);
-    //std::vector<reco::GenJet> gen_bjets_fromDRtest0p01 = GetGenJetsFromDR(gen_jets_clean,gen_b,0.01);
-
-    // Make pt, eta cuts on leptons (after doing jet cleaning)
-    gen_leptons = MakeBaselinePtEtaCuts(gen_leptons,min_pt_lep,max_eta_lep);
-
-    // Get just charged leptons (recall std::vector<reco::GenParticle>> is an alias for std::vector<reco::GenParticle>>)
-    reco::GenParticleCollection gen_leptons_charged = GetChargedParticles(gen_leptons);
+    pl_leptons = CleanCollection(pl_leptons,pl_jets,0.4); // Clean PL leptons (Should clean the PL leptons, not the PL jets: https://twiki.cern.ch/twiki/bin/view/LHCPhysics/ParticleLevelTopDefinitions)
 
 
+    // Get eft_fit
     originalXWGTUP_intree = LHEInfo->originalXWGTUP();  // original cross-section
     double sm_wgt = 0.;
     std::vector<WCPoint> wc_pts;
@@ -232,17 +220,19 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
         WCPoint wc_pt("smpt",sm_wgt);
         wc_pts.push_back(wc_pt);
     }
-
     WCFit eft_fit(wc_pts,"");
 
+    // Keep track of total xsec
     total_sm_xsec += sm_wgt;
     total_orig_xsec += originalXWGTUP_intree;
 
+    // Fill h_eventsumEFT and h_SMwgt_norm hists
     h_eventsumEFT->Fill(0.5,1,eft_fit);
     h_SMwgt_norm->Fill(sm_wgt);
 
-    // Find what lepton category (if any) this even falls into
-    TString lep_cat_name = GetLepCat(gen_leptons);
+    // Find what lepton categories (if any) this even falls into
+    // TODO: Probably here we should be using GetAnaCat, not GetLepCat
+    TString lep_cat_name = GetLepCat(pl_leptons);
     std::vector<TString> cats_vect;
     if (lep_cat_name != "none"){
         cats_vect = {lep_cat_name,"anyLepCat"};
@@ -250,11 +240,13 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
         cats_vect = {lep_cat_name};
     }
 
+    // Loop over leptop categories
     for (auto lep_cat: cats_vect){
+
         // Loop over jets and fill jet hists automatically
         double ht=0;
-        for (size_t i = 0; i < gen_jets_clean.size(); i++) {
-            const reco::GenJet& p1= gen_jets.at(i);
+        for (size_t i = 0; i < pl_jets.size(); i++) {
+            const reco::GenJet& p1 = pl_jets.at(i);
             double pt = p1.p4().Pt();
             double eta = p1.p4().Eta();
             //std::cout << pt << std::endl;
@@ -263,8 +255,8 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
             FillHistIfExists(h_pt_name,pt,eft_fit);
             FillHistIfExists(h_eta_name,eta,eft_fit);
             ht = ht + pt;
-            for (size_t j = 0; j < gen_jets_clean.size(); j++) {
-                const reco::GenJet& p2 = gen_jets.at(j);
+            for (size_t j = 0; j < pl_jets.size(); j++) {
+                const reco::GenJet& p2 = pl_jets.at(j);
                 double dR = getdR(p1,p2);
                 int hist_number = 10*(i+1)+(j+1);
                 TString h_dR_name = ConstructHistName(lep_cat,"jet_dR",{i+1,j+1});
@@ -276,19 +268,19 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
         TString h_ht_name = ConstructHistName(lep_cat,"ht",{});
         FillHistIfExists(h_ht_name,ht,eft_fit);
         TString h_njet_name = ConstructHistName(lep_cat,"njets",{});
-        FillHistIfExists(h_njet_name,gen_jets_clean.size(),eft_fit);
+        FillHistIfExists(h_njet_name,pl_jets.size(),eft_fit);
 
         // Loop over leptonss and fill hists automatically
-        for (size_t i = 0; i < gen_leptons_charged.size(); i++) {
-            const reco::GenParticle& p1 = gen_leptons_charged.at(i);
+        for (size_t i = 0; i < pl_leptons.size(); i++) {
+            const reco::GenJet& p1 = pl_leptons.at(i);
             double pt = p1.p4().Pt();
             double eta = p1.p4().Eta();
             TString h_pt_name = ConstructHistName(lep_cat,"lep_pt",{i+1});
             TString h_eta_name = ConstructHistName(lep_cat,"lep_eta",{i+1});
             FillHistIfExists(h_pt_name,pt,eft_fit);
             FillHistIfExists(h_eta_name,eta,eft_fit);
-            for (size_t j = 0; j < gen_leptons_charged.size(); j++) {
-                const reco::GenParticle& p2 = gen_leptons_charged.at(j);
+            for (size_t j = 0; j < pl_leptons.size(); j++) {
+                const reco::GenJet& p2 = pl_leptons.at(j);
                 double dR = getdR(p1,p2);
                 double mll = GetInvMass(p1,p2);
                 int hist_number = 10*(i+1)+(j+1);
@@ -300,10 +292,9 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
         }
     }
     
-
-    //// Filling histograms by hand ////
-
     //////////////////////////////////////////
+
+    // These were some hists made for the PL vs RECO checks. Are they still useful?
 
     // Testing analysis catetory yield hists (for PL vs RECO)
     TString ana_cat = GetAnaCat(pl_leptons,pl_jets,pl_bjets);
