@@ -364,6 +364,13 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
                 }
             }
 
+	    float KSTest;
+            KSTest = h->KolmogorovTest(h_sm_rwgt);
+	    std::cout << KSTest << s << std::endl;
+            if (KSTest < 0.5) {
+	      std::cout << "FLAGED!!!" << std::endl;
+            }
+
             // Set the y axis range of the empty hist, update max_yvals_dict
             if (h->GetMaximum() > max_yvals_dict[string(s)]){
                 max_yvals_dict[string(s)] = h->GetMaximum();
