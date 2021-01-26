@@ -85,7 +85,7 @@ class EFTGenHistsWithCuts: public edm::EDAnalyzer
         virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
         virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
-            void tree_add_branches();
+        void tree_add_branches();
         void initialize_variables();
         void parse_params();
         void dumpParticles(const reco::GenParticleCollection& particles);
@@ -175,8 +175,6 @@ class EFTGenHistsWithCuts: public edm::EDAnalyzer
         TH2EFT* h_3l_jetbjetEFT;   TH2D* h_3l_jetbjetSM;
         TH2EFT* h_3l_sfz_jetbjetEFT;   TH2D* h_3l_sfz_jetbjetSM;
         TH2EFT* h_4l_jetbjetEFT;   TH2D* h_4l_jetbjetSM;
-
-        //TH1EFT* h_3l_sfz_Zpt; TH1EFT* h_3l_sfz_cos;
 
         // declare the tree
         TTree * summaryTree;
@@ -647,23 +645,23 @@ bool EFTGenHistsWithCuts::IsSFOSZ(const std::vector<T>& leptons) {
 //Calcuolate the cos theta star of the two leptons
 template <typename T>
 double EFTGenHistsWithCuts::GetCosThetaStar(const std::vector<T>& pl_leptons, int lep1, int lep2) {
-   TLorentzVector v1;
-   TLorentzVector v2;
-   if (pl_leptons.at(lep1).charge() > 0) {
-      v1.SetXYZT(pl_leptons.at(lep1).p4().X(), pl_leptons.at(lep1).p4().Y(), pl_leptons.at(lep1).p4().Z(), pl_leptons.at(lep1).p4().T());
-      v2.SetXYZT(pl_leptons.at(lep2).p4().X(), pl_leptons.at(lep2).p4().Y(), pl_leptons.at(lep2).p4().Z(), pl_leptons.at(lep2).p4().T());
-   } else {
-      v1.SetXYZT(pl_leptons.at(lep2).p4().X(), pl_leptons.at(lep2).p4().Y(), pl_leptons.at(lep2).p4().Z(), pl_leptons.at(lep2).p4().T());
-      v2.SetXYZT(pl_leptons.at(lep1).p4().X(), pl_leptons.at(lep1).p4().Y(), pl_leptons.at(lep1).p4().Z(), pl_leptons.at(lep1).p4().T());
-   }
-   TLorentzVector Z = v1 + v2;
-   TVector3 boost = Z.BoostVector();
-   v1.Boost(-boost);
-   TVector3 Z3(Z.X(), Z.Y(), Z.Z());
-   TVector3 vboost(v1.X(), v1.Y(), v1.Z());
-   TVector3 Zunit = Z3.Unit();
-   TVector3 Vunit = vboost.Unit();
-   return Zunit*Vunit;
+    TLorentzVector v1;
+    TLorentzVector v2;
+    if (pl_leptons.at(lep1).charge() > 0) {
+        v1.SetXYZT(pl_leptons.at(lep1).p4().X(), pl_leptons.at(lep1).p4().Y(), pl_leptons.at(lep1).p4().Z(), pl_leptons.at(lep1).p4().T());
+        v2.SetXYZT(pl_leptons.at(lep2).p4().X(), pl_leptons.at(lep2).p4().Y(), pl_leptons.at(lep2).p4().Z(), pl_leptons.at(lep2).p4().T());
+    } else {
+        v1.SetXYZT(pl_leptons.at(lep2).p4().X(), pl_leptons.at(lep2).p4().Y(), pl_leptons.at(lep2).p4().Z(), pl_leptons.at(lep2).p4().T());
+        v2.SetXYZT(pl_leptons.at(lep1).p4().X(), pl_leptons.at(lep1).p4().Y(), pl_leptons.at(lep1).p4().Z(), pl_leptons.at(lep1).p4().T());
+    }
+    TLorentzVector Z = v1 + v2;
+    TVector3 boost = Z.BoostVector();
+    v1.Boost(-boost);
+    TVector3 Z3(Z.X(), Z.Y(), Z.Z());
+    TVector3 vboost(v1.X(), v1.Y(), v1.Z());
+    TVector3 Zunit = Z3.Unit();
+    TVector3 Vunit = vboost.Unit();
+    return Zunit*Vunit;
 }
 
 // Get the analysis cateogry the event falls into

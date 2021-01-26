@@ -113,18 +113,14 @@ void EFTGenHistsWithCuts::beginJob()
     int nbjet_bins_jetbjet = 5; //number of bjet bins
 
     //2D jets vs. bjets hists for various leptons categories
-    h_2lss_jetbjetEFT = newfs->make<TH2EFT>("h_2lss_jetbjetEFT","h_2lss_jetbjetEFT;N_{jets};N_{bjets}",njet_bins_jetbjet,0,njet_bins_jetbjet,nbjet_bins_jetbjet,0,nbjet_bins_jetbjet);
-    h_2lss_jetbjetSM =  newfs->make<TH2D>("h_2lss_jetbjetSM","h_2lss_jetbjetSM;N_{jets};N_{bjets}",njet_bins_jetbjet,0,njet_bins_jetbjet,nbjet_bins_jetbjet,0,nbjet_bins_jetbjet);
-    h_3l_jetbjetEFT =   newfs->make<TH2EFT>("h_3l_jetbjetEFT","h_3l_jetbjetEFT;N_{jets};N_{bjets}",njet_bins_jetbjet,0,njet_bins_jetbjet,nbjet_bins_jetbjet,0,nbjet_bins_jetbjet);
-    h_3l_jetbjetSM =    newfs->make<TH2D>("h_3l_jetbjetSM","h_3l_jetbjetSM;N_{jets};N_{bjets}",njet_bins_jetbjet,0,njet_bins_jetbjet,nbjet_bins_jetbjet,0,nbjet_bins_jetbjet);
-    h_3l_sfz_jetbjetEFT =       newfs->make<TH2EFT>("h_3l_sfz_jetbjetEFT","h_3l_sfz_jetbjetEFT;N_{jets};N_{bjets}",njet_bins_jetbjet,0,njet_bins_jetbjet,nbjet_bins_jetbjet,0,nbjet_bins_jetbjet);
-    h_3l_sfz_jetbjetSM =        newfs->make<TH2D>("h_3l_sfz_jetbjetSM","h_3l_sfz_jetbjetSM;N_{jets};N_{bjets}",njet_bins_jetbjet,0,njet_bins_jetbjet,nbjet_bins_jetbjet,0,nbjet_bins_jetbjet);
-    h_4l_jetbjetEFT =   newfs->make<TH2EFT>("h_4l_jetbjetEFT","h_4l_jetbjetEFT;N_{jets};N_{bjets}",njet_bins_jetbjet,0,njet_bins_jetbjet,nbjet_bins_jetbjet,0,nbjet_bins_jetbjet);
-    h_4l_jetbjetSM =    newfs->make<TH2D>("h_4l_jetbjetSM","h_4l_jetbjetSM;N_{jets};N_{bjets}",njet_bins_jetbjet,0,njet_bins_jetbjet,nbjet_bins_jetbjet,0,nbjet_bins_jetbjet);
-
-    //1D Z boson hists                                                                                                                                                                                     
-    //h_3l_sfz_Zpt = newfs->make<TH1EFT>("h_3l_sfz_Zpt", "h_3l_sfz_Zpt", 10, lep_pt_min, 400);
-    //h_3l_sfz_cos = newfs->make<TH1EFT>("h_3l_sfz_cos", "h_3l_sfz_cos", 5, -1, 1);
+    h_2lss_jetbjetEFT   = newfs->make<TH2EFT>("h_2lss_jetbjetEFT","h_2lss_jetbjetEFT;N_{jets};N_{bjets}",njet_bins_jetbjet,0,njet_bins_jetbjet,nbjet_bins_jetbjet,0,nbjet_bins_jetbjet);
+    h_2lss_jetbjetSM    = newfs->make<TH2D>("h_2lss_jetbjetSM","h_2lss_jetbjetSM;N_{jets};N_{bjets}",njet_bins_jetbjet,0,njet_bins_jetbjet,nbjet_bins_jetbjet,0,nbjet_bins_jetbjet);
+    h_3l_jetbjetEFT     = newfs->make<TH2EFT>("h_3l_jetbjetEFT","h_3l_jetbjetEFT;N_{jets};N_{bjets}",njet_bins_jetbjet,0,njet_bins_jetbjet,nbjet_bins_jetbjet,0,nbjet_bins_jetbjet);
+    h_3l_jetbjetSM      = newfs->make<TH2D>("h_3l_jetbjetSM","h_3l_jetbjetSM;N_{jets};N_{bjets}",njet_bins_jetbjet,0,njet_bins_jetbjet,nbjet_bins_jetbjet,0,nbjet_bins_jetbjet);
+    h_3l_sfz_jetbjetEFT = newfs->make<TH2EFT>("h_3l_sfz_jetbjetEFT","h_3l_sfz_jetbjetEFT;N_{jets};N_{bjets}",njet_bins_jetbjet,0,njet_bins_jetbjet,nbjet_bins_jetbjet,0,nbjet_bins_jetbjet);
+    h_3l_sfz_jetbjetSM  = newfs->make<TH2D>("h_3l_sfz_jetbjetSM","h_3l_sfz_jetbjetSM;N_{jets};N_{bjets}",njet_bins_jetbjet,0,njet_bins_jetbjet,nbjet_bins_jetbjet,0,nbjet_bins_jetbjet);
+    h_4l_jetbjetEFT     = newfs->make<TH2EFT>("h_4l_jetbjetEFT","h_4l_jetbjetEFT;N_{jets};N_{bjets}",njet_bins_jetbjet,0,njet_bins_jetbjet,nbjet_bins_jetbjet,0,nbjet_bins_jetbjet);
+    h_4l_jetbjetSM      = newfs->make<TH2D>("h_4l_jetbjetSM","h_4l_jetbjetSM;N_{jets};N_{bjets}",njet_bins_jetbjet,0,njet_bins_jetbjet,nbjet_bins_jetbjet,0,nbjet_bins_jetbjet);
 
     // Book the histograms that we will fill in the event loop
     h_eventsumEFT = newfs->make<TH1EFT>("h_eventsumEFT","h_eventsumEFT",1,0,1);
@@ -295,23 +291,24 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
                 FillHistIfExists(h_mll_name,mll,eft_fit);
             }
         }
+	//identify the two leptons for the Z boson and fill Zpt and cos theta star histogram if in sfz ctaegory
         if(ana_cat == "3l-sfz-1b" || ana_cat == "3l-sfz-2b") {
-           int lep1 = -1;
-           int lep2 = -1;
-           for(size_t i = 0; i < pl_leptons.size(); i++) {
-              for(size_t j = 0; j < pl_leptons.size(); j++) {
-                 if (fabs((pl_leptons.at(i).p4() + pl_leptons.at(j).p4()).M() - 91.2) < 10) {
-                    lep1 = i;
-                    lep2 = j;
-                    break; //done searching
-                 }                                                                                                                                                             
-              }
-           }
-           TString h_3l_sfz_Zpt = ConstructHistName(ana_cat, "Zpt", {});
-           FillHistIfExists(h_3l_sfz_Zpt, pl_leptons.at(lep1).p4().Pt()+pl_leptons.at(lep2).p4().Pt(), eft_fit);
-           double s = GetCosThetaStar(pl_leptons, lep1, lep2);
-           TString h_3l_sfz_cos = ConstructHistName(ana_cat, "cos", {});
-           FillHistIfExists(h_3l_sfz_cos, s, eft_fit);
+            int lep1 = -1;
+            int lep2 = -1;
+            for(size_t i = 0; i < pl_leptons.size(); i++) {
+                for(size_t j = 0; j < pl_leptons.size(); j++) {
+                    if (fabs((pl_leptons.at(i).p4() + pl_leptons.at(j).p4()).M() - 91.2) < 10) {
+                        lep1 = i;
+                        lep2 = j;
+                        break; //done searching
+                   }                                                                                                                                                             
+                }
+            }
+            TString h_3l_sfz_Zpt = ConstructHistName(ana_cat, "Zpt", {});
+            FillHistIfExists(h_3l_sfz_Zpt, pl_leptons.at(lep1).p4().Pt()+pl_leptons.at(lep2).p4().Pt(), eft_fit);
+            double s = GetCosThetaStar(pl_leptons, lep1, lep2);
+            TString h_3l_sfz_cos = ConstructHistName(ana_cat, "cos", {});
+            FillHistIfExists(h_3l_sfz_cos, s, eft_fit);
         }
             
     }
