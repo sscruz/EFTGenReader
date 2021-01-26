@@ -85,14 +85,14 @@ class EFTGenHistsWithCuts: public edm::EDAnalyzer
         virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
         virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
-	    void tree_add_branches();
+            void tree_add_branches();
         void initialize_variables();
         void parse_params();
         void dumpParticles(const reco::GenParticleCollection& particles);
         void dumpJets(const std::vector<reco::GenJet>& jets);
         const reco::Candidate* GetGenMotherNoFsr(const reco::Candidate* p);
         std::pair<const reco::Candidate*, const reco::Candidate*> GetGenDaughterNoFsr(const reco::Candidate* p);
-		
+                
         reco::GenParticleCollection GetGenLeptons(const reco::GenParticleCollection& gen_particles);
         reco::GenParticleCollection GetGenParticlesSubset(const reco::GenParticleCollection& gen_particles, int pdg_id);
         std::vector<reco::GenJet> GetGenJets(const std::vector<reco::GenJet>& inputs);
@@ -125,7 +125,7 @@ class EFTGenHistsWithCuts: public edm::EDAnalyzer
         template <typename T> std::vector<T> GetChargedParticles(const std::vector<T>& particles_vect);
         template <typename T1, typename T2, typename T3> TString GetAnaCat(const std::vector<T1>& leptons, const std::vector<T2>& jets, const std::vector<T3>& bjets);
         template <typename T> bool IsSFOSZ(const std::vector<T>& leptons);
-	template <typename T> double GetCosThetaStar(const std::vector<T>& pl_leptons, int lep1, int lep2);
+        template <typename T> double GetCosThetaStar(const std::vector<T>& pl_leptons, int lep1, int lep2);
         template <typename T1, typename T2> int GetNJetsForLepCat(const std::vector<T1>& leptons, const std::vector<T2>& jets);
 
         std::ofstream fout;
@@ -176,7 +176,7 @@ class EFTGenHistsWithCuts: public edm::EDAnalyzer
         TH2EFT* h_3l_sfz_jetbjetEFT;   TH2D* h_3l_sfz_jetbjetSM;
         TH2EFT* h_4l_jetbjetEFT;   TH2D* h_4l_jetbjetSM;
 
-	//TH1EFT* h_3l_sfz_Zpt; TH1EFT* h_3l_sfz_cos;
+        //TH1EFT* h_3l_sfz_Zpt; TH1EFT* h_3l_sfz_cos;
 
         // declare the tree
         TTree * summaryTree;
@@ -228,8 +228,8 @@ class EFTGenHistsWithCuts: public edm::EDAnalyzer
             {"single" , "jet_eta" , n_eta_bins  , eta_min  , eta_max  , 4},
             {"single" , "lep_pt"  , n_pt_bins   , pt_min   , pt_max   , 4},
             {"single" , "lep_eta" , n_eta_bins  , eta_min  , eta_max  , 4},
-	    {"single" , "Zpt"     , 400         , 0        , 400      , 1},
-	    {"single" , "cos"     , 5           , -1       , 1        , 1},
+            {"single" , "Zpt"     , 400         , 0        , 400      , 1},
+            {"single" , "cos"     , 5           , -1       , 1        , 1},
             {"all"    , "njets"   , n_njet_bins , njet_min , njet_max , 1},
             {"all"    , "ht"      , n_pt_bins   , pt_min   , ht_max   , 1},
             {"pair"   , "jet_dR"  , n_dr_bins   , 0 , 5 , 4},
