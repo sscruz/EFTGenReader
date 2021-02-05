@@ -22,8 +22,8 @@
 #include "EFTGenReader/EFTHelperUtilities/interface/TH1EFT.h"
 #include "EFTGenReader/EFTHelperUtilities/interface/Stopwatch.h"
 #include "EFTGenReader/EFTHelperUtilities/interface/split_string.h"
-#include "makeEFTPlots.h"
-//#include "make1DXsecPlots.h"
+//#include "makeEFTPlots.h"
+#include "make1DXsecPlots.h"
 
 /*
     This script does the following:
@@ -400,12 +400,12 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
 
         int chain_entries = chain.GetEntries();
         int last_entry = chain_entries;
-        if (chain_entries > 300000) { // 100k takes about 10min
+        if (chain_entries > 100000) { // 100k takes about 10min
             std::cout << "Chain_entries: " << chain_entries << std::endl;
-            last_entry = 300000;
+            last_entry = 100000;
         }
         //last_entry = 100000; // For testing
-        last_entry = 500; // For testing
+        last_entry = 10; // For testing
         std::cout << "Last_entry: " << last_entry << std::endl;
 
         // Test LS stuff
@@ -418,10 +418,13 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
         WCFit* wcFit_intree = 0;
         double originalXWGTUP_intree = -1.;
         int lumiBlock_intree;
+        unordered_map<std::string,double>* eftwgts_intree = 0; // ResidCheck, note the "= 0" so that we do not get a seg fault
 
         chain.SetBranchAddress("originalXWGTUP",&originalXWGTUP_intree);
         chain.SetBranchAddress("wcFit",&wcFit_intree);
         chain.SetBranchAddress("lumiBlock",&lumiBlock_intree);
+
+        chain.SetBranchAddress("eftwgts",&eftwgts_intree); // ResidCheck
 
         bool skip_progress = false;
 
@@ -431,9 +434,9 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
         }
 
         WCFit inclusive_fit;
-        WCFit selection_fit;
+        //WCFit selection_fit;
 
-        int selection_events = 0;
+        //int selection_events = 0;
         double genLep_pt1_intree;
         double genLep_pt2_intree;
         double genLep_pt3_intree;
@@ -464,6 +467,9 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
         std::string pt_str = ref_pts_dict[run_label];
         WCPoint ref_fit_pt = WCPoint(pt_str);
 
+        ofstream resids_file; // ResidTest
+        resids_file.open("fit_resids_test_dir/test_resids_"+process+".txt"); // ResidTest
+
         sw.start("Full Loop");
         for (int i = first_entry; i < last_entry; i++) {
             sw.start("Event Loop");
@@ -490,6 +496,20 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
             }
             */
 
+            //// ResidCheck ////
+            //int counter = 0;
+            for (auto it = eftwgts_intree->begin(); it != eftwgts_intree->end(); it++ ){
+                std::string rwgt_str = it->first;
+                WCPoint rwgt_wcpt = WCPoint(rwgt_str);
+                double rwgt_wgt = it->second;
+                double eval_wgt = wcFit_intree->evalPoint(&rwgt_wcpt);
+                double resid = rwgt_wgt - eval_wgt;
+                //std::cout << rwgt_str << "\n" << rwgt_wgt << " , " << eval_wgt << " , " << rwgt_wgt-eval_wgt << "\n" << std::endl;
+                //std::cout << counter << " " << resid << std::endl;
+                resids_file << resid << " " ;
+                //counter = counter+1;
+            }
+
             sw.start("Add Fit");
             inclusive_fit.addFit(*wcFit_intree);
             sw.lap("Add Fit");
@@ -498,24 +518,25 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
             ref_fit_pt.wgt += originalXWGTUP_intree;
 
             //if (genLep_pt3_intree > 10 and genJet_pt4_intree > 100){
-            if (genLep_pt3_intree > 10 and genJet_pt4_intree > 30){
-                selection_events = selection_events + 1;
-                selection_fit.addFit(*wcFit_intree);
-            } else{
+            //if (genLep_pt3_intree > 10 and genJet_pt4_intree > 30){
+                //selection_events = selection_events + 1;
+                //selection_fit.addFit(*wcFit_intree);
+            //} else{
                 //std::cout << "Skip; pt: " << genLep_pt3_intree << " , " << genJet_pt4_intree << std::endl;
-            }
+            //}
 
 
         }
         sw.stop("Full Loop");
+        resids_file.close(); // ResidsTest
 
-        std::cout << "\n Selected events over total: " << selection_events << "/" << last_entry << "->" << (float)selection_events/last_entry << "\n" << std::endl;
+        //std::cout << "\n Selected events over total: " << selection_events << "/" << last_entry << "->" << (float)selection_events/last_entry << "\n" << std::endl;
 
         // Normalize to SM
         //std::cout << "\nBefore all norm!!! incl SM xsec: " << inclusive_fit.evalPoint(&sm_pt) << " selection SM xsec: " << selection_fit.evalPoint(&sm_pt) << std::endl;
 
         double SM_xsec_incl = inclusive_fit.evalPoint(&sm_pt);
-        double SM_xsec_sel = selection_fit.evalPoint(&sm_pt);
+        //double SM_xsec_sel = selection_fit.evalPoint(&sm_pt);
         inclusive_fit.scale(1.0/SM_xsec_incl);
         /*
         // TMP LS stuff
@@ -555,7 +576,8 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
             TString tmp_tag = grp_tag;
 
             // This will set up the names in the legend
-            TString comp_type = "0p1pComp"; // ResultsSec
+            //TString comp_type = "0p1pComp"; // ResultsSec
+            TString comp_type = "tag";
             //TString comp_type = "qCutScan";
             //TString comp_type = "matchScaleScan";
             //TString comp_type = "startPtComp";
@@ -563,21 +585,28 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
 
             // Get cleaned up version of process name
             if (process_TStr.Index("ttH") != -1){
-                leg_tag = "tth";
+                //leg_tag = "tth";
+                leg_tag = "t#bar{t}h";
             // Note, do we still want ttll and ttlnu to show up at ttW and ttZ? Should re evalueate next time we want to plot ttll an ttlnu
             } else if (process_TStr.Index("ttZ") != -1 or process_TStr.Index("ttll") != -1) { 
-                leg_tag = "ttZ";
+                //leg_tag = "ttZ";
+                leg_tag = "t#bar{t}Z";
             } else if (process_TStr.Index("ttW") != -1 or process_TStr.Index("ttlnu") != -1) {
-                leg_tag = "ttW";
+                //leg_tag = "ttW";
+                leg_tag = "t#bar{t}W";
             } else {
                 std::cout << "Note: process " << process << " is not ttH, ttll, or ttlnu. Not cleaning up process name." << std::endl;
             }
             if (comp_type == "0p1pComp"){
                 if (tmp_tag.Index("NoJets") != -1 or process_TStr.Index("Jet") == -1) {
-                    leg_tag = leg_tag + " 0p ";
+                    //leg_tag = leg_tag + " 0p ";
+                    leg_tag = leg_tag + " LO ";
                 } else {
-                    leg_tag = leg_tag + " 0+1p  ";
+                    //leg_tag = leg_tag + " 0+1p  ";
+                    leg_tag = leg_tag + "+j LO ";
                 }
+            } else if (comp_type == "tag"){
+                leg_tag = leg_tag + grp_tag;
             } else if (comp_type == "qCutScan") {
                 leg_tag = leg_tag + " 0+1p: xqcut10, " + tmp_tag(tmp_tag.Index("qCut"), tmp_tag.Length());
             } else if (comp_type == "matchScaleScan") {
@@ -748,7 +777,7 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
             for (auto points_vects: reza_pts_info_vect){
                 for (auto point: points_vects){
                     if (point.proc_name == "tth" and point.wc_name == wc_name){
-                        std::cout << "point.wc: " << point.wc_name << std::endl;
+                        //std::cout << "point.wc: " << point.wc_name << std::endl;
                         points_to_plot_with_errorbars.push_back(point);
                     }
                 }
@@ -768,7 +797,7 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
             for (auto points_vects: reza_pts_info_vect){
                 for (auto point: points_vects){
                     if (point.proc_name == "ttW" and point.wc_name == wc_name){
-                        std::cout << "point.wc: " << point.wc_name << std::endl;
+                        //std::cout << "point.wc: " << point.wc_name << std::endl;
                         points_to_plot_with_errorbars.push_back(point);
                     }
                 }
@@ -809,7 +838,7 @@ void runit(TString output_name,TString input_rundirs_spec,TString ref_rundirs_sp
             for (auto points_vects: reza_pts_info_vect){
                 for (auto point: points_vects){
                     if (point.proc_name == "ttZ" and point.wc_name == wc_name){
-                        std::cout << "point.wc: " << point.wc_name << std::endl;
+                        //std::cout << "point.wc: " << point.wc_name << std::endl;
                         points_to_plot_with_errorbars.push_back(point);
                     }
                 }

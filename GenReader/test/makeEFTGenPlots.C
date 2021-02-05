@@ -76,7 +76,7 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
     bool only_jetPt_lepPt = false;
     bool only_SM = false;
     bool include_ratio = false;
-    bool draw_sm = true; // Only really makes sense if we are only drawing one file currently
+    bool draw_sm = false; // Only really makes sense if we are only drawing one file currently
     std::string norm_type = "unit_norm"; //"SM_rel_norm";
     std::string plot_type = "0p_vs_1p_comp";
 
@@ -152,13 +152,15 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
             sub_str = fname(idx+1,fname.Length());
         }
 
-        /*
-        //TString marker = "output_";
+        ///*
+        TString leg_str;
+        TString marker = "output_";
         idx_begin = sub_str.Index(marker)+marker.Length();
         idx_end = sub_str.Index(".root");
-        sub_str = sub_str(idx_begin,idx_end-idx_begin);
-        */
+        leg_str = sub_str(idx_begin,idx_end-idx_begin);
+        //*/
 
+        /*
         // This legend string stuff is very specific to the names of the files and is just leftover 
         // from the last thing I used this code for, i.e. this is very ad hoc and will probably not 
         // work great for situations besides the specific one I was using it for (sorry)
@@ -192,6 +194,7 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
                 leg_str = leg_str+"0+1p qCut=25";
             }
         }
+        */
         std::cout << "\n\tSub str: " << sub_str << "\n\tLeg str: " << leg_str << "\n" << std::endl;
 
         TDirectory* td;
@@ -226,16 +229,21 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
                 }
             }
 
+            bool is_TH1EFT = false;
+            bool is_TH1D = false;
             TH1EFT* h = (TH1EFT*)td->Get(key->GetName());
             // Skip TH2D:
             if (h->IsA()->InheritsFrom(TH1EFT::Class())){
                 //std::cout << "This is a TH1EFT " << s << std::endl;
+                is_TH1EFT = true;
             } else if (h->IsA()->InheritsFrom(TH1D::Class())){
                //std::cout << "This is a TH1D " << s << std::endl; 
+                is_TH1D = true;
             }else {
                 std::cout << "Skipping " << s << ", not a TH1EFT and not a TH1D" << std::endl;
                 continue;
             }
+
             h->SetMarkerStyle(kFullCircle);
             h->SetMarkerSize(0.25);
             h->SetOption("E");
@@ -320,7 +328,8 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
                 canv_pad->SetLogx(1);
             }
 
-            if (s.Index("SM") == -1 and s.Index("summaryTree") == -1) { // Not all EFT hists have EFT in their name, but we assume all SM hists have SM in the name
+            //if (s.Index("SM") == -1 and s.Index("summaryTree") == -1) { // Not all EFT hists have EFT in their name, but we assume all SM hists have SM in the name
+            if (is_TH1EFT){
                 for (Int_t bin_idx = 0; bin_idx <= h->GetNbinsX()+1; bin_idx++) {
                     double wcfit_bin_val = h->GetBinFit(bin_idx).evalPoint(wc_pt);
                     double wcfit_bin_err = h->GetBinFit(bin_idx).evalPointError(wc_pt);
@@ -340,7 +349,8 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
                 if (s != "h_SMwgt_norm") {
                     Int_t nbins = h->GetNbinsX();
                     Double_t intg = h->Integral(0,nbins+1);
-                    if (intg > 1.0) {
+                    //if (intg > 1.0) { // Don't know why this check was here. It seems it should not be here.
+                    if (intg > 0.0) {   // So let's replace the above line with this for now.
                         h->Scale(1./intg);
                         h->Scale(1./h->GetBinWidth(1)); // Scale by bin width
                         //h->GetYaxis()->SetRangeUser(0.0,1.2*maxYvals_dict[string(s)]);
@@ -352,6 +362,13 @@ void makeEFTGenPlots(std::vector<TString> input_fnames, TString wc_string) {
                 } else {
                     std::cout << "\nNot normalizing this histogram: " << s << "\n" << std::endl;
                 }
+            }
+
+            float KSTest;
+            KSTest = h->KolmogorovTest(h_sm_rwgt);
+            std::cout << KSTest << s << std::endl;
+            if (KSTest < 0.5) {
+                std::cout << "FLAGED!!!" << std::endl;
             }
 
             // Set the y axis range of the empty hist, update max_yvals_dict

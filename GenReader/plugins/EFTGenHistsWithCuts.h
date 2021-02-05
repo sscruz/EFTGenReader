@@ -84,14 +84,14 @@ class EFTGenHistsWithCuts: public edm::EDAnalyzer
         virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
         virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
-	    void tree_add_branches();
+        void tree_add_branches();
         void initialize_variables();
         void parse_params();
         void dumpParticles(const reco::GenParticleCollection& particles);
         void dumpJets(const std::vector<reco::GenJet>& jets);
         const reco::Candidate* GetGenMotherNoFsr(const reco::Candidate* p);
         std::pair<const reco::Candidate*, const reco::Candidate*> GetGenDaughterNoFsr(const reco::Candidate* p);
-		
+                
         reco::GenParticleCollection GetGenLeptons(const reco::GenParticleCollection& gen_particles);
         reco::GenParticleCollection GetGenParticlesSubset(const reco::GenParticleCollection& gen_particles, int pdg_id);
         std::vector<reco::GenJet> GetGenJets(const std::vector<reco::GenJet>& inputs);
@@ -125,6 +125,7 @@ class EFTGenHistsWithCuts: public edm::EDAnalyzer
         template <typename T1, typename T2, typename T3> TString GetAnaCat(const std::vector<T1>& leptons, const std::vector<T2>& jets, const std::vector<T3>& bjets);
         template <typename T1, typename T2, typename T3> TString getTOP19001Cat(const std::vector<T1>& leptons, const std::vector<T2>& jets, const std::vector<T3>& bjets);
         template <typename T> bool IsSFOSZ(const std::vector<T>& leptons);
+        template <typename T> double GetCosThetaStar(const std::vector<T>& pl_leptons, int lep1, int lep2);
         template <typename T1, typename T2> int GetNJetsForLepCat(const std::vector<T1>& leptons, const std::vector<T2>& jets);
 
         std::ofstream fout;
@@ -208,8 +209,9 @@ class EFTGenHistsWithCuts: public edm::EDAnalyzer
         std::map<TString,TH1D*> hist_TH1D_dict;
         std::vector<std::string> lep_cats_vect {"2lss","3l","4l","anyLepCat"};
 
-        std::vector<std::string> ana_cats_vct {"2lss-2b","3l-sfz-1b","3l-sfz-2b","3l-1b","3l-2b","4l-2b"}; // Sort of hard coded for now...
+        std::vector<std::string> ana_cats_vct {"2lss-2b","3l-sfz-1b","3l-sfz-2b","3l-1b","3l-2b","4l-2b","anyAnaCat"}; // Sort of hard coded for now...
 	std::vector<TString> allCategories {"2lss (+)", "2lss (-)", "3l1b (+)", "3l1b (-)", "3l2b (+)", "3l2b (-)", "SFZ1b", "SFZ2b", "4l"};
+
         int n_eta_bins = 12;
         int eta_min = -3;
         int eta_max = 3;
@@ -231,6 +233,8 @@ class EFTGenHistsWithCuts: public edm::EDAnalyzer
             {"single" , "jet_eta" , n_eta_bins  , eta_min  , eta_max  , 4},
             {"single" , "lep_pt"  , n_pt_bins   , pt_min   , pt_max   , 4},
             {"single" , "lep_eta" , n_eta_bins  , eta_min  , eta_max  , 4},
+            {"single" , "Zpt"     , 400         , 0        , 400      , 1},
+            {"single" , "cos"     , 5           , -1       , 1        , 1},
             {"all"    , "njets"   , n_njet_bins , njet_min , njet_max , 1},
             {"all"    , "ht"      , n_pt_bins   , pt_min   , ht_max   , 1},
             {"pair"   , "jet_dR"  , n_dr_bins   , 0 , 5 , 4},
@@ -511,6 +515,7 @@ TString EFTGenHistsWithCuts::ConstructHistName(TString lep_cat, TString hist_typ
 void EFTGenHistsWithCuts::FillHistIfExists(TString h_name, double val, WCFit eft_fit){
     if (hist_dict.find(h_name) != hist_dict.end()){
         hist_dict[h_name]->Fill(val,1.0,eft_fit);
+        //std::cout << "Filling hist: " << h_name << std::endl;
     }
     /* else{ */
     /*   std::cout << h_name << " does not exist" << std::endl; */
@@ -645,6 +650,28 @@ bool EFTGenHistsWithCuts::IsSFOSZ(const std::vector<T>& leptons) {
         }
     }
     return is_sfoz;
+}
+
+//Calcuolate the cos theta star of the two leptons
+template <typename T>
+double EFTGenHistsWithCuts::GetCosThetaStar(const std::vector<T>& pl_leptons, int lep1, int lep2) {
+    TLorentzVector v1;
+    TLorentzVector v2;
+    if (pl_leptons.at(lep1).charge() > 0) {
+        v1.SetXYZT(pl_leptons.at(lep1).p4().X(), pl_leptons.at(lep1).p4().Y(), pl_leptons.at(lep1).p4().Z(), pl_leptons.at(lep1).p4().T());
+        v2.SetXYZT(pl_leptons.at(lep2).p4().X(), pl_leptons.at(lep2).p4().Y(), pl_leptons.at(lep2).p4().Z(), pl_leptons.at(lep2).p4().T());
+    } else {
+        v1.SetXYZT(pl_leptons.at(lep2).p4().X(), pl_leptons.at(lep2).p4().Y(), pl_leptons.at(lep2).p4().Z(), pl_leptons.at(lep2).p4().T());
+        v2.SetXYZT(pl_leptons.at(lep1).p4().X(), pl_leptons.at(lep1).p4().Y(), pl_leptons.at(lep1).p4().Z(), pl_leptons.at(lep1).p4().T());
+    }
+    TLorentzVector Z = v1 + v2;
+    TVector3 boost = Z.BoostVector();
+    v1.Boost(-boost);
+    TVector3 Z3(Z.X(), Z.Y(), Z.Z());
+    TVector3 vboost(v1.X(), v1.Y(), v1.Z());
+    TVector3 Zunit = Z3.Unit();
+    TVector3 Vunit = vboost.Unit();
+    return Zunit*Vunit;
 }
 
 // Get the analysis cateogry the event falls into
