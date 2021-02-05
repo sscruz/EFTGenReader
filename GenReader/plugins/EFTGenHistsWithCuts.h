@@ -39,7 +39,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 // Physics
@@ -124,6 +123,7 @@ class EFTGenHistsWithCuts: public edm::EDAnalyzer
         template <typename T> int GetChargeSum(const std::vector<T>& particles_vect);
         template <typename T> std::vector<T> GetChargedParticles(const std::vector<T>& particles_vect);
         template <typename T1, typename T2, typename T3> TString GetAnaCat(const std::vector<T1>& leptons, const std::vector<T2>& jets, const std::vector<T3>& bjets);
+        template <typename T1, typename T2, typename T3> TString getTOP19001Cat(const std::vector<T1>& leptons, const std::vector<T2>& jets, const std::vector<T3>& bjets);
         template <typename T> bool IsSFOSZ(const std::vector<T>& leptons);
         template <typename T1, typename T2> int GetNJetsForLepCat(const std::vector<T1>& leptons, const std::vector<T2>& jets);
 
@@ -163,6 +163,13 @@ class EFTGenHistsWithCuts: public edm::EDAnalyzer
         // Histograms
         TH1D* h_SMwgt_norm;
         TH1EFT* h_eventsumEFT;
+        TH1EFT* top19001_cat;
+	TH1EFT* h_pl_nlep	    ;
+	TH1EFT* h_2lss_pl_njet    ;
+	TH1EFT* h_2lss_pl_ht	    ;
+	TH1EFT* h_3l_pl_njet	    ;
+	TH1EFT* h_3l_pl_ht	    ;
+	TH1EFT* h_pl_3l_1b_1b_nfwd;
 
         // Particle level jets hists
         TH2EFT* h_bjet_jetEFT; TH2D* h_bjet_jetSM;
@@ -202,7 +209,7 @@ class EFTGenHistsWithCuts: public edm::EDAnalyzer
         std::vector<std::string> lep_cats_vect {"2lss","3l","4l","anyLepCat"};
 
         std::vector<std::string> ana_cats_vct {"2lss-2b","3l-sfz-1b","3l-sfz-2b","3l-1b","3l-2b","4l-2b"}; // Sort of hard coded for now...
-
+	std::vector<TString> allCategories {"2lss (+)", "2lss (-)", "3l1b (+)", "3l1b (-)", "3l2b (+)", "3l2b (-)", "SFZ1b", "SFZ2b", "4l"};
         int n_eta_bins = 12;
         int eta_min = -3;
         int eta_max = 3;
@@ -355,11 +362,11 @@ reco::GenParticleCollection EFTGenHistsWithCuts::GetGenLeptons(const reco::GenPa
     bool is_neutrino;
     for (size_t i = 0; i < gen_particles.size(); i++) {
         const reco::GenParticle& p = gen_particles.at(i);
-        const reco::Candidate* p_mom_noFSR = GetGenMotherNoFsr(&p); // This will walk up the chain and so doesn't get direct mothers
-        const reco::Candidate* p_gmom_noFSR = GetGenMotherNoFsr(p_mom_noFSR);
+        //const reco::Candidate* p_mom_noFSR = GetGenMotherNoFsr(&p); // This will walk up the chain and so doesn't get direct mothers
+        //const reco::Candidate* p_gmom_noFSR = GetGenMotherNoFsr(p_mom_noFSR);
         const reco::Candidate* p_mom = p.mother();  // The direct mother
         int id = p.pdgId();
-        int gmom_noFSR_id = p_gmom_noFSR->pdgId();
+        //int gmom_noFSR_id = p_gmom_noFSR->pdgId();
         is_lepton = (abs(id) == 11 || abs(id) == 13 || abs(id) == 15);
         is_neutrino = (abs(id) == 12 || abs(id) == 14 || abs(id) == 16);
 
@@ -371,7 +378,7 @@ reco::GenParticleCollection EFTGenHistsWithCuts::GetGenLeptons(const reco::GenPa
         if (p_mom) mom_id = p_mom->pdgId();
 
         bool is_fromEWBoson = (abs(mom_id) >= 22 && abs(mom_id) <= 25);
-        bool is_fromTopSystem = (abs(mom_id) == 24 && abs(gmom_noFSR_id) == 6);
+        //bool is_fromTopSystem = (abs(mom_id) == 24 && abs(gmom_noFSR_id) == 6);
 
         bool is_hard_process = p.isHardProcess();
         bool is_fromHardGluon = (abs(mom_id) == 21 && p_mom->status() == 21);   // status == 21 corresponds to incoming hard particle
@@ -505,6 +512,9 @@ void EFTGenHistsWithCuts::FillHistIfExists(TString h_name, double val, WCFit eft
     if (hist_dict.find(h_name) != hist_dict.end()){
         hist_dict[h_name]->Fill(val,1.0,eft_fit);
     }
+    /* else{ */
+    /*   std::cout << h_name << " does not exist" << std::endl; */
+    /* } */
 }
 
 // Fill TH1Ds if they exist in the hist dictionary
@@ -682,6 +692,38 @@ TString EFTGenHistsWithCuts::GetAnaCat(const std::vector<T1>& leptons, const std
     return cat;
 }
 
+
+template <typename T1, typename T2, typename T3>
+TString EFTGenHistsWithCuts::getTOP19001Cat(const std::vector<T1>& leptons, const std::vector<T2>& jets, const std::vector<T3>& bjets){
+  std::vector<T1> leptons_ch;
+  leptons_ch = GetChargedParticles(leptons);                                     // Make sure only looking at charged particles
+  leptons_ch = MakeBaselinePtEtaCuts(leptons_ch,min_pt_lep,max_eta_lep);         // Make sure eta cuts have been made
+  leptons_ch = MakeStaggeredPtCuts(leptons_ch,staggered_pt_cuts_lep,min_pt_lep); // Make sure appropriate analysis pt cuts have been made
+  int ch_sum = GetChargeSum(leptons_ch);
+  int nlep = leptons_ch.size();
+  int njets = jets.size();
+  int nbjets = bjets.size();
+  TString cat = "none";
+
+  bool onz=IsSFOSZ(leptons);
+  std::cout << nlep << " " << njets << " "<< nbjets << std::endl;
+  if (nlep == 2  && ch_sum != 0 && njets>=4 && nbjets >1){
+    if ( ch_sum > 0) cat="2lss (+)";
+    else             cat="2lss (-)";
+  }
+  else if (nlep == 3 && njets>=2 && nbjets >0){
+    if       (onz && nbjets == 1) cat = "SFZ1b";
+    else if  (onz && nbjets > 1)  cat = "SFZ2b"; 
+    else if (nbjets==1 && ch_sum > 0) cat="3l1b (+)";
+    else if (nbjets==1 && ch_sum < 0) cat="3l1b (-)";
+    else if (nbjets >1 && ch_sum > 0) cat="3l2b (+)";
+    else if (nbjets >1 && ch_sum < 0) cat="3l2b (-)";
+  }
+  else if (nlep >3 && njets>=2 && nbjets > 1){
+    cat="4l";
+  }
+  return cat;
+}
 // Returns number of jets, accounting for TOP-10-001 binning
 template <typename T1, typename T2>
 int EFTGenHistsWithCuts::GetNJetsForLepCat(const std::vector<T1>& leptons, const std::vector<T2>& jets){

@@ -95,19 +95,19 @@ void EFTGenHistsWithCuts::beginJob()
 
     //// Declare histograms by hand ////
 
-    int pdg_bins = 100;
-    int njet_bins = 16;
-    int pt_bins = 5;
-    int eta_bins = 10;
-    int invmass_bins = 30;
-    int deltaR_bins = 10;
+    //int pdg_bins = 100;
+    //int njet_bins = 16;
+    //int pt_bins = 5;
+    //int eta_bins = 10;
+    //int invmass_bins = 30;
+    //int deltaR_bins = 10;
  
     //important variables for hists
-    double lep_pt_min = 0;
-    double lep_pt_max = 300;
-    double jet_pt_min = 30;
-    double jet_pt_max = 300;
-    double jetpt_bin_width = (jet_pt_max-jet_pt_min)/pt_bins;
+    //double lep_pt_min = 0;
+    //double lep_pt_max = 300;
+    //double jet_pt_min = 30;
+    //double jet_pt_max = 300;
+    //double jetpt_bin_width = (jet_pt_max-jet_pt_min)/pt_bins;
 
 
     //bin sizes for 2D jet vs. bjet hist
@@ -126,14 +126,25 @@ void EFTGenHistsWithCuts::beginJob()
 
     // Book the histograms that we will fill in the event loop
     h_eventsumEFT = newfs->make<TH1EFT>("h_eventsumEFT","h_eventsumEFT",1,0,1);
+    
+    hist_dict["top19001_cat"] = newfs->make<TH1EFT>("top19001_cat","top19001_cat", allCategories.size(), -0.5, allCategories.size()-0.5);
+    hist_dict["h_pl_nlep"]	        = newfs->make<TH1EFT>("h_pl_nlep"         , "pl_nlep"	        ,6,0,6);
+    hist_dict["h_2lss_pl_njet"]         = newfs->make<TH1EFT>("h_2lss_pl_njet"    , "2lss_pl_njet"    , 8, 0,8);
+    hist_dict["h_2lss_pl_ht"]	        = newfs->make<TH1EFT>("h_2lss_pl_ht"	    , "2lss_pl_ht", 50, 0, 500);
+    hist_dict["h_3l_pl_njet"]	        = newfs->make<TH1EFT>("h_3l_pl_njet"	    , "3l_pl_njet"	, 8, 0,8);
+    hist_dict["h_3l_pl_ht"]	        = newfs->make<TH1EFT>("h_3l_pl_ht"	    , "3l_pl_ht"	, 50,0,500);   
+    hist_dict["h_pl_3l_1b_1b_nfwd"]     = newfs->make<TH1EFT>("h_pl_3l_1b_1b_nfwd", "pl_3l_1b_1b_nfwd", 6,0,6);
+
+
+
 
     // Don't normalize these plots
     h_SMwgt_norm = newfs->make<TH1D>("h_SMwgt_norm","h_SMwgt_norm",350,-0.1,2.0);
     h_SMwgt_norm = newfs->make<TH1D>("h_SMwgt_norm","h_SMwgt_norm",350,-8,1); // Log x scale
     binLogX(h_SMwgt_norm);
 
-    summaryTree = newfs->make<TTree>("summaryTree","Summary Event Values");
-    tree_add_branches();
+    //summaryTree = newfs->make<TTree>("summaryTree","Summary Event Values");
+    //tree_add_branches();
 }
 
 void EFTGenHistsWithCuts::endJob()
@@ -184,7 +195,8 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
     edm::Handle<std::vector<reco::GenJet>> particleLevelLeptonsHandle_;
     event.getByToken(particleLevelJetsToken_,particleLevelJetsHandle_);
     event.getByToken(particleLevelLeptonsToken_,particleLevelLeptonsHandle_);
-    std::vector<reco::GenJet> pl_jets    = MakeBaselinePtEtaCuts(*particleLevelJetsHandle_,min_pt_jet,max_eta_jet);
+    std::vector<reco::GenJet> pl_jets           = MakeBaselinePtEtaCuts(*particleLevelJetsHandle_,min_pt_jet,max_eta_jet);
+    std::vector<reco::GenJet> pl_forward_jets    = MakeBaselinePtEtaCuts(*particleLevelJetsHandle_,min_pt_jet,5.0);
     std::vector<reco::GenJet> pl_leptons = MakeBaselinePtEtaCuts(*particleLevelLeptonsHandle_,min_pt_lep,max_eta_lep);
     pl_leptons = MakeStaggeredPtCuts(pl_leptons,staggered_pt_cuts_lep,min_pt_lep);
     std::vector<reco::GenJet> pl_bjets = GetGenBJets(pl_jets);
@@ -266,7 +278,7 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
             for (size_t j = 0; j < gen_jets_clean.size(); j++) {
                 const reco::GenJet& p2 = gen_jets.at(j);
                 double dR = getdR(p1,p2);
-                int hist_number = 10*(i+1)+(j+1);
+                //int hist_number = 10*(i+1)+(j+1);
                 TString h_dR_name = ConstructHistName(lep_cat,"jet_dR",{i+1,j+1});
                 FillHistIfExists(h_dR_name,dR,eft_fit);
             }
@@ -291,7 +303,7 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
                 const reco::GenParticle& p2 = gen_leptons_charged.at(j);
                 double dR = getdR(p1,p2);
                 double mll = GetInvMass(p1,p2);
-                int hist_number = 10*(i+1)+(j+1);
+                //int hist_number = 10*(i+1)+(j+1);
                 TString h_dR_name = ConstructHistName(lep_cat,"lep_dR",{i+1,j+1});
                 TString h_mll_name = ConstructHistName(lep_cat,"lep_mll",{i+1,j+1});
                 FillHistIfExists(h_dR_name,dR,eft_fit);
@@ -316,6 +328,47 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
     // N events passing hist
     TString h_ana_cat_pass_name = ConstructHistName(ana_cat,"n-events-pass",{});
     FillTH1DHistIfExists(h_ana_cat_pass_name,0.5);
+
+    TString top19001_cat= getTOP19001Cat(pl_leptons,pl_jets,pl_bjets);
+
+    auto it = std::find(allCategories.begin(), allCategories.end(), top19001_cat);
+    if (it != allCategories.end()){
+      FillHistIfExists("top19001_cat",it-allCategories.begin(),eft_fit);  
+    }
+    else if ( top19001_cat != "none"){
+      std::cout << "Category " << top19001_cat << " is not supported" << std::endl;
+      assert(1);
+    }
+
+    // fill plots per lepton multi. 
+    auto leptons_ch = GetChargedParticles(pl_leptons);                                  
+    leptons_ch = MakeBaselinePtEtaCuts(leptons_ch,min_pt_lep,max_eta_lep);         
+    leptons_ch = MakeStaggeredPtCuts(leptons_ch,staggered_pt_cuts_lep,min_pt_lep); 
+    int ch_sum = GetChargeSum(leptons_ch);
+    int njets = pl_jets.size();
+    int nleps = leptons_ch.size();
+    int nbjets=pl_bjets.size();
+    int nfwd = pl_forward_jets.size()-njets;
+    
+    float ht=0;
+    FillHistIfExists("h_pl_nlep", nleps, eft_fit);
+    for (auto& j : pl_jets)
+      ht+=j.pt();
+
+    if (nleps == 2 && ch_sum!=0){
+      FillHistIfExists("h_2lss_pl_njet", njets, eft_fit);
+      FillHistIfExists("h_2lss_pl_ht", ht, eft_fit);
+    }
+    if (nleps == 3){
+      FillHistIfExists("h_3l_pl_njet", njets, eft_fit);
+      FillHistIfExists("h_3l_pl_ht"  , ht, eft_fit);
+      if (IsSFOSZ(leptons_ch) && nbjets==1 && njets==1){
+	FillHistIfExists("h_pl_3l_1b_1b_nfwd", nfwd, eft_fit);
+      }
+
+    }
+    
+    
 
     //////////////////////////////////////////
 
@@ -487,7 +540,7 @@ void EFTGenHistsWithCuts::analyze(const edm::Event& event, const edm::EventSetup
     eventnum_intree = event.id().event();
     lumiBlock_intree = event.id().luminosityBlock();
     runNumber_intree = event.id().run();
-    summaryTree->Fill();
+    //summaryTree->Fill();
 
 }
 
